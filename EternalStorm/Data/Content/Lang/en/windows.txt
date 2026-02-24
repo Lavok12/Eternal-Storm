@@ -1,0 +1,72 @@
+// Colors panel
+"WColorsPanel.swapColors": "Swap colors"
+"WColorsPanel.primaryColor": "Primary color"
+"WColorsPanel.secondaryColor": "Secondary color"
+
+// Top panel buttons
+"WTopPanel.file": "File"
+"WTopPanel.settings": "Settings"
+"WTopPanel.edit": "Edit"
+"WTopPanel.view": "View"
+"WTopButtons.file.description": "File operations: new, open, save, etc."
+"WTopButtons.settings.description": "Application and editor settings"
+"WTopButtons.edit.description": "Editing operations: undo, redo, copy, paste"
+"WTopButtons.view.description": "View options and layout settings"
+
+// Color Picker tooltips
+"WColorPicker.previewPrefix": "Current color"
+"WColorPicker.previewSuffix": "Click to open hex"
+"WColorPicker.previousPrefix": "Previous color"
+"WColorPicker.previousSuffix": "Click to revert"
+
+// WViewPanel
+"WViewPanel.main": "Main"
+"WViewPanel.base": "Base"
+"WViewPanel.seamless": "Seamless"
+"WViewPanel.tilemap": "Tilemap"
+"WViewPanel.main.description": "Main editor view"
+"WViewPanel.base.description": "Basic editing tools and settings"
+"WViewPanel.seamless.description": "Tools for seamless texture editing"
+"WViewPanel.tilemap.description": "Tilemap editing and management"
+
+//EWViewSeamlessData
+"EWViewSeamless.changeType": "Set seamless mode"
+"EWViewSeamless.typeChanged": "Seamless mode enabled"
+"EWViewSeamlessData.3x3ButtonTooltip1": "Left-click to enable/disable the seamless block"
+"EWViewSeamlessData.3x3ButtonTooltip2": "Right-click to load the block image"
+"EWViewSeamless.header": "Seamless Editor Settings"
+"SeamlessMode.selected": "Seamless mode selected"
+"SeamlessMode.selectHint": "Click to select seamless mode"
+"SeamlessMode.enableHint": "Enable seamless mode to configure"
+"SeamlessMode.mainImage": "Main image"
+
+// WFilePanel
+"WFilePanel.recentFiles": "Recent files"
+"WFilePanel.save": "Save"
+"WFilePanel.saveAs": "Save as"
+"WFilePanel.openImage": "Open image"
+"WFilePanel.openProject": "Open project"
+"WFilePanel.print": "Print"
+"WFilePanel.createProject": "Create Project"
+
+// WDownColorPanel
+"WDownColorPanel.group.0" : "Group 0"
+"WDownColorPanel.group.1" : "Group 1"
+"WDownColorPanel.group.2" : "Group 2"
+"WDownColorPanel.group.3" : "Group 3"
+"WDownColorPanel.group.4" : "Group 4"
+"WDownColorPanel.group.5" : "Group 5"
+"WDownColorPanel.group.6" : "Group 6"
+"WDownColorPanel.group.7" : "Group 7"
+"WDownColorPanel.group.8" : "Group 8"
+"WDownColorPanel.group.9" : "Group 9"
+"WDownColorPanel.group.10" : "Group 10"
+
+"WDownColorPanel.pickColor": "Left-click to pick this color"
+"WDownColorPanel.setColor": "Right-click to set this color"
+
+// WTextField
+"WTextField.oldTextValue": "Old value"
+
+// WLayersPanek
+"WLayerPanel.openLayerSettings": "Open layer settings"

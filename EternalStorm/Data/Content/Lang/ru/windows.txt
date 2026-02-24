@@ -1,0 +1,72 @@
+// Colors panel
+"WColorsPanel.swapColors": "Поменять цвета местами"
+"WColorsPanel.primaryColor": "Главный цвет"
+"WColorsPanel.secondaryColor": "Дополнительный цвет"
+
+// Top panel buttons
+"WTopPanel.file": "Файл"
+"WTopPanel.settings": "Настройки"
+"WTopPanel.edit": "Редактировать"
+"WTopPanel.view": "Вид"
+"WTopButtons.file.description": "Операции с файлами: новый, открыть, сохранить и т.д."
+"WTopButtons.settings.description": "Настройки приложения и редактора"
+"WTopButtons.edit.description": "Операции редактирования: отмена, повтор, копировать, вставить"
+"WTopButtons.view.description": "Опции отображения и настройки интерфейса"
+
+// Color Picker tooltips
+"WColorPicker.previewPrefix": "Текущий цвет"
+"WColorPicker.previewSuffix": "Нажмите, чтобы открыть hex"
+"WColorPicker.previousPrefix": "Предыдущий цвет"
+"WColorPicker.previousSuffix": "Нажмите, чтобы откатиться"
+
+// WViewPanel
+"WViewPanel.main": "Главное"
+"WViewPanel.base": "Базовый"
+"WViewPanel.seamless": "Бесшовный"
+"WViewPanel.tilemap": "Тайлмап"
+"WViewPanel.main.description": "Основной вид редактора"
+"WViewPanel.base.description": "Базовые инструменты и настройки редактирования"
+"WViewPanel.seamless.description": "Инструменты для бесшовного редактирования текстур"
+"WViewPanel.tilemap.description": "Редактирование и управление тайлмапами"
+
+//EWViewSeamlessData
+"EWViewSeamless.changeType": "Установить бесшовный вид"
+"EWViewSeamless.typeChanged": "Бесшовный вид установлен"
+"EWViewSeamlessData.3x3ButtonTooltip1": "Нажмите ЛКМ чтобы включить/отключить бесшовный блок"
+"EWViewSeamlessData.3x3ButtonTooltip2": "ПКМ чтобы загрузить изображение блока"
+"EWViewSeamless.header": "Настройки бесшовного редактора"
+"SeamlessMode.selected": "Бесшовный режим выбран"
+"SeamlessMode.selectHint": "Нажмите, чтобы выбрать бесшовный режим"
+"SeamlessMode.enableHint": "Включите бесшовный режим, чтобы настроить"
+"SeamlessMode.mainImage": "Главное изображение"
+
+// WFilePanel
+"WFilePanel.recentFiles": "Недавние файлы"
+"WFilePanel.save": "Сохранить"
+"WFilePanel.saveAs": "Сохранить как"
+"WFilePanel.openImage": "Открыть изображение"
+"WFilePanel.openProject": "Открыть проект"
+"WFilePanel.print": "Печать"
+"WFilePanel.createProject": "Создать проект"
+
+// WDownColorPanel
+"WDownColorPanel.group.0" : "Группа 0"
+"WDownColorPanel.group.1" : "Группа 1"
+"WDownColorPanel.group.2" : "Группа 2"
+"WDownColorPanel.group.3" : "Группа 3"
+"WDownColorPanel.group.4" : "Группа 4"
+"WDownColorPanel.group.5" : "Группа 5"
+"WDownColorPanel.group.6" : "Группа 6"
+"WDownColorPanel.group.7" : "Группа 7"
+"WDownColorPanel.group.8" : "Группа 8"
+"WDownColorPanel.group.9" : "Группа 9"
+"WDownColorPanel.group.10" : "Группа 10"
+
+"WDownColorPanel.pickColor": "ЛКМ — выбрать этот цвет"
+"WDownColorPanel.setColor": "ПКМ — установить этот цвет"
+
+// WTextField
+"WTextField.oldTextValue": "Прошлое значение"
+
+// WLayersPanek
+"WLayerPanel.openLayerSettings": "Открыть настройки слоя"
