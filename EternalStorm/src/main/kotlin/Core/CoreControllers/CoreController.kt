@@ -60,40 +60,57 @@ class CoreController : Controller {
         sceneController = null
     }
 
-    override fun tick() {
+    override fun logicalTick() {
         super.superTick()
 
-        objectRegistration.tick()
+        objectRegistration.logicalTick()
 
-        spriteLoader.tick()
-        localizedSpriteLoader.tick()
-        shaderLoader.tick()
-        languageLoader.tick()
-        fontsLoader.tick()
-        localizedFontsLoader.tick()
+        spriteLoader.logicalTick()
+        localizedSpriteLoader.logicalTick()
+        shaderLoader.logicalTick()
+        languageLoader.logicalTick()
+        fontsLoader.logicalTick()
+        localizedFontsLoader.logicalTick()
 
-        mouseInput.tick()
-        mouseInputProcessing.tick()
-        keyboardInput.tick()
-        keyboardProcessing.tick()
-        tooltipController.tick()
+        mouseInput.logicalTick()
+        mouseInputProcessing.logicalTick()
+        keyboardInput.logicalTick()
+        keyboardProcessing.logicalTick()
+        tooltipController.logicalTick()
 
         if (FrameLimiter.shouldUpdatePhysics()) physicTick()
-        sceneController?.tick()
+        sceneController?.logicalTick()
 
-        windowsManager.tick()
+        windowsManager.logicalTick()
 
         renderTick()
     }
 
     fun renderTick() {
         if (FrameLimiter.shouldRender()) {
-            mainRender.tick()
+            mainRender.logicalTick()
             mainRender.useLG()
         }
     }
 
-    fun physicTick() {
+    override fun physicTick() {
         windowsManager.physicTick()
+
+        objectRegistration.physicTick()
+
+        spriteLoader.physicTick()
+        localizedSpriteLoader.physicTick()
+        shaderLoader.physicTick()
+        languageLoader.physicTick()
+        fontsLoader.physicTick()
+        localizedFontsLoader.physicTick()
+
+        mouseInput.physicTick()
+        mouseInputProcessing.physicTick()
+        keyboardInput.physicTick()
+        keyboardProcessing.physicTick()
+        tooltipController.physicTick()
+
+        sceneController?.physicTick()
     }
 }

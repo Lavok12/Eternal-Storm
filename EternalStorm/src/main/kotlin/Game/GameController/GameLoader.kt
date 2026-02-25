@@ -5,6 +5,7 @@ import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.EntitiesList
 import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameSystems.Entities.EntityApi
+import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.State.AppState
 
 class GameLoader(var gameController: GameController) : Controller {
@@ -13,12 +14,13 @@ class GameLoader(var gameController: GameController) : Controller {
     init {
         create()
     }
-    override fun tick() {
+    override fun logicalTick() {
         superTick()
     }
     fun load() {
         AppState.logger.info("Load Game")
         gameController.mapController.createMap()
-        entityApi.addInSystem(entityApi.getRegisteredEntity(EntitiesList.test), gameController.wGamePanel!!.mainCamera.pos)
+        entityApi.addInSystemWithId(-1, entityApi.getRegisteredEntity(EntitiesList.player), gameController.mainCamera.pos.copy())
+        gameController.playerId = -1
     }
 }

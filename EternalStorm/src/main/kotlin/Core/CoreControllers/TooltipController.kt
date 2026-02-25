@@ -16,7 +16,7 @@ class TooltipController(var coreController: CoreController) : Controller {
         create()
     }
 
-    override fun tick() {
+    override fun logicalTick() {
         super.superTick()
     }
 

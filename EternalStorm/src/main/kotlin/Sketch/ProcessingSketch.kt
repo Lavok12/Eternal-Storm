@@ -1,6 +1,5 @@
 package la.vok.Sketch
 
-import la.vok.Core.FrameLimiter
 import la.vok.InitProject.BaseInit
 import la.vok.State.AppState
 import processing.core.PApplet
@@ -28,7 +27,7 @@ class ProcessingSketch : PApplet() {
 
         AppState.coreController.mainRender.lg.checkResolution()
 
-        AppState.coreController.tick()
+        AppState.coreController.logicalTick()
     }
     override fun mousePressed() {
         val mi = AppState.coreController.mouseInput

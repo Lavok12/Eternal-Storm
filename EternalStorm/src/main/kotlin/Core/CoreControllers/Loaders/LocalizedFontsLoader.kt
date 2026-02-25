@@ -21,7 +21,7 @@ class LocalizedFontsLoader(
         create()
     }
 
-    override fun tick() {
+    override fun logicalTick() {
         super.superTick()
     }
 

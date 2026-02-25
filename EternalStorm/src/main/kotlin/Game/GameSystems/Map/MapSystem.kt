@@ -38,8 +38,8 @@ class MapSystem(
     fun deactivateTile(x: Int, y: Int) {
         AppState.logger.debug("DeactivateTile: $x, $y")
         if (isInside(x, y)) {
-            mapTile[x][y] = null
             mapTile[x][y]!!.deactivate()
+            mapTile[x][y]!!.tile = null
         }
     }
 

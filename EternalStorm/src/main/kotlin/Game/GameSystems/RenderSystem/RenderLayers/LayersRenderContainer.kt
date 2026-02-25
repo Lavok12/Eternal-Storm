@@ -61,11 +61,11 @@ class LayersRenderContainer<T : Enum<T>>(
 
         logger.trace("drawLayer: starting drawing layer #$l (${layer.name}) with ${layers[l]} objects")
 
-        layers[l].resetIterator() // всегда сбрасываем итератор перед использованием
+        layers[l].resetIterator()
         var count = 0
         for (obj in layers[l]) {
             try {
-                obj.draw(lGraphics, camera.useCamera(obj.ROI_pos), camera.useCamera(obj.ROI_size), camera)
+                obj.draw(lGraphics, camera.useCamera(obj.ROI_pos+obj.ROI_delta), camera.useCameraSize(obj.ROI_size), camera)
                 count++
             } catch (t: Throwable) {
                 logger.error("Error drawing object $obj on layer=$l", t)

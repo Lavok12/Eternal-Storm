@@ -15,7 +15,7 @@ class ObjectRegistration(var coreController: CoreController) : Controller
         create()
     }
 
-    override fun tick() {
+    override fun logicalTick() {
         superTick()
     }
 

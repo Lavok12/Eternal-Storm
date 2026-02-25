@@ -16,18 +16,11 @@ class SoftCamera(
     private var targetPos: Vec2 = pos.copy()
     private var targetSize: Float = size
 
-    // =========================
-    // UTILS
-    // =========================
-
     private fun t(): Float {
         val dt = FrameLimiter.logicDeltaTime
         return 1f - (1f - smoothness).pow(dt)
     }
 
-    // =========================
-    // CAMERA CONTROL
-    // =========================
 
     override fun setCameraPos(worldPos: Vec2) {
         targetPos = worldPos.copy()
@@ -68,9 +61,6 @@ class SoftCamera(
         size = size.lerp(targetSize, k)
     }
 
-    // =========================
-    // EXTRA
-    // =========================
 
     fun snap() {
         pos = targetPos.copy()

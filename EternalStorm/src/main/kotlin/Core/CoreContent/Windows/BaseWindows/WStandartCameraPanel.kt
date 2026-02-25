@@ -12,7 +12,7 @@ import processing.event.MouseEvent
 
 open class WStandartCameraPanel(windowsManager: WindowsManager) : WStandartPanel(windowsManager) {
     
-    open var camera: Camera = SoftCamera(smoothness = 0.99999f)
+    open var camera: Camera = SoftCamera(smoothness = 0.999f)
 
     open var DEFAULT_GRID = listOf(
         GridLayer(512f, 40f, 3f),

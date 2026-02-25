@@ -16,7 +16,7 @@ class FontsLoader(var coreController: CoreController) : Controller, ContentLoade
     override val valueMap: MutableMap<String, PFont> = mutableMapOf()
     override val contentMap: MutableMap<String, Content<PFont>> = mutableMapOf()
 
-    override fun tick() {
+    override fun logicalTick() {
         super.superTick()
     }
 

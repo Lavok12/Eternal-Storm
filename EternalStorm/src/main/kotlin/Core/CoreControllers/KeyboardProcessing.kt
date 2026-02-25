@@ -13,7 +13,7 @@ class KeyboardProcessing(val coreController: CoreController) : KeyboardInputInte
         create()
     }
 
-    override fun tick() {
+    override fun logicalTick() {
         super.superTick()
     }
 

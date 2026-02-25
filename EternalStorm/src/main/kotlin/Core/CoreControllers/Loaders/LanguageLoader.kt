@@ -20,7 +20,7 @@ class LanguageLoader(
         create()
         loadPaths()
     }
-    override fun tick() {
+    override fun logicalTick() {
         super.superTick()
     }
 

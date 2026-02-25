@@ -13,7 +13,7 @@ class EntityController(var gameController: GameController) : Controller {
     var entityApi: EntityApi = EntityApi(this)
     var entitySystem = EntitySystem(this)
 
-    override fun tick() {
+    override fun logicalTick() {
         superTick()
     }
 }

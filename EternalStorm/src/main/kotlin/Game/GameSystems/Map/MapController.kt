@@ -18,7 +18,7 @@ class MapController(var gameController: GameController) : Controller {
         mapGenerator.create(mapSystem)
     }
 
-    override fun tick() {
+    override fun logicalTick() {
         superTick()
     }
 }

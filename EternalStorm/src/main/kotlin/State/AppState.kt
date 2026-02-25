@@ -22,6 +22,11 @@ object AppState {
     val localizedFontsPath: String by lazy { main.dataPath("Content/FontsLocalized") }
     val localizedImagesPath: String by lazy { main.dataPath("Content/ImagesLocalized") }
 
+    var doubleClickDelay = 300L
+    var doublePressDelay = 300L
+
+    var maxPhysicStep = 0.1f
+
     var lang = "ru"
         set(value)
             {

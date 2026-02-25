@@ -5,6 +5,7 @@ import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.CoreControllers.CoreController
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.LayersRenderContainer
 import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
+import la.vok.LavokLibrary.KotlinPlus.forEachInArea
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.v
 
@@ -33,11 +34,27 @@ class GameRender(val gameController: GameController) : Controller {
         Layers.mapObjects -> mapObjects
         Layers.gameObjects -> gameObjects
     }
+    fun getLayer(obj: Any) : Layers {
+        return when (obj) {
+            bgObjects -> {
+                Layers.bgObjects
+            }
+            mapObjects -> {
+                Layers.mapObjects
+            }
+            gameObjects -> {
+                Layers.gameObjects
+            }
+            else -> {
+                Layers.bgObjects
+            }
+        }
+    }
     fun getEntityContainer(): LayersRenderContainer<RenderLayers.Main> {
         return gameObjects
     }
 
-    override fun tick() {
+    override fun logicalTick() {
         superTick()
     }
 
@@ -56,18 +73,13 @@ class GameRender(val gameController: GameController) : Controller {
         var p2 = mapApi.getPointFromPos(camera.toWorldPos(gameController.wGamePanel!!.frameRightTop))
 
 
-        // 3. Проходка по видимым индексам
-        for (ix in p1.x-1..p2.x+1) {
-            for (iy in p1.y-1..p2.y+1) {
+        forEachInArea(p1, p2, 1) { ix, iy ->
+            val mapTile = mapSystem.getMapTile(ix, iy) ?: return@forEachInArea
 
-                val mapTile = mapSystem.getMapTile(ix, iy) ?: continue
-
-                if (mapTile.isActive) {
-                    var tilePos = mapApi.getTilePos(mapTile.tile!!.position)
-                    var tileSize = mapApi.getTileSize()
-
-                    mapTile.tile!!.render(lg, camera.useCamera(tilePos), camera.useCameraSize(tileSize)+(1 v 1))
-                }
+            if (mapTile.isActive) {
+                var tilePos = mapApi.getTilePos(mapTile.tile!!.position)
+                var tileSize = mapApi.getTileSize()
+                mapTile.tile!!.render(lg, camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1))
             }
         }
 

@@ -7,7 +7,10 @@ interface Controller {
         AppState.logger.info("Controller created [${this.javaClass.simpleName}]")
     }
 
-    fun tick() {
+    fun logicalTick() {
+
+    }
+    fun physicTick() {
 
     }
     fun superTick() {

@@ -32,7 +32,7 @@ class MenuController(var coreController: CoreController) : SceneController {
         coreController.windowsManager.addWindow(wMenuPanel)
     }
     var frame = -1
-    override fun tick() {
+    override fun logicalTick() {
         super.superTick()
         frame++
         if (frame % 6 == 0) {

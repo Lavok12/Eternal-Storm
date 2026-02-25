@@ -10,7 +10,7 @@ class MouseInput(var coreController: CoreController) : Controller {
     init {
         create()
     }
-    override fun tick() {
+    override fun logicalTick() {
         super.superTick()
 
         updateFrameStates()
@@ -43,7 +43,6 @@ class MouseInput(var coreController: CoreController) : Controller {
     var leftLastClickTime = 0L
     var rightLastClickTime = 0L
     var centerLastClickTime = 0L
-    val doubleClickDelay = 250L
 
     // drag flags
     var leftDrag = false
@@ -104,7 +103,7 @@ class MouseInput(var coreController: CoreController) : Controller {
         leftPressedFrame = true
 
         val now = System.currentTimeMillis()
-        if (now - leftLastClickTime <= doubleClickDelay)
+        if (now - leftLastClickTime <= AppState.doubleClickDelay)
             coreController.mouseInputProcessing.leftDoubleClick(logicalPosition)
         leftLastClickTime = now
 
@@ -120,7 +119,7 @@ class MouseInput(var coreController: CoreController) : Controller {
         rightPressedFrame = true
 
         val now = System.currentTimeMillis()
-        if (now - rightLastClickTime <= doubleClickDelay)
+        if (now - rightLastClickTime <= AppState.doubleClickDelay)
             coreController.mouseInputProcessing.rightDoubleClick(logicalPosition)
         rightLastClickTime = now
 
@@ -136,7 +135,7 @@ class MouseInput(var coreController: CoreController) : Controller {
         centerPressedFrame = true
 
         val now = System.currentTimeMillis()
-        if (now - centerLastClickTime <= doubleClickDelay)
+        if (now - centerLastClickTime <= AppState.doubleClickDelay)
             coreController.mouseInputProcessing.centerDoubleClick(logicalPosition)
         centerLastClickTime = now
 

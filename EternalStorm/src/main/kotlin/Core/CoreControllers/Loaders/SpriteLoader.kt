@@ -10,7 +10,7 @@ class SpriteLoader(var coreController: CoreController) : Controller, ContentLoad
     init {
         create()
     }
-    override fun tick() {
+    override fun logicalTick() {
         super.superTick()
     }
 

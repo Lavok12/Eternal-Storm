@@ -15,7 +15,7 @@ class MouseInputProcessing(var coreController: CoreController) : MouseInputInter
         create()
     }
 
-    override fun tick() {
+    override fun logicalTick() {
         super.superTick()
     }
 

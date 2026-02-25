@@ -11,15 +11,16 @@ import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
-class BaseRenderEntity(layersRenderContainer: LayersRenderContainer<RenderLayers.Main>) : BaseRenderObject<RenderLayers.Main>(layersRenderContainer) {
+open class BaseRenderEntity(layersRenderContainer: LayersRenderContainer<RenderLayers.Main>) : BaseRenderObject<RenderLayers.Main>(layersRenderContainer) {
     override var layerData: RenderLayerData<RenderLayers.Main> = RenderLayerData<RenderLayers.Main>(
         GameRender.Companion.Layers.gameObjects,
         RenderLayers.Main.A1,
         1
     )
 
-    override var ROI_pos = 0 v  0
+    override var ROI_pos = 0 v 0
     override var ROI_size = 1 v 1
+    override var ROI_delta = 0 v 0
 
     override fun draw(lg: LGraphics, pos: Vec2, size: Vec2, camera: Camera) {
         lg.fill(255f, 50f, 50f)

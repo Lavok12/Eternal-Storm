@@ -302,7 +302,7 @@ class WindowsManager(var coreController: CoreController) : WindowLifecycle, Cont
         )?.mouseInside = true
     }
 
-    override fun tick() {
+    override fun logicalTick() {
         super.superTick()
 
         applySnapshot()
@@ -379,7 +379,7 @@ class WindowsManager(var coreController: CoreController) : WindowLifecycle, Cont
     fun containsTag(tag: String): Boolean =
         tagsMap[tag]?.isNotEmpty() == true
 
-    fun physicTick() {
+    override fun physicTick() {
         physicPreUpdate()
         physicUpdate()
         physicPostUpdate()

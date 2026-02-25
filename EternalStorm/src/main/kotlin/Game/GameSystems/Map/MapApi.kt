@@ -21,14 +21,12 @@ class MapApi(var mapController: MapController) {
 
     @Suppress("NOTHING_TO_INLINE")
     inline fun getPointFromPos(pos: Vec2): LPoint {
-        val fx = pos.x
-        val fy = pos.y
 
-        val ix = fx.toInt()
-        val rx = if (fx < ix.toFloat()) ix - 1 else ix
+        val centerX = pos.x + 0.5f
+        val centerY = pos.y + 0.5f
 
-        val iy = fy.toInt()
-        val ry = if (fy < iy.toFloat()) iy - 1 else iy
+        val rx = kotlin.math.floor(centerX).toInt()
+        val ry = kotlin.math.floor(centerY).toInt()
 
         return LPoint(rx, ry)
     }
@@ -51,6 +49,21 @@ class MapApi(var mapController: MapController) {
     }
     fun getMapTileFromMap(point: LPoint) : MapTile? {
         return mapController.mapSystem.getMapTile(point.x, point.y)
+    }
+    fun getTileFromMap(x: Int, y: Int) : Tile? {
+        return mapController.mapSystem.getMapTile(x, y)?.tile
+    }
+    fun getMapTileFromMap(x: Int, y: Int) : MapTile? {
+        return mapController.mapSystem.getMapTile(x, y)
+    }
+    fun setTile(tile: Tile, x: Int, y: Int) {
+        mapController.mapSystem.setTile(x, y, tile)
+    }
+    fun placeTile(tile: Tile, x: Int, y: Int) {
+        setTile(tile, x, y)
+    }
+    fun deleteTile(x: Int, y: Int) {
+        mapController.mapSystem.deactivateTile(x, y)
     }
     fun setTile(tile: Tile, point: LPoint) {
         mapController.mapSystem.setTile(point.x, point.y, tile)

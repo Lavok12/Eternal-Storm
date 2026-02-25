@@ -14,7 +14,7 @@ class MainRender(var coreController: CoreController) : Controller {
 
     lateinit var lg: LGraphics
 
-    override fun tick() {
+    override fun logicalTick() {
         AppState.logger.trace("[Render] tick() begin")
 
         super.superTick()

@@ -552,4 +552,36 @@ class LGraphics() : FrameRect {
     fun resetShader() {
         pg.resetShader()
     }
+
+
+    fun setRotateImageAround(
+        fImage: PImage,
+        xPos: Float, yPos: Float,
+        xSize: Float, ySize: Float,
+        rotate: Float,
+        pivotX: Float, pivotY: Float
+    ) {
+        pg.pushMatrix()
+
+        pg.translate((disW2 + pivotX) * M, (disH2 - pivotY) * M)
+
+        pg.rotate(rotate)
+
+        val offsetX = xPos - pivotX
+        val offsetY = pivotY - yPos
+
+        pg.image(
+            fImage,
+            (offsetX - xSize / 2f) * M,
+            (offsetY - ySize / 2f) * M,
+            xSize * M,
+            ySize * M
+        )
+
+        pg.popMatrix()
+    }
+
+
+    fun setRotateImageAround(image: PImage, pos: Vec2, size: Vec2, rotate: Float, pivot: Vec2) =
+        setRotateImageAround(image, pos.x, pos.y, size.x, size.y, rotate, pivot.x, pivot.y)
 }

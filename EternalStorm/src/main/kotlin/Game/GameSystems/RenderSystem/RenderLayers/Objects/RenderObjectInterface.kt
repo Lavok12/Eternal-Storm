@@ -4,6 +4,7 @@ import la.vok.Core.CoreContent.Camera.Camera
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.LayersRenderContainer
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
+import la.vok.LavokLibrary.Vectors.v
 
 interface RenderObjectInterface<T : Enum<T>> {
     val layersRenderContainer: LayersRenderContainer<T>
@@ -11,6 +12,7 @@ interface RenderObjectInterface<T : Enum<T>> {
 
     var ROI_pos: Vec2
     var ROI_size: Vec2
+    var ROI_delta: Vec2
 
     fun getContainer(): LayersRenderContainer<T> {
         @Suppress("UNCHECKED_CAST")

@@ -2,12 +2,13 @@ package la.vok.Core.CoreContent.Input
 
 import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.CoreControllers.CoreController
+import la.vok.State.AppState
 
 class KeyboardInput(val coreController: CoreController) : Controller {
     init {
         create()
     }
-    override fun tick() {
+    override fun logicalTick() {
         super.superTick()
 
         startFrame()
@@ -20,8 +21,6 @@ class KeyboardInput(val coreController: CoreController) : Controller {
 
     private val keyHeldStart = HashMap<Int, Long>()
     private val keyLastPressTime = HashMap<Int, Long>()
-
-    private val doublePressDelay = 250L
 
     // -------------------------------------------------------------------------
     // FRAME METHODS
@@ -56,7 +55,7 @@ class KeyboardInput(val coreController: CoreController) : Controller {
             keyDown += rawKey
             keyPressedFrame += rawKey
 
-            if (now - (keyLastPressTime[rawKey] ?: 0L) <= doublePressDelay) {
+            if (now - (keyLastPressTime[rawKey] ?: 0L) <= AppState.doublePressDelay) {
                 coreController.keyboardProcessing.keyDoublePress(rawKey)
                 coreController.keyboardProcessing.keyDoublePress(rawKey, rawChar)
             }
