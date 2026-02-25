@@ -1,5 +1,6 @@
 package la.vok.Core.CoreControllers
 
+import Core.CoreControllers.Loaders.MainContentRegistration
 import la.vok.Core.CoreControllers.Loaders.LanguageLoader
 import la.vok.Core.CoreControllers.Loaders.ShaderLoader
 import la.vok.Core.CoreControllers.Loaders.SpriteLoader
@@ -11,6 +12,7 @@ import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.CoreControllers.Loaders.FontsLoader
 import la.vok.Core.CoreControllers.Loaders.LocalizedFontsLoader
 import la.vok.Core.CoreControllers.Loaders.LocalizedSpriteLoader
+import Core.CoreControllers.ObjectRegistration
 import la.vok.State.AppState
 
 class CoreController : Controller {
@@ -32,8 +34,11 @@ class CoreController : Controller {
     var keyboardInput = KeyboardInput(this)
     var keyboardProcessing = KeyboardProcessing(this)
     var tooltipController = TooltipController(this)
+    var mainContentRegistration = MainContentRegistration(this)
 
     var sceneController: SceneController? = null
+
+    var objectRegistration = ObjectRegistration(this)
 
     fun start() {
         spriteLoader.loadPaths()
@@ -45,17 +50,20 @@ class CoreController : Controller {
     }
 
     fun setScene(scene: SceneController) {
-        sceneController?.deactivate()
+        sceneController?.deactivate(this)
         sceneController = scene
-        scene.activate()
+        scene.activate(this)
+        scene.start()
     }
     fun removeScene() {
-        sceneController?.deactivate()
+        sceneController?.deactivate(this)
         sceneController = null
     }
 
     override fun tick() {
         super.superTick()
+
+        objectRegistration.tick()
 
         spriteLoader.tick()
         localizedSpriteLoader.tick()

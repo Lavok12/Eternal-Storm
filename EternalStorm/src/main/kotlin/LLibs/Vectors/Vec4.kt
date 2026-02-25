@@ -3221,4 +3221,21 @@ data class Vec4(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w: 
     fun toColor() : LColor {
         return LColor(this)
     }
+
+    fun wrapped(size: Vec4): Vec4 =
+        Vec4(
+            ((x % size.x) + size.x) % size.x,
+            ((y % size.y) + size.y) % size.y,
+            ((z % size.z) + size.z) % size.z,
+            ((w % size.w) + size.w) % size.w
+        )
+
+    fun wrap(size: Vec4): Vec4 {
+        x = ((x % size.x) + size.x) % size.x
+        y = ((y % size.y) + size.y) % size.y
+        z = ((z % size.z) + size.z) % size.z
+        w = ((w % size.w) + size.w) % size.w
+        return this
+    }
+
 }

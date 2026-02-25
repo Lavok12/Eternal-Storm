@@ -185,4 +185,14 @@ data class Vec1(var x: Float = 0f) {
     fun toColor() : LColor {
         return LColor(this)
     }
+
+    fun wrapped(size: Vec1): Vec1 =
+        Vec1(
+            ((x % size.x) + size.x) % size.x
+        )
+
+    fun wrap(size: Vec1): Vec1 {
+        x = ((x % size.x) + size.x) % size.x
+        return this
+    }
 }

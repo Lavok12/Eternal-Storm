@@ -22,8 +22,6 @@ class ProcessingSketch : PApplet() {
     }
 
     override fun draw() {
-        FrameLimiter.logicalDeltaTime = 1.0f / frameRate;
-
         if (frameCount == 1) {
             BaseInit.firstFrame(this)
         }

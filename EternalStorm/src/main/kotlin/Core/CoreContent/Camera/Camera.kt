@@ -8,12 +8,9 @@ interface Camera {
     var size: Float
     var zoomSpeed: Float
 
-    // =========================
-    // TRANSFORM
-    // =========================
 
-    fun useCamera(pos: Vec2): Vec2 =
-        pos * size - this.pos
+    fun useCamera(worldPos: Vec2): Vec2 =
+        (worldPos - this.pos) * size
 
     fun useCameraSize(size: Vec2): Vec2 =
         size * this.size
@@ -22,7 +19,7 @@ interface Camera {
         size * this.size
 
     fun toWorldPos(screenPos: Vec2): Vec2 =
-        (screenPos + pos) / size
+        (screenPos / size) + pos
 
     fun toWorldSize(size: Vec2): Vec2 =
         size / this.size

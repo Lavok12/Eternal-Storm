@@ -39,6 +39,9 @@ object AppState {
         return languageLoader.getContent("key")
     }
 
+    fun addNamespace(text: String) : String {
+        return "Main:$text"
+    }
 
 
     val logger = ConsoleLogger("Main", LogLevel.DEBUG, true)

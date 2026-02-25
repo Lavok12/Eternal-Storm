@@ -194,4 +194,16 @@ data class LPoint(var x: Int = 0, var y: Int = 0) {
             kotlin.math.abs(y - other.y)
         )
 
+    fun wrapped(size: LPoint): LPoint =
+        LPoint(
+            Math.floorMod(x, size.x),
+            Math.floorMod(y, size.y)
+        )
+
+    fun wrap(size: LPoint): LPoint {
+        x = Math.floorMod(x, size.x)
+        y = Math.floorMod(y, size.y)
+        return this
+    }
+
 }

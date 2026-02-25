@@ -29,6 +29,10 @@ object FrameLimiter {
     var physicsDeltaTime = 0f
         private set
 
+    // Добавлено: дельта времени для логики (основного цикла)
+    var logicDeltaTime = 0f
+        private set
+
     // ===== RENDER =====
 
     private var lastRenderTimeNs: Long = nanoTime()
@@ -62,7 +66,7 @@ object FrameLimiter {
     var totalPhysicsFrames: Long = 0
         private set
 
-    // ===== UPDATE =====
+    // ===== UPDATE / LOGIC =====
 
     val currentUpdateFPS: Int
         get() = AppState.main.frameRate.toInt()
@@ -70,12 +74,21 @@ object FrameLimiter {
     var totalUpdateFrames: Long = 0
         private set
 
+    // Отслеживание времени для logicDeltaTime
+    private var lastLogicTimeNs: Long = nanoTime()
+
     // ====================
 
     fun shouldRender(): Boolean {
+        val now = nanoTime()
+
+        // --- Добавлено: вычисляем logicDeltaTime для текущего тика обновления ---
+        logicDeltaTime = (now - lastLogicTimeNs) / 1_000_000_000f
+        lastLogicTimeNs = now
+        // -------------------------------------------------------------------------
+
         totalUpdateFrames++
 
-        val now = nanoTime()
         var delta = now - lastRenderTimeNs
 
         if (delta >= renderIntervalNs) {
@@ -104,6 +117,7 @@ object FrameLimiter {
         if (delta >= physicsIntervalNs) {
             lastPhysicsTimeNs += physicsIntervalNs
 
+            // В физике обычно используется фиксированная дельта
             physicsDeltaTime = physicsIntervalNs / 1_000_000_000f
 
             physicsFrameCount++

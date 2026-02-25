@@ -21,7 +21,7 @@ class SoftCamera(
     // =========================
 
     private fun t(): Float {
-        val dt = FrameLimiter.logicalDeltaTime
+        val dt = FrameLimiter.logicDeltaTime
         return 1f - (1f - smoothness).pow(dt)
     }
 

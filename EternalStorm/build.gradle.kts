@@ -11,7 +11,13 @@ repositories {
 }
 
 dependencies {
-    // все jar из libs
+    // Стандартная рефлексия Kotlin (обязательно для работы с KClass, аннотациями и свойствами)
+    implementation(kotlin("reflect"))
+
+    // Библиотека для сканирования пакетов (поиск классов с твоей аннотацией)
+    implementation("org.reflections:reflections:0.10.2")
+
+    // Твои текущие зависимости
     implementation(fileTree("libs") { include("*.jar") })
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.9.0")

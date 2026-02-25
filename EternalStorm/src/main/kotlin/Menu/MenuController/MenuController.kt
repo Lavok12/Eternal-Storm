@@ -22,7 +22,7 @@ class MenuController(var coreController: CoreController) : SceneController {
     val planetFinal = BGPlanetFinal(LPoint(2000, 2000), 1f, planetBase)
 
 
-    fun initWindows() {
+    override fun initWindows() {
         coreController.windowsManager.destroy()
 
         val wMenuPanel = WMenuPanel(coreController.windowsManager, this).apply {
@@ -41,14 +41,6 @@ class MenuController(var coreController: CoreController) : SceneController {
         }
         planetBase.tick()
         planetFinal.tick()
-    }
-
-    override fun activate() {
-        initWindows()
-    }
-
-    override fun deactivate() {
-        coreController.windowsManager.destroy()
     }
 
     override fun start() {

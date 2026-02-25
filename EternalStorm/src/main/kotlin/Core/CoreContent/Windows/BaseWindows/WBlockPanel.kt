@@ -25,7 +25,7 @@ open class WBlockPanel(
 
     override fun preUpdate() {
         super.preUpdate()
-        dim = min(dim + 320f * FrameLimiter.logicalDeltaTime, 140f)
+        dim = min(dim + 320f * FrameLimiter.logicDeltaTime, 140f)
     }
 
     override fun displayPreDraw(lg: LGraphics) {

@@ -10,7 +10,7 @@ class EffectLayersController(val gameController: GameController) : Controller {
 
     init {
         create()
-    } 
+    }
 
     val bgUpdateImages = arrayOf<EffectLayer>()
 

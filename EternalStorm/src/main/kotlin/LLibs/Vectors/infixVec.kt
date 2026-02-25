@@ -42,3 +42,21 @@ infix fun Number.v(v: Vec1): Vec2 =
 
 infix fun Vec2.v(v: Vec2): Vec4 =
     Vec4(this.x, this.y, v.x, v.y)
+
+infix fun Number.p(y: Number): LPoint =
+    LPoint(this.toInt(), y.toInt())
+
+fun Number.p(): LPoint =
+    LPoint(this.toInt())
+
+// LPoint + Number
+infix fun LPoint.p(y: Number): LPoint =
+    LPoint(this.x, y.toInt())
+
+// LPoint + LPoint
+infix fun LPoint.p(p: LPoint): LPoint =
+    LPoint(this.x, p.y)
+
+// Number + LPoint
+infix fun Number.p(p: LPoint): LPoint =
+    LPoint(this.toInt(), p.y)
