@@ -7,6 +7,7 @@ import la.vok.Core.GameContent.RenderSystem.RenderLayers.LayersRenderContainer
 import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
 import la.vok.LavokLibrary.KotlinPlus.forEachInArea
 import la.vok.LavokLibrary.LGraphics.LGraphics
+import la.vok.LavokLibrary.Vectors.p
 import la.vok.LavokLibrary.Vectors.v
 
 class GameRender(val gameController: GameController) : Controller {
@@ -54,11 +55,6 @@ class GameRender(val gameController: GameController) : Controller {
         return gameObjects
     }
 
-    override fun logicalTick() {
-        superTick()
-    }
-
-
     fun render(lg: LGraphics, camera: Camera) {
         bgObjects.drawLayer(RenderLayers.Main.A1, lg, camera)
         bgObjects.drawLayer(RenderLayers.Main.A2, lg, camera)
@@ -66,8 +62,8 @@ class GameRender(val gameController: GameController) : Controller {
         bgObjects.drawLayer(RenderLayers.Main.A4, lg, camera)
         bgObjects.drawLayer(RenderLayers.Main.A5, lg, camera)
 
-        val mapApi = gameController.mapController.mapApi
-        val mapSystem = gameController.mapController.mapSystem
+        val mapApi = gameController.gameCycle.mapController.mapApi
+        val mapSystem = gameController.gameCycle.mapController.mapSystem
 
         var p1 = mapApi.getPointFromPos(camera.toWorldPos(gameController.wGamePanel!!.frameLeftBottom))
         var p2 = mapApi.getPointFromPos(camera.toWorldPos(gameController.wGamePanel!!.frameRightTop))
@@ -76,10 +72,10 @@ class GameRender(val gameController: GameController) : Controller {
         forEachInArea(p1, p2, 1) { ix, iy ->
             val mapTile = mapSystem.getMapTile(ix, iy) ?: return@forEachInArea
 
-            if (mapTile.isActive) {
-                var tilePos = mapApi.getTilePos(mapTile.tile!!.position)
+            if (mapTile.containsTile()) {
+                var tilePos = mapApi.getTilePos(ix p iy)
                 var tileSize = mapApi.getTileSize()
-                mapTile.tile!!.render(lg, camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1))
+                mapTile.tile!!.render(lg, camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1), gameController)
             }
         }
 

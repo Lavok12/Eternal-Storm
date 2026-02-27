@@ -303,8 +303,6 @@ class WindowsManager(var coreController: CoreController) : WindowLifecycle, Cont
     }
 
     override fun logicalTick() {
-        super.superTick()
-
         applySnapshot()
         applyPendingAdds()
         setInsideWindow()

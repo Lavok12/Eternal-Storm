@@ -21,10 +21,6 @@ class LocalizedSpriteLoader(
         create()
     }
 
-    override fun logicalTick() {
-        super.superTick()
-    }
-
     override fun loadPaths() {
         AppState.logger.debug("[LocalizedSpriteLoader] Loading localized sprites for '$currentLanguage'")
 

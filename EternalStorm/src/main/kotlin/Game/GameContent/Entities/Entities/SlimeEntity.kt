@@ -5,8 +5,8 @@ import la.vok.Core.GameControllers.GameController
 import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Entities.EntityRender.BaseRenderEntity
+import la.vok.Game.GameContent.Entities.EntityRender.SlimeRenderEntity
 import la.vok.Game.GameContent.HandItems.Items.AxeHandItem
-import la.vok.Game.GameContent.HandItems.Items.SpearHandItem
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
@@ -14,23 +14,10 @@ import la.vok.Game.GameSystems.EntityComponents.PlayerControlComponent
 import la.vok.LavokLibrary.Vectors.v
 
 @Suppress("UNCHECKED_CAST")
-class PlayerEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(entityType, gameCycle) {
-    override var renderEntity: RenderObjectInterface<RenderLayers.Main>? = BaseRenderEntity(getEntityRenderContainer())
-    var playerControlComponent = PlayerControlComponent(this)
+class SlimeEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(entityType, gameCycle) {
+    override var renderEntity: RenderObjectInterface<RenderLayers.Main>? = SlimeRenderEntity(getEntityRenderContainer())
 
-    var handItemComponent = HandItemComponent(this, 0.8 v 0f)
-
-    override fun spawn() {
-        super.spawn()
-        handItemComponent.setHandItem(AxeHandItem(handItemComponent))
-    }
     override fun physicUpdate() {
-        handItemComponent.physicUpdate()
         super.physicUpdate()
-    }
-
-    override fun renderUpdate() {
-        handItemComponent.renderUpdate()
-        super.renderUpdate()
     }
 }

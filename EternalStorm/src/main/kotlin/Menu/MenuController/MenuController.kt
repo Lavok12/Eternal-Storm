@@ -33,7 +33,6 @@ class MenuController(var coreController: CoreController) : SceneController {
     }
     var frame = -1
     override fun logicalTick() {
-        super.superTick()
         frame++
         if (frame % 6 == 0) {
             planetBase.draw = true

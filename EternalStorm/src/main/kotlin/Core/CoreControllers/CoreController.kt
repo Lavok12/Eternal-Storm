@@ -61,8 +61,6 @@ class CoreController : Controller {
     }
 
     override fun logicalTick() {
-        super.superTick()
-
         objectRegistration.logicalTick()
 
         spriteLoader.logicalTick()
@@ -86,9 +84,9 @@ class CoreController : Controller {
         renderTick()
     }
 
-    fun renderTick() {
+    override fun renderTick() {
         if (FrameLimiter.shouldRender()) {
-            mainRender.logicalTick()
+            mainRender.renderTick()
             mainRender.useLG()
         }
     }

@@ -3,9 +3,10 @@ package la.vok.Game.GameContent.Map
 import Core.CoreControllers.ObjectRegistration
 import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.GameControllers.GameController
+import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.Map.MapGenerator
 
-class MapController(var gameController: GameController) : Controller {
+class MapController(var gameCycle: GameCycle) : Controller {
     init {
         create()
     }
@@ -16,9 +17,5 @@ class MapController(var gameController: GameController) : Controller {
 
     fun createMap() {
         mapGenerator.create(mapSystem)
-    }
-
-    override fun logicalTick() {
-        superTick()
     }
 }

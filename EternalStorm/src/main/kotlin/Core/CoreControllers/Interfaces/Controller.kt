@@ -13,7 +13,7 @@ interface Controller {
     fun physicTick() {
 
     }
-    fun superTick() {
-        AppState.logger.trace("[${this.javaClass.simpleName}] - super.tick()")
+    fun renderTick() {
+
     }
 }

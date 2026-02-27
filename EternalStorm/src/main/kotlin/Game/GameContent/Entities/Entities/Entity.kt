@@ -7,32 +7,46 @@ import la.vok.Core.GameControllers.GameController
 import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Entities.EntityRender.BaseRenderEntity
+import la.vok.Game.GameContent.Entities.EntityRender.HpRender
+import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameContent.Map.MapSystem
+import la.vok.Game.GameController.GameCycle
+import la.vok.Game.GameSystems.Entities.DamageData
 import la.vok.Game.GameSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.Entities.EntitySystem
 import la.vok.Game.GameSystems.EntityComponents.GravityComponent
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
+import la.vok.Game.GameSystems.EntityComponents.CollisionDetector
 import la.vok.Game.GameSystems.EntityComponents.HpBody
 import la.vok.Game.GameSystems.EntityComponents.RigidBody
+import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
 @Suppress("UNCHECKED_CAST")
-open class Entity(var entityType: AbstractEntityType, var gameController: GameController) {
-    lateinit var entitySystem: EntitySystem
-    lateinit var mapSystem: MapSystem
+open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) {
 
-    val coreController: CoreController get() = entitySystem.entityController.gameController.coreController
-    val entityApi: EntityApi get() = entitySystem.entityController.entityApi
+    val gameController: GameController get() = gameCycle.gameController
+    val coreController: CoreController get() = gameController.coreController
+    val entityApi: EntityApi get() = gameCycle.entityApi
+    val mapApi: MapApi = gameCycle.mapApi
 
-    fun getEntityRenderContainer(): LayersRenderContainer<RenderLayers.Main> {
-        return gameController.gameRender.getEntityContainer()
-    }
+    // ─── State ───────────────────────────────────────────────────────────────
 
-    var rigidBody = RigidBody(this)
-    var gravityComponent = GravityComponent(this, rigidBody, -0.035f)
-    var hpBody = HpBody(this)
+    var position = 0 v 0
+    var size = 1 v 1
+    var systemId = 0L
+    var facing = 1
 
+    // ─── Physics components ──────────────────────────────────────────────────
+
+    var rigidBody: RigidBody? = RigidBody(this)
+    var gravityComponent: GravityComponent? = GravityComponent(this, rigidBody!!, -0.035f)
+    var hpBody: HpBody? = HpBody(this)
+
+    // ─── Hitboxes ─────────────────────────────────────────────────────────────
+
+    var collisionDetector: CollisionDetector? = null
     val hitboxes = LinkedHashMap<String, HitboxComponent>()
 
     var mainHitbox: HitboxComponent?
@@ -41,82 +55,149 @@ open class Entity(var entityType: AbstractEntityType, var gameController: GameCo
             if (value != null) hitboxes["main"] = value
             else hitboxes.remove("main")
         }
-
-    var position = 0 v 0
-    var size = 1 v 1
-    var systemId = 0L
-    var facing = 1
-
-    fun addHitbox(name: String, type: HitboxTypes = HitboxTypes.COLLISION, rigidBody: RigidBody = this.rigidBody): HitboxComponent {
-        val hb = HitboxComponent(type, this, rigidBody)
-        hitboxes[name] = hb
-        return hb
-    }
-    fun isHitboxBlockCollision(name: String) : Boolean {
-        return hitboxes[name]?.blocksCollision == true
-    }
-    fun isAnyPhysicBlockCollision() : Boolean {
-        for (i in hitboxes.values) {
-            if (i.hitboxType == HitboxTypes.COLLISION) {
-                if (i.blocksCollision) {
-                    return true;
-                }
-            }
+    var downTrigger: HitboxComponent?
+        get() = hitboxes["down trigger"]
+        set(value) {
+            if (value != null) hitboxes["down trigger"] = value
+            else hitboxes.remove("down trigger")
         }
-        return false
+
+
+    fun addHitbox(
+        name: String,
+        type: HitboxTypes = HitboxTypes.COLLISION,
+        rigidBody: RigidBody? = this.rigidBody
+    ): HitboxComponent = HitboxComponent(type, this, rigidBody).also { hitboxes[name] = it }
+
+    fun isHitboxBlockCollision(name: String): Boolean =
+        hitboxes[name]?.blocksCollision == true
+
+    fun isAnyPhysicBlockCollision(): Boolean =
+        hitboxes.values.any { it.hitboxType == HitboxTypes.COLLISION && it.blocksCollision }
+
+    // ─── Render components ───────────────────────────────────────────────────
+
+    fun getEntityRenderContainer(): LayersRenderContainer<RenderLayers.Main> =
+        gameController.gameRender.getEntityContainer()
+
+    open var renderEntity: RenderObjectInterface<RenderLayers.Main>? =
+        BaseRenderEntity(getEntityRenderContainer())
+
+    open var hpRender: HpRender? = null
+
+    init {
+        if (hpBody != null) hpRender = HpRender(getEntityRenderContainer(), hpBody!!, 0 v -1)
     }
+
+    // ─── Lifecycle ───────────────────────────────────────────────────────────
 
     open fun spawn() {
-        hpBody.setMaxHp()
+        hpBody?.let { hp ->
+            hp.maxHp = entityType.baseHp
+            hp.fullHp()
+        }
         size = entityType.baseSize.copy()
-
         createBaseHitbox()
+        createDownTrigger()
         createCustomHitboxes()
     }
-    open fun createBaseHitbox() {
-        val main = addHitbox("main")
-        main.size = size.copy()
-    }
-    open fun createCustomHitboxes() {
 
+    var hasCollisionDetector = true
+
+    fun createBaseHitbox() {
+        addHitbox("main").size = size.copy()
+        if (hasCollisionDetector) {
+            createBaseCollisionDetector()
+        }
     }
 
-    open var renderEntity: RenderObjectInterface<RenderLayers.Main> = BaseRenderEntity(getEntityRenderContainer())
+    var hasDownTrigger = true
+    open fun createDownTrigger() {
+        if (hasDownTrigger) {
+            val new = addHitbox("down trigger", HitboxTypes.ONLY_TRIGGER)
+            new.size = size.x*0.95f v 0.05f
+            new.delta.y = -size.y/2f-0.025f
+            new.ignoreCollision = true
+        }
+    }
+    open fun createBaseCollisionDetector() {
+        collisionDetector = CollisionDetector(this, mainHitbox!!, gameCycle)
+    }
+
+    open fun createCustomHitboxes() {}
+
+    // ─── Updates ─────────────────────────────────────────────────────────────
 
     open fun physicUpdate() {
         hitboxes.values.forEach { it.resetBlockCollision() }
-        gravityComponent.useGravity()
+        gravityComponent?.useGravity()
         updateHitboxes()
-        rigidBody.useSpeed()
-        rigidBody.useFriction()
+        updateMoving()
+    }
+
+    open fun updateMoving(updateDetector: Boolean = false) {
+        val rb = rigidBody ?: return
+        rb.useSpeed()
+        rb.useFriction()
+        if (updateDetector) collisionDetector?.update()
         do {
-            rigidBody.deltaStep()
+            rb.deltaStep()
             updateHitboxes()
-        } while (rigidBody.containsSteps())
+            if (updateDetector) collisionDetector?.update()
+        } while (rb.containsSteps())
     }
 
     open fun updateHitboxes() {
         hitboxes.values.forEach { it.hitboxUpdate() }
     }
-
-    open fun logicalUpdate() {
-
-    }
-
-    open fun renderUpdate() {
-        renderEntity.ROI_pos = position.copy()
-        renderEntity.ROI_size = size.copy()
-
+    open fun updateRenderHitboxes() {
         hitboxes.values.forEach { it.renderUpdate() }
     }
 
+    open fun logicalUpdate() {}
+
+    open fun renderUpdate() {
+        renderEntity?.let {
+            it.ROI_pos = position.copy()
+            it.ROI_size = size.copy()
+        }
+        hpRender?.update()
+        updateRenderHitboxes()
+    }
+
+    // ─── Visibility ──────────────────────────────────────────────────────────
+
+    open fun visualShow() {
+        renderEntity?.show()
+        hpRender?.show()
+    }
+    open fun visualHide() {
+        renderEntity?.hide()
+        hpRender?.hide()
+    }
     open fun show() {
-        renderEntity.show()
+        visualShow()
         hitboxes.values.forEach { it.hitboxRender.show() }
     }
 
     open fun hide() {
-        renderEntity.hide()
+        visualHide()
         hitboxes.values.forEach { it.hitboxRender.hide() }
+    }
+
+    var isDead = false
+
+    open fun kill() {
+        isDead = true
+        entityApi.hideEntity(this)
+    }
+
+    fun takeDamage(damage: DamageData, hitboxComponent: HitboxComponent) : Boolean {
+        entityApi.entityDamage(this, damage)
+        return true
+    }
+
+    open fun knockback(force: Vec2) {
+        rigidBody?.addForce(force)
     }
 }

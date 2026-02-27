@@ -11,41 +11,53 @@ data class HandItemDescriptor(
     val useStageStep: Float = 6f,
     val animationType: AnimationType = AnimationType.Swing(),
     val renderLayer: Int = 1,
-    val spriteAngle: Float = 0f
+    val spriteAngle: Float = 0f,
+    val leftAction: UseAction = UseAction.None,
+    val rightAction: UseAction = UseAction.None
 )
+
+sealed class UseAction {
+
+    object None : UseAction()
+
+    data class PrintText(val text: String) : UseAction()
+
+    data class PrintAtProgress(
+        val text: String,
+        val atProgress: Float = 0.5f
+    ) : UseAction()
+
+    data class PrintOnStart(val text: String) : UseAction()
+
+    data class PrintOnEnd(val text: String) : UseAction()
+
+    data class Custom(
+        val onStart: (HandItem.() -> Unit)? = null,
+        val onProgress: (HandItem.(progress: Float) -> Unit)? = null,
+        val onEnd: (HandItem.() -> Unit)? = null,
+        val triggerAt: Float? = null
+    ) : UseAction()
+}
 
 sealed class AnimationType {
 
-    /** Замах — вращение вокруг точки руки */
     data class Swing(
-        // угол взмаха в радианах (~117° по умолчанию)
         val swingAngle: Float = Math.PI.toFloat() * 0.65f,
-        // начальный угол перед замахом (отрицательный = сначала отводит назад)
         val startAngle: Float = 0f,
-        // выдвижение руки вперёд во время взмаха (в тайлах)
         val lungeDistance: Float = 0.15f,
-        // увеличение спрайта на пике удара (0.18 = +18%)
         val peakScale: Float = 0.18f,
-        // амплитуда вибрации после удара (в тайлах)
         val shakeAmplitude: Float = 0.04f
     ) : AnimationType()
 
-    /** Укол — движение вперёд-назад */
     data class Thrust(
-        // максимальное смещение вперёд (в тайлах, отрицательное = сначала отдёргивает назад)
         val maxOffset: Float = 0.5f,
-        // начальное смещение перед выпадом (отрицательное = замах назад)
         val startOffset: Float = 0f,
-        // увеличение спрайта на пике выпада (0.1 = +10%)
         val peakScale: Float = 0.1f,
-        // амплитуда вибрации при отдаче (в тайлах)
         val shakeAmplitude: Float = 0.03f
     ) : AnimationType()
 
-    /** Просто держится без анимации */
     object Idle : AnimationType()
 
-    /** Своя анимация через лямбду */
     data class Custom(
         val draw: HandItemRender.(
             lg: la.vok.LavokLibrary.LGraphics.LGraphics,

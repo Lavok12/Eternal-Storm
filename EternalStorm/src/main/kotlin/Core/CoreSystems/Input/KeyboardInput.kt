@@ -9,8 +9,6 @@ class KeyboardInput(val coreController: CoreController) : Controller {
         create()
     }
     override fun logicalTick() {
-        super.superTick()
-
         startFrame()
         update()
     }

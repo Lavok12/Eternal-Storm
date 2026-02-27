@@ -10,9 +10,6 @@ class ShaderLoader(var coreController: CoreController) : Controller, ContentLoad
     init {
         create()
     }
-    override fun logicalTick() {
-        super.superTick()
-    }
 
     override val pathMap: MutableMap<String, String> = mutableMapOf<String, String>()
     override val valueMap: MutableMap<String, PShader> = mutableMapOf<String, PShader>()

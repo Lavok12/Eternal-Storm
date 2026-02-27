@@ -15,8 +15,6 @@ class EffectLayersController(val gameController: GameController) : Controller {
     val bgUpdateImages = arrayOf<EffectLayer>()
 
     override fun logicalTick() {
-        superTick()
-
         for (i in bgUpdateImages) {
             i.tick()
         }

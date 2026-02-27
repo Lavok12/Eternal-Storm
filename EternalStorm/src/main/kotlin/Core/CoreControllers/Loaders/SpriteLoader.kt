@@ -10,10 +10,6 @@ class SpriteLoader(var coreController: CoreController) : Controller, ContentLoad
     init {
         create()
     }
-    override fun logicalTick() {
-        super.superTick()
-    }
-
     override val pathMap: MutableMap<String, String> = mutableMapOf<String, String>()
     override val valueMap: MutableMap<String, PImage> = mutableMapOf<String, PImage>()
     override val contentMap: MutableMap<String, Content<PImage>> = mutableMapOf<String, Content<PImage>>()

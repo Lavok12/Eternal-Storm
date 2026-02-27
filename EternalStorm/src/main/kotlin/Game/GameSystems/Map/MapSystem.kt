@@ -28,9 +28,7 @@ class MapSystem(
     fun setTile(x: Int, y: Int, tile: Tile?) {
         AppState.logger.trace("SetTile: $x, $y")
         if (isInside(x, y)) {
-            tile!!.position = x p y
             mapTile[x][y]!!.tile = tile
-            mapTile[x][y]!!.activate()
         } else {
             AppState.logger.error("Off-map placement: $x, $y")
         }
@@ -46,7 +44,7 @@ class MapSystem(
     init {
         for (x in 0 until width) {
             for (y in 0 until height) {
-                mapTile[x][y] = MapTile(this, x p y)
+                mapTile[x][y] = MapTile()
             }
         }
     }

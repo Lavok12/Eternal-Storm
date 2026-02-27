@@ -15,10 +15,6 @@ class ObjectRegistration(var coreController: CoreController) : Controller
         create()
     }
 
-    override fun logicalTick() {
-        superTick()
-    }
-
     fun clear() {
         tiles.clear()
         entities.clear()

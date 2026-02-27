@@ -6,6 +6,7 @@ import la.vok.Core.CoreControllers.CoreController
 import la.vok.Core.CoreControllers.Interfaces.SceneController
 import la.vok.Game.ClientContent.Windows.WGamePanel
 import la.vok.Game.GameContent.Map.MapController
+import la.vok.Game.GameController.CollisionSystem
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameController.GameLoader
 import la.vok.Game.GameController.PlayerControl
@@ -22,8 +23,6 @@ class GameController(var coreController: CoreController) : SceneController {
     var gameRender = GameRender(this)
     var gameCycle = GameCycle(this)
 
-    var mapController = MapController(this)
-    var entityController = EntityController(this)
     val playerControl = PlayerControl(this)
 
     init {
@@ -48,42 +47,26 @@ class GameController(var coreController: CoreController) : SceneController {
         coreController.windowsManager.addWindow(wGamePanel!!)
     }
     override fun logicalTick() {
-        super.superTick()
-        mapController.logicalTick()
-        entityController.logicalTick()
-        effectLayersController.logicalTick()
         playerControl.logicalTick()
+        gameCycle.logicalTick()
+        effectLayersController.logicalTick()
         gameRender.logicalTick()
-        logicalUpdate()
-
 
         mainCamera.updateCamera()
     }
 
     override fun physicTick() {
-        mapController.physicTick()
-        entityController.physicTick()
-        effectLayersController.physicTick()
         playerControl.physicTick()
+        gameCycle.physicTick()
+        effectLayersController.physicTick()
         gameRender.physicTick()
-
-        physicUpdate()
     }
     fun renderTick(lg: LGraphics) {
-        renderUpdate()
+        gameCycle.renderTick()
         lg.noStroke()
         gameRender.render(lg, mainCamera)
     }
 
-    fun physicUpdate() {
-        gameCycle.physicUpdate()
-    }
-    fun logicalUpdate() {
-        gameCycle.logicalUpdate()
-    }
-    fun renderUpdate() {
-        gameCycle.renderUpdate()
-    }
 
     override fun start() {
         gameLoader.load()

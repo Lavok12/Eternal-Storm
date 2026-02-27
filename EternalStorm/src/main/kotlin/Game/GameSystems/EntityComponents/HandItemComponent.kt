@@ -4,6 +4,7 @@ import la.vok.Core.GameControllers.GameController
 import la.vok.Core.GameControllers.GameRender
 import la.vok.Game.GameContent.Entities.Entities.Entity
 import la.vok.Game.GameContent.HandItems.HandItem
+import la.vok.Game.GameController.GameCycle
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
@@ -12,8 +13,8 @@ class HandItemComponent(
     var delta: Vec2 = 0 v 0
 ) : EntityComponent(entity) {
 
-    val gameController: GameController get() = entity.gameController
-    val gameRender: GameRender get() = gameController.gameRender
+    val gameCycle: GameCycle get() = entity.gameCycle
+    val gameRender: GameRender get() = gameCycle.gameController.gameRender
 
     val deltaWithFacing: Vec2
         get() = delta.inverted(entity.facing == -1, false)

@@ -3,25 +3,27 @@ package la.vok.Game.GameSystems.Entities
 import Core.CoreControllers.ObjectRegistration
 import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
+import la.vok.Game.GameContent.Entities.Entities.DamageEntity
 import la.vok.Game.GameContent.Entities.Entities.Entity
-import la.vok.Game.GameContent.Tiles.TileTypes.AbstractTileType
-import la.vok.Game.GameContent.Tiles.Tiles.Tile
+import la.vok.Game.GameController.GameCycle
+import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
+import la.vok.Game.GameSystems.Entities.TagFilter
 import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.Vec2
+import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
 
 class EntityApi(var entityController: EntityController) {
-    val gameController: GameController get() = entityController.gameController
+    val gameCycle: GameCycle = entityController.gameCycle
+    val gameController: GameController get() = gameCycle.gameController
     val objectRegistration: ObjectRegistration get() = gameController.coreController.objectRegistration
 
     @Suppress("NOTHING_TO_INLINE")
     inline fun getPointFromPos(pos: Vec2): LPoint {
-        return entityController.gameController.mapController.mapApi.getPointFromPos(pos)
+        return gameCycle.mapController.mapApi.getPointFromPos(pos)
     }
     fun getRegisteredEntity(tag: String) : Entity {
-        return objectRegistration.entities[tag]!!.createEntity(gameController).apply {
-            entitySystem = entityController.entitySystem
-            mapSystem = gameController.mapController.mapSystem
+        return objectRegistration.entities[tag]!!.createEntity(gameCycle).apply {
             spawn()
         }
     }
@@ -29,9 +31,7 @@ class EntityApi(var entityController: EntityController) {
         return objectRegistration.entities[tag]!!
     }
     fun getRegisteredEntityByType(type: AbstractEntityType) : Entity {
-        return type.createEntity(gameController).apply {
-            entitySystem = entityController.entitySystem
-            mapSystem = gameController.mapController.mapSystem
+        return type.createEntity(gameCycle).apply {
             spawn()
         }
     }
@@ -43,6 +43,7 @@ class EntityApi(var entityController: EntityController) {
         AppState.logger.trace("HideEntity $entity")
         entity.hide()
     }
+
     fun addInSystem(entity: Entity, pos: Vec2) : Long {
         entityController.entitySystem.add(entity, pos)
         return entity.systemId
@@ -59,8 +60,23 @@ class EntityApi(var entityController: EntityController) {
         entityController.entitySystem.add(id, entity)
         return entity.systemId
     }
+    fun spawnEntity(type: String, pos: Vec2 = 0 v 0) : Entity? {
+        val entity = getRegisteredEntity(type)
+        addInSystem(entity, pos)
+        return entity
+    }
+
     fun deleteInSystem(entity: Entity) {
         entityController.entitySystem.delete(entity)
+    }
+    fun deleteInSystem(id: Long) {
+        entityController.entitySystem.delete(id)
+    }
+    fun killInSystem(entity: Entity) {
+        entityController.entitySystem.kill(entity)
+    }
+    fun killInSystem(id: Long) {
+        entityController.entitySystem.kill(id)
     }
     fun isExist(entity: Entity) : Boolean {
         return entityController.entitySystem.isExist(entity)
@@ -74,7 +90,6 @@ class EntityApi(var entityController: EntityController) {
     fun getById(id: Long) : Entity? {
         return entityController.entitySystem.idMap[id]
     }
-
 
     fun getFirstByTag(tag: String): Entity? {
         return entityController.entitySystem.entities.firstOrNull { it.entityType.tags.contains(tag) }
@@ -111,8 +126,46 @@ class EntityApi(var entityController: EntityController) {
     fun typeHasAllTags(type: AbstractEntityType, filterTags: Collection<String>): Boolean {
         return filterTags.all { it in type.tags }
     }
-
     fun typeHasAnyTag(type: AbstractEntityType, filterTags: Collection<String>): Boolean {
         return type.tags.any { it in filterTags }
+    }
+    fun getEntityHitboxes(entity: Entity) : HashMap<String, HitboxComponent> {
+        return entity.hitboxes
+    }
+    fun getEntityHitboxes(id: Long) : HashMap<String, HitboxComponent>? {
+        return getById(id)?.hitboxes
+    }
+    fun damageZone(pos: Vec2, size: Vec2, damage: DamageData, tagFilter: TagFilter = TagFilter.Any) : Entity {
+        AppState.logger.info("Spawn Damage Zone $pos $size $damage $tagFilter")
+        val entity = DamageEntity(gameCycle, pos, size, damage, tagFilter)
+        addInSystem(entity)
+        entity.damage()
+        return entity
+    }
+    fun entityDamage(entity: Entity, damage: DamageData) {
+        if (entity.hpBody == null) return
+        entity.knockback(damage.force)
+        entity.hpBody?.hp -= damage.damage
+        checkEntityHp(entity)
+    }
+    fun entityDamage(id: Long, damage: DamageData) {
+        var entity = getById(id)
+        if (entity?.hpBody == null) return
+        entity.knockback(damage.force)
+        entity.hpBody?.hp -= damage.damage
+        checkEntityHp(entity)
+    }
+    fun checkEntityHp(id: Long) {
+        var entity = getById(id)
+        if (entity?.hpBody == null) return
+        if (entity.hpBody!!.hp <= 0) {
+            killInSystem(entity)
+        }
+    }
+    fun checkEntityHp(entity: Entity) {
+        if (entity.hpBody == null) return
+        if (entity.hpBody!!.hp <= 0) {
+            killInSystem(entity)
+        }
     }
 }

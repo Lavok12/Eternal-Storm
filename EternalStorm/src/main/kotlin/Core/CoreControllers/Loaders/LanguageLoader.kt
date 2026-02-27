@@ -20,10 +20,6 @@ class LanguageLoader(
         create()
         loadPaths()
     }
-    override fun logicalTick() {
-        super.superTick()
-    }
-
 
     private fun parseLanguageFile(path: String) {
         val lines = AppState.main.loadStrings(path)

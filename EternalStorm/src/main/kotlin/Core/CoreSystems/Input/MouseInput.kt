@@ -11,8 +11,6 @@ class MouseInput(var coreController: CoreController) : Controller {
         create()
     }
     override fun logicalTick() {
-        super.superTick()
-
         updateFrameStates()
         updatePosition()
 

@@ -13,10 +13,6 @@ class KeyboardProcessing(val coreController: CoreController) : KeyboardInputInte
         create()
     }
 
-    override fun logicalTick() {
-        super.superTick()
-    }
-
     override fun keyboardStartFrame() {
         coreController.windowsManager.call { keyboardStartFrame() }
     }

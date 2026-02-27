@@ -62,4 +62,8 @@ class RigidBody(entity: Entity) : EntityComponent(entity) {
         entity.position = entity.position + deltaPosition
         deltaPosition = 0 v 0
     }
+
+    fun addForce(force: Vec2) {
+        speed = speed + force
+    }
 }

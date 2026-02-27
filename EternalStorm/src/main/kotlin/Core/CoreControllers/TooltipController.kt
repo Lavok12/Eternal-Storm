@@ -16,10 +16,6 @@ class TooltipController(var coreController: CoreController) : Controller {
         create()
     }
 
-    override fun logicalTick() {
-        super.superTick()
-    }
-
     private var bufferedTooltip: Tooltip? = null
     private var bufferedPos: Vec2 = Vec2(0f, 0f)
 

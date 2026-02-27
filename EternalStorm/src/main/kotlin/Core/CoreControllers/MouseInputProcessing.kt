@@ -15,10 +15,6 @@ class MouseInputProcessing(var coreController: CoreController) : MouseInputInter
         create()
     }
 
-    override fun logicalTick() {
-        super.superTick()
-    }
-
     override var startLeftClick: Vec2 = Vec2(0f)
     override var startRightClick: Vec2 = Vec2(0f)
     override var startCenterClick: Vec2 = Vec2(0f)

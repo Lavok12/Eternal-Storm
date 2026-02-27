@@ -8,15 +8,12 @@ import la.vok.Game.GameSystems.Entities.EntityApi
 import la.vok.LavokLibrary.Vectors.Vec2
 
 class PlayerControl(var gameController: GameController) : Controller {
-    val entityApi: EntityApi get() = gameController.entityController.entityApi
-    val mapApi: MapApi get() = gameController.mapController.mapApi
+    val entityApi: EntityApi get() = gameController.gameCycle.entityApi
+    val mapApi: MapApi get() = gameController.gameCycle.mapApi
     val playerId: Long get() = gameController.playerId
 
     init {
         create()
-    }
-    override fun logicalTick() {
-        superTick()
     }
 
     override fun physicTick() {

@@ -6,21 +6,22 @@ import la.vok.Game.GameContent.EntitiesList
 import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameSystems.Entities.EntityApi
 import la.vok.LavokLibrary.Vectors.Vec2
+import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
 
 class GameLoader(var gameController: GameController) : Controller {
-    val entityApi: EntityApi get() = gameController.entityController.entityApi
-    val mapApi: MapApi get() = gameController.mapController.mapApi
+    val entityApi: EntityApi get() = gameController.gameCycle.entityApi
+    val mapApi: MapApi get() = gameController.gameCycle.mapApi
     init {
         create()
     }
-    override fun logicalTick() {
-        superTick()
-    }
     fun load() {
         AppState.logger.info("Load Game")
-        gameController.mapController.createMap()
+        gameController.gameCycle.mapController.createMap()
         entityApi.addInSystemWithId(-1, entityApi.getRegisteredEntity(EntitiesList.player), gameController.mainCamera.pos.copy())
+        gameController.playerId = -1
+
+         entityApi.spawnEntity(EntitiesList.slime, gameController.mainCamera.pos.copy() + (30 v 0))
         gameController.playerId = -1
     }
 }
