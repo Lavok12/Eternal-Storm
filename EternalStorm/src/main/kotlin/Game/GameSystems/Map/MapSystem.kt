@@ -10,14 +10,13 @@ class MapSystem(
     val width: Int = 100
     val height: Int = 100
 
-    private var mapTile: Array<Array<MapTile?>> = Array(width) { arrayOfNulls<MapTile>(height) }
-
+    private var mapTile: Array<Array<Tile?>> = Array(width) { arrayOfNulls<Tile?>(height) }
 
     fun isInside(x: Int, y: Int): Boolean {
         return x in 0 until width && y in 0 until height
     }
 
-    fun getMapTile(x: Int, y: Int): MapTile? {
+    fun getTile(x: Int, y: Int): Tile? {
         AppState.logger.trace("GetTile: $x, $y")
         return if (isInside(x, y)) {
             mapTile[x][y]
@@ -28,7 +27,7 @@ class MapSystem(
     fun setTile(x: Int, y: Int, tile: Tile?) {
         AppState.logger.trace("SetTile: $x, $y")
         if (isInside(x, y)) {
-            mapTile[x][y]!!.tile = tile
+            mapTile[x][y] = tile
         } else {
             AppState.logger.error("Off-map placement: $x, $y")
         }
@@ -36,15 +35,17 @@ class MapSystem(
     fun deactivateTile(x: Int, y: Int) {
         AppState.logger.debug("DeactivateTile: $x, $y")
         if (isInside(x, y)) {
-            mapTile[x][y]!!.deactivate()
-            mapTile[x][y]!!.tile = null
+            mapTile[x][y] = null
         }
+    }
+    fun containsTile(x: Int, y: Int) : Boolean {
+        return mapTile[x][y] != null
     }
 
     init {
         for (x in 0 until width) {
             for (y in 0 until height) {
-                mapTile[x][y] = MapTile()
+                mapTile[x][y] = null
             }
         }
     }

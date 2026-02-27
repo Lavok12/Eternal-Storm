@@ -70,12 +70,12 @@ class GameRender(val gameController: GameController) : Controller {
 
 
         forEachInArea(p1, p2, 1) { ix, iy ->
-            val mapTile = mapSystem.getMapTile(ix, iy) ?: return@forEachInArea
+            val mapTile = mapSystem.getTile(ix, iy) ?: return@forEachInArea
 
-            if (mapTile.containsTile()) {
+            if (mapSystem.containsTile(ix, iy)) {
                 var tilePos = mapApi.getTilePos(ix p iy)
                 var tileSize = mapApi.getTileSize()
-                mapTile.tile!!.render(lg, camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1), gameController)
+                mapTile.render(lg, camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1), gameController)
             }
         }
 

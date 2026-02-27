@@ -46,8 +46,8 @@ class HitboxComponent(var hitboxType: HitboxTypes, entity: Entity, var rigidBody
         val p2 = mapApi.getPointFromPos(frameRightBottom - shrink)
 
         forEachOnBorder(p1, p2) { x, y, sideX, sideY ->
-            val tile = mapApi.getMapTileFromMap(x, y)
-            if (tile == null || !tile.containsTile()) return@forEachOnBorder
+            val tile = mapApi.getTileFromMap(x, y)
+            if (tile == null) return@forEachOnBorder
             if (horizontalSearch && sideX == 0) return@forEachOnBorder
             if (!horizontalSearch && sideY == 0) return@forEachOnBorder
 
@@ -65,7 +65,7 @@ class HitboxComponent(var hitboxType: HitboxTypes, entity: Entity, var rigidBody
         val p1 = mapApi.getPointFromPos(frameLeftTop)
         val p2 = mapApi.getPointFromPos(frameRightBottom)
         forEachOnBorder(p1, p2) { x, y, _, _ ->
-            if (mapApi.getMapTileFromMap(x, y)?.containsTile() == true) {
+            if (mapApi.getTileFromMap(x, y) != null) {
                 blocksCollision = true
             }
         }

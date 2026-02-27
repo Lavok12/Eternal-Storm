@@ -14,5 +14,5 @@ import la.vok.LavokLibrary.Vectors.p
 open class Tile(var tileType: AbstractTileType) {
     open fun render(lg: LGraphics, position: Vec2, size: Vec2, gameController: GameController) {}
 
-    var tileHp = tileType.hp
+    var tileHp: Int = tileType.hp
 }
