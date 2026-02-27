@@ -21,7 +21,7 @@ open class HandItem(
 
     val entity: Entity = handItemComponent.entity
 
-    open var handItemRender = HandItemRender(this, gameRender.gameObjects)
+    open var handItemRender = HandItemRender(this, gameRender.renderLayer)
 
     var useStage = 0f
     var block = false

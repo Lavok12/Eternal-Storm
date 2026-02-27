@@ -651,6 +651,10 @@ class LGraphics() : FrameRect {
         setRotateImageAround(image, pos.x, pos.y, size.x, size.y, angle, pivot.x, pivot.y)
     }
 
+
+    fun setRotateImage(image: PImage, pos: Vec2, size: Vec2, dir: Float, flipX: Boolean = false) =
+        setRotateImage(image, pos.x, pos.y, size.x, size.y, dir, flipX)
+
     fun setRotateImageAround(
         fImage: PImage,
         xPos: Float, yPos: Float,

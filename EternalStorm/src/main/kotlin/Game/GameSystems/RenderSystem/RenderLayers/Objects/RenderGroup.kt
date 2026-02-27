@@ -1,9 +1,9 @@
 package la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects
 
 class RenderGroup {
-    private val objects = mutableListOf<RenderObjectInterface<*>>()
+    private val objects = mutableListOf<RenderObjectInterface>()
 
-    fun add(vararg renderObjects: RenderObjectInterface<*>) {
+    fun add(vararg renderObjects: RenderObjectInterface) {
         objects.addAll(renderObjects)
     }
 

@@ -15,13 +15,12 @@ import kotlin.math.sin
 
 open class HandItemRender(
     var handItem: HandItem,
-    layersRenderContainer: LayersRenderContainer<RenderLayers.Main>
-) : BaseRenderObject<RenderLayers.Main>(layersRenderContainer) {
+    layersRenderContainer: LayersRenderContainer
+) : BaseRenderObject(layersRenderContainer) {
 
     private val desc get() = handItem.descriptor
 
-    override var layerData: RenderLayerData<RenderLayers.Main> = RenderLayerData(
-        GameRender.Companion.Layers.gameObjects,
+    override var layerData: RenderLayerData = RenderLayerData(
         RenderLayers.Main.A3,
         desc.renderLayer
     )

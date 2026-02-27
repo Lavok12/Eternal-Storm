@@ -15,53 +15,18 @@ class GameRender(val gameController: GameController) : Controller {
     val coreController: CoreController
         get() {return gameController.coreController}
 
-    companion object {
-        enum class Layers {
-            bgObjects,
-            mapObjects,
-            gameObjects,
-        }
-    }
-
     init {
         create()
     }
 
-    val bgObjects = LayersRenderContainer(this, RenderLayers.Main::class.java)
-    val mapObjects = LayersRenderContainer(this, RenderLayers.Main::class.java)
-    val gameObjects = LayersRenderContainer(this, RenderLayers.Main::class.java)
-
-    fun getContainer(layer: Layers): LayersRenderContainer<*> = when(layer) {
-        Layers.bgObjects -> bgObjects
-        Layers.mapObjects -> mapObjects
-        Layers.gameObjects -> gameObjects
-    }
-    fun getLayer(obj: Any) : Layers {
-        return when (obj) {
-            bgObjects -> {
-                Layers.bgObjects
-            }
-            mapObjects -> {
-                Layers.mapObjects
-            }
-            gameObjects -> {
-                Layers.gameObjects
-            }
-            else -> {
-                Layers.bgObjects
-            }
-        }
-    }
-    fun getEntityContainer(): LayersRenderContainer<RenderLayers.Main> {
-        return gameObjects
-    }
+    val renderLayer = LayersRenderContainer(this)
 
     fun render(lg: LGraphics, camera: Camera) {
-        bgObjects.drawLayer(RenderLayers.Main.A1, lg, camera)
-        bgObjects.drawLayer(RenderLayers.Main.A2, lg, camera)
-        bgObjects.drawLayer(RenderLayers.Main.A3, lg, camera)
-        bgObjects.drawLayer(RenderLayers.Main.A4, lg, camera)
-        bgObjects.drawLayer(RenderLayers.Main.A5, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.B1, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.B2, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.B3, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.B4, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.B5, lg, camera)
 
         val mapApi = gameController.gameCycle.mapController.mapApi
         val mapSystem = gameController.gameCycle.mapController.mapSystem
@@ -86,17 +51,17 @@ class GameRender(val gameController: GameController) : Controller {
             }
         }
 
-        mapObjects.drawLayer(RenderLayers.Main.A1, lg, camera)
-        mapObjects.drawLayer(RenderLayers.Main.A2, lg, camera)
-        mapObjects.drawLayer(RenderLayers.Main.A3, lg, camera)
-        mapObjects.drawLayer(RenderLayers.Main.A4, lg, camera)
-        mapObjects.drawLayer(RenderLayers.Main.A5, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.A1, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.A2, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.A3, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.A4, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.A5, lg, camera)
 
-        gameObjects.drawLayer(RenderLayers.Main.A1, lg, camera)
-        gameObjects.drawLayer(RenderLayers.Main.A2, lg, camera)
-        gameObjects.drawLayer(RenderLayers.Main.A3, lg, camera)
-        gameObjects.drawLayer(RenderLayers.Main.A4, lg, camera)
-        gameObjects.drawLayer(RenderLayers.Main.A5, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.C1, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.C2, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.C3, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.C4, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.C5, lg, camera)
 
     }
 }

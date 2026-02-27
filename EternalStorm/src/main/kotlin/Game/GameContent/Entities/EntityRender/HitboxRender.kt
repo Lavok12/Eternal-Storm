@@ -12,9 +12,8 @@ import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
-class HitboxRender(var hitboxComponent: HitboxComponent, layersRenderContainer: LayersRenderContainer<RenderLayers.Main>) : BaseRenderObject<RenderLayers.Main>(layersRenderContainer) {
-    override var layerData: RenderLayerData<RenderLayers.Main> = RenderLayerData<RenderLayers.Main>(
-        GameRender.Companion.Layers.gameObjects,
+class HitboxRender(var hitboxComponent: HitboxComponent, layersRenderContainer: LayersRenderContainer) : BaseRenderObject(layersRenderContainer) {
+    override var layerData: RenderLayerData = RenderLayerData(
         RenderLayers.Main.A5,
         1000
     )

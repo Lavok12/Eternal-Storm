@@ -15,7 +15,7 @@ import la.vok.LavokLibrary.Vectors.v
 
 @Suppress("UNCHECKED_CAST")
 class SlimeEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(entityType, gameCycle) {
-    override var renderEntity: RenderObjectInterface<RenderLayers.Main>? = SlimeRenderEntity(getEntityRenderContainer())
+    override var renderEntity: RenderObjectInterface? = SlimeRenderEntity(getRenderLayer())
 
     override fun physicUpdate() {
         super.physicUpdate()

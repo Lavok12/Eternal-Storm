@@ -2,16 +2,16 @@ package la.vok.Core.GameContent.RenderSystem.RenderLayers
 
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderObjectInterface
 
-class SublayersRenderContainer<T : Enum<T>>(
-    val layersRenderContainer: LayersRenderContainer<T>,
+class SublayersRenderContainer (
+    val layersRenderContainer: LayersRenderContainer,
     val layerIndex: Int,
     name: String = ""
-) : Iterator<RenderObjectInterface<T>> {
+) : Iterator<RenderObjectInterface> {
 
-    private val prints = HashMap<Int, HashSet<RenderObjectInterface<T>>>()
+    private val prints = HashMap<Int, HashSet<RenderObjectInterface>>()
 
-    private var layerIterator: Iterator<HashSet<RenderObjectInterface<T>>> = emptyList<HashSet<RenderObjectInterface<T>>>().iterator()
-    private var currentSetIterator: Iterator<RenderObjectInterface<T>> = emptyList<RenderObjectInterface<T>>().iterator()
+    private var layerIterator: Iterator<HashSet<RenderObjectInterface>> = emptyList<HashSet<RenderObjectInterface>>().iterator()
+    private var currentSetIterator: Iterator<RenderObjectInterface> = emptyList<RenderObjectInterface>().iterator()
 
     fun initSubLayer(subLayer: Int) {
         if (!prints.containsKey(subLayer)) {
@@ -19,16 +19,16 @@ class SublayersRenderContainer<T : Enum<T>>(
         }
     }
 
-    fun addPrint(obj: RenderObjectInterface<T>, subLayer: Int) {
+    fun addPrint(obj: RenderObjectInterface, subLayer: Int) {
         initSubLayer(subLayer)
         prints[subLayer]!!.add(obj)
     }
 
-    fun removePrint(obj: RenderObjectInterface<T>, subLayer: Int) {
+    fun removePrint(obj: RenderObjectInterface, subLayer: Int) {
         prints[subLayer]?.remove(obj)
     }
 
-    fun removePrint(obj: RenderObjectInterface<T>) {
+    fun removePrint(obj: RenderObjectInterface) {
         for (i in prints.keys) {
             removePrint(obj, i)
         }
@@ -36,7 +36,7 @@ class SublayersRenderContainer<T : Enum<T>>(
 
     fun resetIterator() {
         layerIterator = prints.values.iterator()
-        currentSetIterator = emptyList<RenderObjectInterface<T>>().iterator()
+        currentSetIterator = emptyList<RenderObjectInterface>().iterator()
     }
 
     override fun hasNext(): Boolean {
@@ -47,7 +47,7 @@ class SublayersRenderContainer<T : Enum<T>>(
         }
     }
 
-    override fun next(): RenderObjectInterface<T> {
+    override fun next(): RenderObjectInterface {
         if (!hasNext()) throw NoSuchElementException()
         return currentSetIterator.next()
     }

@@ -13,14 +13,15 @@ import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import kotlin.math.min
 
-class DamageVfxObject(gameCycle: GameCycle, var damage: Int = 0) : AbstractVfxObject(gameCycle) {
+class AxeSwingTraceVfxObject(gameCycle: GameCycle, var facing: Int = 1) : AbstractVfxObject(gameCycle) {
 
     init {
-        lifetime = 100
+        lifetime = 10
     }
 
     override fun physicUpdate() {
         super.physicUpdate()
+        position.x += facing / 10f
     }
 
     override var renderComponent: RenderObjectInterface? = object : BaseRenderObject(getRenderLayer()) {
@@ -36,8 +37,9 @@ class DamageVfxObject(gameCycle: GameCycle, var damage: Int = 0) : AbstractVfxOb
             size: Vec2,
             camera: Camera
         ) {
-            lg.fill(200f, 140f, 50f, min(255f, 500f - progress*500f))
-            lg.setText("$damage", pos, 40f)
+            lg.setTint(255f, min(255f, progress*120f))
+            lg.setRotateImage(gameController.coreController.spriteLoader.getValue("AxeSwingTrace.png"), pos, size, 0.8f * facing, facing != 1)
+            lg.noTint()
         }
 
     }

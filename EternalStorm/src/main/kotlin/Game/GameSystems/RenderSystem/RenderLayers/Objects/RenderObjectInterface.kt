@@ -8,14 +8,14 @@ import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
 interface RenderObjectInterface {
-    val layersRenderContainer: LayersRenderContainer<RenderLayers.Main>
+    val layersRenderContainer: LayersRenderContainer
     var layerData: RenderLayerData
 
     var ROI_pos: Vec2
     var ROI_size: Vec2
     var ROI_delta: Vec2
 
-    fun getContainer(): LayersRenderContainer<RenderLayers.Main> {
+    fun getContainer(): LayersRenderContainer {
         @Suppress("UNCHECKED_CAST")
         return layersRenderContainer
     }

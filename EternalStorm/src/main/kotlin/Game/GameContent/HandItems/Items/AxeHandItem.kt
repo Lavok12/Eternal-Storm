@@ -5,6 +5,7 @@ import la.vok.Game.GameContent.HandItems.AnimationType
 import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.HandItems.HandItemDescriptor
 import la.vok.Game.GameContent.HandItems.UseAction
+import la.vok.Game.GameContent.VfxObjects.AxeSwingTraceVfxObject
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
 import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
@@ -18,15 +19,24 @@ class AxeHandItem(component: HandItemComponent) : HandItem(
         useDuration = 120f,
         useStageStep = 8f,
         animationType = AnimationType.Swing(),
-        leftAction = UseAction.Custom(onStart = {entityApi.damageZone(entity.position + (component.entity.facing*2f v 0),
-            4 v 5,
-            DamageData(
-                10,
-                (component.entity.facing*0.2f v 0.15),
-                component.entity.systemId,
-                this),
-            TagFilter.HasAll(
-            listOf(EntityTags.enemy)
-        ))}),
+        leftAction = UseAction.Custom(
+            onStart = {
+                entityApi.damageZone(entity.position + (component.entity.facing*2f v 0),
+                4 v 5,
+                DamageData(
+                    10,
+                    (component.entity.facing*0.2f v 0.15),
+                    component.entity.systemId,
+                    this),
+                TagFilter.HasAll(
+                listOf(EntityTags.enemy)
+                ))
+
+                gameController.gameCycle.vfxObjectsApi.addInSystem(
+                    AxeSwingTraceVfxObject(gameCycle, entity.facing), entity.position + (2f * entity.facing v 0.2f), descriptor.spriteSize * 1.4f,
+                    (entity.rigidBody?.speed ?: (0 v 0)) * (1f v 0.3f)
+                )
+            },
+        ),
     )
 )

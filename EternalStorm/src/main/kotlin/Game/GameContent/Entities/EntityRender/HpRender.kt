@@ -13,9 +13,8 @@ import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
-class HpRender(layersRenderContainer: LayersRenderContainer<RenderLayers.Main>, var hpBody: HpBody, var delta: Vec2 = 0 v -0.5f) : BaseRenderObject<RenderLayers.Main>(layersRenderContainer) {
-    override var layerData: RenderLayerData<RenderLayers.Main> = RenderLayerData<RenderLayers.Main>(
-        GameRender.Companion.Layers.gameObjects,
+class HpRender(layersRenderContainer: LayersRenderContainer, var hpBody: HpBody, var delta: Vec2 = 0 v -0.5f) : BaseRenderObject(layersRenderContainer) {
+    override var layerData: RenderLayerData = RenderLayerData(
         RenderLayers.Main.A4,
         1000
     )

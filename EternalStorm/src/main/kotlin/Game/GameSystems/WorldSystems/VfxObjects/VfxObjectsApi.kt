@@ -21,18 +21,25 @@ class VfxObjectsApi(var vfxObjectsController: VfxObjectsController) {
     }
 
     fun addInSystem(vfx: AbstractVfxObject) {
-        vfxObjectsController.vfxObjectsSystem.add(vfx)
+        vfxObjectsController.vfxObjectsSystem.add(vfx.apply {
+            vfxObjectsSystem = vfxObjectsController.vfxObjectsSystem
+            create() })
+
     }
 
-    fun addInSystem(vfx: AbstractVfxObject, pos: Vec2, size: Vec2 = 1 v 1) {
+    fun addInSystem(vfx: AbstractVfxObject, pos: Vec2, size: Vec2 = 1 v 1, speed: Vec2 = 0 v 0) {
         vfx.position = pos.copy()
         vfx.size = size.copy()
+        vfx.vfxObjectsSystem = vfxObjectsController.vfxObjectsSystem
+        vfx.speed = speed
+        vfx.create()
         vfxObjectsController.vfxObjectsSystem.add(vfx)
     }
 
     fun spawnDamageValue(pos: Vec2, damage: Int) {
-        var vfxd = DamageVfxObject(vfxObjectsController.vfxObjectsSystem, gameCycle, damage)
-        addInSystem(vfxd, pos)
+        val vfxd = DamageVfxObject(gameCycle, damage)
+        vfxd.vfxObjectsSystem = vfxObjectsController.vfxObjectsSystem
+        addInSystem(vfxd, pos, 1 v 1, 0 v 0.02f)
     }
 
     fun spawn(pos: Vec2, size: Vec2 = 1 v 1, vfxFactory: () -> AbstractVfxObject): AbstractVfxObject {

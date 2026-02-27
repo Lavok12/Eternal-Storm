@@ -15,7 +15,7 @@ import la.vok.LavokLibrary.Vectors.v
 
 @Suppress("UNCHECKED_CAST")
 class PlayerEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(entityType, gameCycle) {
-    override var renderEntity: RenderObjectInterface<RenderLayers.Main>? = BaseRenderEntity(getEntityRenderContainer())
+    override var renderEntity: RenderObjectInterface? = BaseRenderEntity(getRenderLayer())
     var playerControlComponent = PlayerControlComponent(this)
 
     var handItemComponent = HandItemComponent(this, 0.8 v 0f)

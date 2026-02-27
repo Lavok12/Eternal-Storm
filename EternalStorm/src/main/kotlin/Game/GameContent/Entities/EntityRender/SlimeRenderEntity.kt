@@ -10,9 +10,8 @@ import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
-open class SlimeRenderEntity(layersRenderContainer: LayersRenderContainer<RenderLayers.Main>) : BaseRenderObject<RenderLayers.Main>(layersRenderContainer) {
-    override var layerData: RenderLayerData<RenderLayers.Main> = RenderLayerData<RenderLayers.Main>(
-        GameRender.Companion.Layers.gameObjects,
+open class SlimeRenderEntity(layersRenderContainer: LayersRenderContainer) : BaseRenderObject(layersRenderContainer) {
+    override var layerData: RenderLayerData = RenderLayerData(
         RenderLayers.Main.A1,
         1
     )

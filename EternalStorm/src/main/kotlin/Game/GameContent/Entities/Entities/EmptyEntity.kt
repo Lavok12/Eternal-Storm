@@ -8,7 +8,7 @@ import la.vok.Game.GameContent.Entities.EntityRender.HpRender
 import la.vok.Game.GameController.GameCycle
 
 open class EmptyEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.EmptyEntityType, gameCycle) {
-    override var renderEntity: RenderObjectInterface<RenderLayers.Main>? = null
+    override var renderEntity: RenderObjectInterface? = null
     override var hpRender: HpRender? = null
     init {
         rigidBody = null

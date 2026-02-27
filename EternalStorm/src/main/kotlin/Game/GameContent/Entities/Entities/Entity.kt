@@ -28,7 +28,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     val gameController: GameController get() = gameCycle.gameController
     val coreController: CoreController get() = gameController.coreController
     val entityApi: EntityApi get() = gameCycle.entityApi
-    val mapApi: MapApi = gameCycle.mapApi
+    val mapApi: MapApi get() = gameCycle.mapApi
     val vfxObjectsApi: VfxObjectsApi = gameCycle.vfxObjectsApi
 
     // ─── State ───────────────────────────────────────────────────────────────
@@ -81,16 +81,16 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
 
     // ─── Render components ───────────────────────────────────────────────────
 
-    fun getEntityRenderContainer(): LayersRenderContainer<RenderLayers.Main> =
-        gameController.gameRender.getEntityContainer()
+    fun getRenderLayer(): LayersRenderContainer =
+        gameController.gameRender.renderLayer
 
-    open var renderEntity: RenderObjectInterface<RenderLayers.Main>? =
-        BaseRenderEntity(getEntityRenderContainer())
+    open var renderEntity: RenderObjectInterface? =
+        BaseRenderEntity(getRenderLayer())
 
     open var hpRender: HpRender? = null
 
     init {
-        if (hpBody != null) hpRender = HpRender(getEntityRenderContainer(), hpBody!!, 0 v -1)
+        if (hpBody != null) hpRender = HpRender(getRenderLayer(), hpBody!!, 0 v -1)
     }
 
     // ─── Lifecycle ───────────────────────────────────────────────────────────

@@ -13,17 +13,19 @@ import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsSystem
 import la.vok.LavokLibrary.Vectors.v
 
-abstract class AbstractVfxObject(var vfxObjectsSystem: VfxObjectsSystem, var gameCycle: GameCycle) {
+abstract class AbstractVfxObject(var gameCycle: GameCycle) {
+    lateinit var vfxObjectsSystem: VfxObjectsSystem
+
     val gameController: GameController get() = gameCycle.gameController
     val coreController: CoreController get() = gameController.coreController
     val entityApi: EntityApi get() = gameCycle.entityApi
-    val mapApi: MapApi = gameCycle.mapApi
-    val vfxObjectsApi: VfxObjectsApi = gameCycle.vfxObjectsApi
+    val mapApi: MapApi get() = gameCycle.mapApi
+    val vfxObjectsApi: VfxObjectsApi get() = gameCycle.vfxObjectsApi
 
-    fun getVfxObjectContainer(): LayersRenderContainer<RenderLayers.Main> =
-        gameController.gameRender.getEntityContainer()
+    fun getRenderLayer(): LayersRenderContainer =
+        gameController.gameRender.renderLayer
 
-    open var renderComponent: RenderObjectInterface<RenderLayers.Main>? = null
+    open var renderComponent: RenderObjectInterface? = null
 
     var physicTicks = -1L
     var logicalTicks = -1L
@@ -36,8 +38,10 @@ abstract class AbstractVfxObject(var vfxObjectsSystem: VfxObjectsSystem, var gam
 
     var position = 0 v 0
     var size = 1 v 1
+    var speed = 0 v 0
 
     open fun physicUpdate() {
+        position = position + speed
         physicTicks++
         if (lifetime != -1L) {
             progress = physicTicks / lifetime.toFloat()
@@ -66,5 +70,9 @@ abstract class AbstractVfxObject(var vfxObjectsSystem: VfxObjectsSystem, var gam
     open fun kill() {
         hide()
         isDead = true
+    }
+
+    open fun create() {
+
     }
 }
