@@ -1,11 +1,10 @@
-package la.vok.Game.GameSystems.EntityComponents
+package la.vok.Game.GameSystems.EntityComponents.Collision
 
-import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.Entities.Entities.Entity
 import la.vok.Game.GameController.CollisionSystem
 import la.vok.Game.GameController.GameCycle
-import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
-import la.vok.Game.GameSystems.Entities.TagFilter
+import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
+import la.vok.Game.GameSystems.EntityComponents.EntityComponent
 
 class CollisionDetector(
     entity: Entity,

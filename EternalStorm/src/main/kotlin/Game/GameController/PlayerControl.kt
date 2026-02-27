@@ -4,7 +4,7 @@ import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.Entities.Entities.PlayerEntity
 import la.vok.Game.GameContent.Map.MapApi
-import la.vok.Game.GameSystems.Entities.EntityApi
+import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.LavokLibrary.Vectors.Vec2
 
 class PlayerControl(var gameController: GameController) : Controller {

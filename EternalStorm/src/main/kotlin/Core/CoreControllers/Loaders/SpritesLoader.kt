@@ -6,7 +6,7 @@ import la.vok.LavokLibrary.Utils.LFileUtility
 import la.vok.State.AppState
 import processing.core.PImage
 
-class SpriteLoader(var coreController: CoreController) : Controller, ContentLoader<PImage> {
+class SpritesLoader(var coreController: CoreController) : Controller, ContentLoader<PImage> {
     init {
         create()
     }

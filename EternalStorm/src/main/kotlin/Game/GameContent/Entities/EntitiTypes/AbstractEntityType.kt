@@ -4,7 +4,6 @@ import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.Entities.Entities.EmptyEntity
 import la.vok.Game.GameContent.Entities.Entities.Entity
 import la.vok.Game.GameContent.EntityTags
-import la.vok.Game.GameContent.Tiles.Tiles.Tile
 import la.vok.Game.GameController.GameCycle
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v

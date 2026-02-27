@@ -1,11 +1,7 @@
-package la.vok.Game.GameSystems.Entities
+package la.vok.Game.GameSystems.WorldSystems.Entities
 
 import la.vok.Core.CoreControllers.Intergaces.Controller
-import la.vok.Core.GameControllers.GameController
-import la.vok.Game.GameContent.Map.MapApi
-import la.vok.Game.GameContent.Map.MapSystem
 import la.vok.Game.GameController.GameCycle
-import la.vok.Game.GameSystems.Map.MapGenerator
 
 class EntityController(var gameCycle: GameCycle) : Controller {
     init {

@@ -3,7 +3,7 @@ package Core.CoreControllers
 import la.vok.Core.CoreControllers.CoreController
 import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
-import la.vok.Game.GameContent.Tiles.TileTypes.AbstractTileType
+import la.vok.Game.GameContent.Tiles.System.AbstractTileType
 import la.vok.State.AppState
 
 class ObjectRegistration(var coreController: CoreController) : Controller

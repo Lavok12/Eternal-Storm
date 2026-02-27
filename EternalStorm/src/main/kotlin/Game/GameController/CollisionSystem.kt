@@ -1,10 +1,8 @@
 package la.vok.Game.GameController
 
 import la.vok.Core.CoreControllers.Intergaces.Controller
-import la.vok.Core.GameControllers.GameController
-import la.vok.Game.GameSystems.EntityComponents.CollisionDetector
+import la.vok.Game.GameSystems.EntityComponents.Collision.CollisionDetector
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
-import la.vok.Game.GameSystems.Entities.TagFilter
 
 class CollisionSystem(var gameCycle: GameCycle) : Controller {
     init { create() }

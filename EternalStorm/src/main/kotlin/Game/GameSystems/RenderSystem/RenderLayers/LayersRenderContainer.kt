@@ -8,9 +8,9 @@ import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.State.AppState
 import kotlin.collections.iterator
 
-class LayersRenderContainer<T : Enum<T>>(
+class LayersRenderContainer (
     val gameRender: GameRender,
-    private val layerEnumClass: Class<T> // любой enum
+    private val layerEnumClass: Class<RenderLayers.Main> // любой enum
 ) {
     private val logger: Logger = AppState.logger
 

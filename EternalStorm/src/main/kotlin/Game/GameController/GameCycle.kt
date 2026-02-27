@@ -4,15 +4,20 @@ import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameContent.Map.MapController
-import la.vok.Game.GameSystems.Entities.EntityApi
-import la.vok.Game.GameSystems.Entities.EntityController
+import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
+import la.vok.Game.GameSystems.WorldSystems.Entities.EntityController
+import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
+import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsController
 
 class GameCycle(var gameController: GameController) : Controller {
     val entityApi: EntityApi get() = entityController.entityApi
     val mapApi: MapApi get() = mapController.mapApi
+    val vfxObjectsApi: VfxObjectsApi get() = vfxObjectsController.vfxObjectsApi
 
     var mapController = MapController(this)
     var entityController = EntityController(this)
+    var vfxObjectsController = VfxObjectsController(this)
+
     var collisionSystem = CollisionSystem(this)
 
     init {
@@ -25,12 +30,14 @@ class GameCycle(var gameController: GameController) : Controller {
         collisionSystem.logicalTick()
         mapController.logicalTick()
         entityController.logicalTick()
+        vfxObjectsController.logicalTick()
     }
 
     override fun physicTick() {
         collisionSystem.physicTick()
         mapController.physicTick()
         entityController.physicTick()
+        vfxObjectsController.physicTick()
 
         entityApi.getActiveEntities().forEach {
             if (!it.isDead) {
@@ -41,6 +48,8 @@ class GameCycle(var gameController: GameController) : Controller {
     override fun renderTick() {
         mapController.renderTick()
         entityController.renderTick()
+        mapController.renderTick()
+        vfxObjectsController.renderTick()
 
         entityApi.getActiveEntities().forEach {
             if (!it.isDead) {

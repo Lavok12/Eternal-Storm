@@ -584,4 +584,124 @@ class LGraphics() : FrameRect {
 
     fun setRotateImageAround(image: PImage, pos: Vec2, size: Vec2, rotate: Float, pivot: Vec2) =
         setRotateImageAround(image, pos.x, pos.y, size.x, size.y, rotate, pivot.x, pivot.y)
+
+
+    fun setImage(fImage: PImage, xPos: Float, yPos: Float, xSize: Float, ySize: Float, flipX: Boolean) {
+        if (!flipX) {
+            setImage(fImage, xPos, yPos, xSize, ySize)
+            return
+        }
+
+        pg.pushMatrix()
+        pg.translate((disW2 + xPos) * M, (disH2 - yPos) * M)
+        pg.scale(-1f, 1f)
+        pg.image(fImage, -xSize / 2 * M, -ySize / 2 * M, xSize * M, ySize * M)
+        pg.popMatrix()
+    }
+
+    fun setImage(image: PImage, pos: Vec2, size: Vec2, flipX: Boolean) =
+        setImage(image, pos.x, pos.y, size.x, size.y, flipX)
+
+    fun setRotateImage(fImage: PImage, xPos: Float, yPos: Float, xSize: Float, ySize: Float, Rotate: Float, flipX: Boolean) {
+        pg.pushMatrix()
+        pg.translate((disW2 + xPos) * M, (disH2 - yPos) * M)
+        pg.rotate(Rotate)
+        if (flipX) pg.scale(-1f, 1f)
+        pg.image(fImage, -xSize / 2 * M, -ySize / 2 * M, xSize * M, ySize * M)
+        pg.popMatrix()
+    }
+
+    // --- Отрисовка блоков по вектору направления ---
+
+    fun setRotateBlock(xPos: Float, yPos: Float, xSize: Float, ySize: Float, dir: Vec2) {
+        val angle = dir.normalized().angle() // Предполагаем, что у твоего Vec2 есть angle()
+        setRotateBlock(xPos, yPos, xSize, ySize, angle)
+    }
+
+    fun setRotateBlock(pos: Vec2, size: Vec2, dir: Vec2) =
+        setRotateBlock(pos.x, pos.y, size.x, size.y, dir)
+
+    // --- Отрисовка эллипсов по вектору направления ---
+
+    fun setRotateEps(pos: Vec2, size: Vec2, dir: Vec2) {
+        val angle = dir.normalized().angle()
+        setRotateEps(pos.x, pos.y, size.x, size.y, angle)
+    }
+
+    // --- Отрисовка изображений по вектору направления ---
+
+    fun setRotateImage(fImage: PImage, xPos: Float, yPos: Float, xSize: Float, ySize: Float, dir: Vec2, flipX: Boolean = false) {
+        val normalizedDir = dir.normalized()
+        val angle = kotlin.math.atan2(normalizedDir.y.toDouble(), normalizedDir.x.toDouble()).toFloat()
+
+        // ВАЖНО: В твоем LGraphics инвертирована ось Y (disH2 - yPos),
+        // поэтому угол вектора может потребовать инверсии знака в зависимости от реализации Vec2.
+        // Если Vec2.angle() уже это учитывает, используй его.
+
+        setRotateImage(fImage, xPos, yPos, xSize, ySize, angle, flipX)
+    }
+
+    fun setRotateImage(image: PImage, pos: Vec2, size: Vec2, dir: Vec2, flipX: Boolean = false) =
+        setRotateImage(image, pos.x, pos.y, size.x, size.y, dir, flipX)
+
+    // --- Вращение вокруг точки по вектору направления ---
+
+    fun setRotateImageAround(image: PImage, pos: Vec2, size: Vec2, dir: Vec2, pivot: Vec2) {
+        val angle = dir.normalized().angle()
+        setRotateImageAround(image, pos.x, pos.y, size.x, size.y, angle, pivot.x, pivot.y)
+    }
+
+    fun setRotateImageAround(
+        fImage: PImage,
+        xPos: Float, yPos: Float,
+        xSize: Float, ySize: Float,
+        rotate: Float,
+        pivotX: Float, pivotY: Float,
+        flipX: Boolean
+    ) {
+        pg.pushMatrix()
+
+        // 1. Переносим начало координат в точку пивота
+        pg.translate((disW2 + pivotX) * M, (disH2 - pivotY) * M)
+
+        // 2. Поворачиваем
+        pg.rotate(rotate)
+
+        // 3. Отражаем по горизонтали, если нужно
+        if (flipX) {
+            pg.scale(-1f, 1f)
+        }
+
+        // 4. Вычисляем смещение от пивота до центра картинки
+        // Если мы отразили систему координат через scale,
+        // то положительный offsetX будет рисовать картинку "впереди" пивота в обоих случаях.
+        val offsetX = xPos - pivotX
+        val offsetY = pivotY - yPos
+
+        pg.image(
+            fImage,
+            (offsetX - xSize / 2f) * M,
+            (offsetY - ySize / 2f) * M,
+            xSize * M,
+            ySize * M
+        )
+
+        pg.popMatrix()
+
+        if (setRotateImageAroundDebug) {
+            fill(200f, 50f, 50f)
+            setEps(pivotX, pivotY, 20f, 20f)
+        }
+    }
+    var setRotateImageAroundDebug = false
+
+    // Удобная перегрузка для Vec2 с поддержкой flipX
+    fun setRotateImageAround(
+        image: PImage,
+        pos: Vec2,
+        size: Vec2,
+        rotate: Float,
+        pivot: Vec2,
+        flipX: Boolean
+    ) = setRotateImageAround(image, pos.x, pos.y, size.x, size.y, rotate, pivot.x, pivot.y, flipX)
 }

@@ -5,6 +5,7 @@ import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.CoreControllers.CoreController
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.LayersRenderContainer
 import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
+import la.vok.Game.GameContent.Tiles.System.TileContext
 import la.vok.LavokLibrary.KotlinPlus.forEachInArea
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.p
@@ -69,13 +70,19 @@ class GameRender(val gameController: GameController) : Controller {
         var p2 = mapApi.getPointFromPos(camera.toWorldPos(gameController.wGamePanel!!.frameRightTop))
 
 
+        var tileContext = TileContext()
         forEachInArea(p1, p2, 1) { ix, iy ->
-            val mapTile = mapSystem.getTile(ix, iy) ?: return@forEachInArea
+            val mapTile = mapSystem.getTileType(ix, iy) ?: return@forEachInArea
 
             if (mapSystem.containsTile(ix, iy)) {
+                tileContext.hp = mapApi.getTileHp(ix, iy)
+                tileContext.positionX = ix
+                tileContext.positionY = iy
+                tileContext.tileType = mapTile
+
                 var tilePos = mapApi.getTilePos(ix p iy)
                 var tileSize = mapApi.getTileSize()
-                mapTile.render(lg, camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1), gameController)
+                mapTile.render(tileContext, lg, camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1), gameController)
             }
         }
 

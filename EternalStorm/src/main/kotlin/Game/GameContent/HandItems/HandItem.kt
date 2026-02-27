@@ -5,7 +5,7 @@ import la.vok.Core.GameControllers.GameRender
 import la.vok.Game.GameContent.Entities.Entities.Entity
 import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameController.GameCycle
-import la.vok.Game.GameSystems.Entities.EntityApi
+import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
 import la.vok.LavokLibrary.Vectors.Vec2
 

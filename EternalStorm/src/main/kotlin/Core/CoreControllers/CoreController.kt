@@ -3,7 +3,7 @@ package la.vok.Core.CoreControllers
 import Core.CoreControllers.Loaders.MainContentRegistration
 import la.vok.Core.CoreControllers.Loaders.LanguageLoader
 import la.vok.Core.CoreControllers.Loaders.ShaderLoader
-import la.vok.Core.CoreControllers.Loaders.SpriteLoader
+import la.vok.Core.CoreControllers.Loaders.SpritesLoader
 import la.vok.Core.FrameLimiter
 import la.vok.Core.CoreContent.Input.KeyboardInput
 import la.vok.Core.CoreContent.Input.MouseInput
@@ -20,7 +20,7 @@ class CoreController : Controller {
         create()
     }
 
-    var spriteLoader = SpriteLoader(this)
+    var spriteLoader = SpritesLoader(this)
     var localizedSpriteLoader = LocalizedSpriteLoader(this, AppState.lang)
     var shaderLoader = ShaderLoader(this)
     var languageLoader = LanguageLoader(this, AppState.lang)

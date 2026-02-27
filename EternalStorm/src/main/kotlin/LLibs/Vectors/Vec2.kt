@@ -330,4 +330,13 @@ data class Vec2(var x: Float = 0f, var y: Float = 0f) {
         return this
     }
 
+    fun angle(): Float = kotlin.math.atan2(y.toDouble(), x.toDouble()).toFloat()
+
+    fun angleDeg(): Float = Math.toDegrees(angle().toDouble()).toFloat()
+
+    fun fromAngle(angle: Float, length: Float = 1f): Vec2 {
+        this.x = kotlin.math.cos(angle.toDouble()).toFloat() * length
+        this.y = kotlin.math.sin(angle.toDouble()).toFloat() * length
+        return this
+    }
 }

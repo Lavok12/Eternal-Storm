@@ -1,14 +1,10 @@
 package la.vok.Game.GameContent.Entities.Entities
 
-import la.vok.Core.GameControllers.GameController
-import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameController.GameCycle
-import la.vok.Game.GameSystems.Entities.DamageData
-import la.vok.Game.GameSystems.Entities.EntityApi
+import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
-import la.vok.Game.GameSystems.Entities.TagFilter
+import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
 import la.vok.LavokLibrary.Vectors.Vec2
-import la.vok.State.AppState
 
 @Suppress("UNCHECKED_CAST")
 class DamageEntity(gameCycle: GameCycle, var d_position: Vec2, var d_size: Vec2, var damage: DamageData, var tagFilter: TagFilter = TagFilter.Any) : EmptyEntity(gameCycle) {

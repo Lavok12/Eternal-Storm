@@ -1,4 +1,4 @@
-package la.vok.Game.GameSystems.Entities
+package la.vok.Game.GameSystems.WorldSystems.Entities
 
 import la.vok.Game.GameContent.Entities.Entities.Entity
 import la.vok.LavokLibrary.Vectors.Vec2

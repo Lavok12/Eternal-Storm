@@ -39,6 +39,8 @@ open class HandItemRender(
     private val visualHandPos get() = handItem.getVisualHandPos()
     private val handPos get() = handItem.getHandPos()
 
+    private val isFlipped get() = facing < 0
+
     override fun draw(lg: LGraphics, pos: Vec2, size: Vec2, camera: Camera) {
         when (val anim = desc.animationType) {
             is AnimationType.Swing  -> drawSwing(lg, anim, camera)
@@ -48,8 +50,6 @@ open class HandItemRender(
         }
     }
 
-    // ─── Swing ───────────────────────────────────────────────────────────────
-
     private fun drawSwing(lg: LGraphics, anim: AnimationType.Swing, camera: Camera) {
         val swingProgress = if (progress < 0.6f) {
             easeOut(progress / 0.6f)
@@ -57,8 +57,7 @@ open class HandItemRender(
             easeIn(1f - (progress - 0.6f) / 0.4f)
         }
 
-        // интерполируем от startAngle до startAngle + swingAngle
-        val angle = (anim.startAngle + swingProgress * anim.swingAngle) * facing + desc.spriteAngle
+        val angle = (anim.startAngle + swingProgress * anim.swingAngle) * facing + (desc.spriteAngle * facing)
 
         val peakScale = if (progress in 0.45f..0.65f) {
             1f + anim.peakScale * sin((progress - 0.45f) / 0.2f * Math.PI.toFloat())
@@ -75,10 +74,11 @@ open class HandItemRender(
 
         lg.setRotateImageAround(
             sprite,
-            camera.useCamera(swingHandPos + scaledSize / 2f * (facing v 1f) + Vec2(shake, shake * 0.5f)),
+            camera.useCamera(swingHandPos + desc.renderDelta + (scaledSize * 0.5f) + Vec2(shake, shake * 0.5f)),
             camera.useCameraSize(scaledSize),
             angle,
-            visualHandPos
+            camera.useCamera(swingHandPos),
+            isFlipped
         )
     }
 
@@ -89,9 +89,8 @@ open class HandItemRender(
             easeIn(1f - (progress - 0.5f) / 0.5f)
         }
 
-        // интерполируем от startOffset до maxOffset и обратно
         val offset = (anim.startOffset + thrustProgress * (anim.maxOffset - anim.startOffset)) * facing
-        val worldPos = handPos + desc.renderDelta * facing.toFloat() + Vec2(offset, 0f)
+        val worldPos = handPos + (desc.renderDelta * (facing v 1f)) + Vec2(offset, 0f)
 
         val peakScale = if (progress in 0.4f..0.6f) {
             1f + anim.peakScale * sin((progress - 0.4f) / 0.2f * Math.PI.toFloat())
@@ -105,31 +104,27 @@ open class HandItemRender(
 
         lg.setRotateImageAround(
             sprite,
-            camera.useCamera(worldPos + scaledSize / 2f + Vec2(0f, shake)),
+            camera.useCamera(worldPos + Vec2(0f, shake)),
             camera.useCameraSize(scaledSize),
-            desc.spriteAngle,
-            camera.useCamera(worldPos)
+            desc.spriteAngle * facing,
+            camera.useCamera(worldPos),
+            isFlipped
         )
     }
 
-    // ─── Idle ────────────────────────────────────────────────────────────────
-
     private fun drawIdle(lg: LGraphics, camera: Camera) {
-        val worldPos = handPos + desc.renderDelta
-
-        // лёгкое покачивание когда предмет просто держится
+        val worldPos = handPos + (desc.renderDelta * (facing v 1f))
         val bob = sin(FrameLimiter.totalPhysicsFrames * 0.05f) * 0.03f
 
         lg.setRotateImageAround(
             sprite,
-            camera.useCamera(worldPos + desc.spriteSize / 2f + Vec2(0f, bob)),
+            camera.useCamera(worldPos + Vec2(0f, bob)),
             camera.useCameraSize(desc.spriteSize),
-            desc.spriteAngle,
-            camera.useCamera(worldPos)
+            desc.spriteAngle * facing,
+            camera.useCamera(worldPos),
+            isFlipped
         )
     }
-
-    // ─── Easing ──────────────────────────────────────────────────────────────
 
     private fun easeOut(t: Float): Float = 1f - (1f - t) * (1f - t)
     private fun easeIn(t: Float): Float = t * t

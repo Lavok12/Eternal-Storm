@@ -1,4 +1,4 @@
-package la.vok.Game.GameSystems.Entities
+package la.vok.Game.GameSystems.WorldSystems.Entities
 
 import Core.CoreControllers.ObjectRegistration
 import la.vok.Core.GameControllers.GameController
@@ -7,7 +7,6 @@ import la.vok.Game.GameContent.Entities.Entities.DamageEntity
 import la.vok.Game.GameContent.Entities.Entities.Entity
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
-import la.vok.Game.GameSystems.Entities.TagFilter
 import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
@@ -145,15 +144,14 @@ class EntityApi(var entityController: EntityController) {
     fun entityDamage(entity: Entity, damage: DamageData) {
         if (entity.hpBody == null) return
         entity.knockback(damage.force)
-        entity.hpBody?.hp -= damage.damage
+        entity.hpBody?.hp -= damage.value
         checkEntityHp(entity)
+        gameCycle.vfxObjectsApi.spawnDamageValue(entity.position, damage.value)
     }
     fun entityDamage(id: Long, damage: DamageData) {
         var entity = getById(id)
-        if (entity?.hpBody == null) return
-        entity.knockback(damage.force)
-        entity.hpBody?.hp -= damage.damage
-        checkEntityHp(entity)
+        if (entity == null) return
+        entityDamage(entity, damage)
     }
     fun checkEntityHp(id: Long) {
         var entity = getById(id)

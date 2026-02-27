@@ -27,6 +27,13 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
         super.physicUpdate()
     }
 
+    fun insideUxElement(position: Vec2) : Boolean {
+        for (i in windowElements) {
+            if (i.inside(position)) return true
+        }
+        return false
+    }
+
     override fun keyUpdate(key: Int, heldTime: Float) {
         when(key) {
             KeyCode.A -> {playerControl.tapA()}
@@ -39,11 +46,13 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
 
     override fun leftPressed(position: Vec2) {
         super.leftPressed(position)
+        if (insideUxElement(position)) return
         playerControl.leftPressed(position)
     }
 
     override fun rightPressed(position: Vec2) {
         super.rightPressed(position)
+        if (insideUxElement(position)) return
         playerControl.rightPressed(position)
     }
 

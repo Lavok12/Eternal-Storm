@@ -9,17 +9,16 @@ import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Entities.EntityRender.BaseRenderEntity
 import la.vok.Game.GameContent.Entities.EntityRender.HpRender
 import la.vok.Game.GameContent.Map.MapApi
-import la.vok.Game.GameContent.Map.MapSystem
 import la.vok.Game.GameController.GameCycle
-import la.vok.Game.GameSystems.Entities.DamageData
-import la.vok.Game.GameSystems.Entities.EntityApi
-import la.vok.Game.GameSystems.Entities.EntitySystem
+import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
+import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.EntityComponents.GravityComponent
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
-import la.vok.Game.GameSystems.EntityComponents.CollisionDetector
+import la.vok.Game.GameSystems.EntityComponents.Collision.CollisionDetector
 import la.vok.Game.GameSystems.EntityComponents.HpBody
 import la.vok.Game.GameSystems.EntityComponents.RigidBody
+import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
@@ -30,6 +29,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     val coreController: CoreController get() = gameController.coreController
     val entityApi: EntityApi get() = gameCycle.entityApi
     val mapApi: MapApi = gameCycle.mapApi
+    val vfxObjectsApi: VfxObjectsApi = gameCycle.vfxObjectsApi
 
     // ─── State ───────────────────────────────────────────────────────────────
 
@@ -48,6 +48,10 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
 
     var collisionDetector: CollisionDetector? = null
     val hitboxes = LinkedHashMap<String, HitboxComponent>()
+
+    var physicTicks = 0L
+    var logicalTicks = 0L
+    var renderFrames = 0L
 
     var mainHitbox: HitboxComponent?
         get() = hitboxes["main"]
@@ -129,6 +133,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     // ─── Updates ─────────────────────────────────────────────────────────────
 
     open fun physicUpdate() {
+        physicTicks++
         hitboxes.values.forEach { it.resetBlockCollision() }
         gravityComponent?.useGravity()
         updateHitboxes()
@@ -154,9 +159,12 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
         hitboxes.values.forEach { it.renderUpdate() }
     }
 
-    open fun logicalUpdate() {}
+    open fun logicalUpdate() {
+        logicalTicks++
+    }
 
     open fun renderUpdate() {
+        renderFrames++
         renderEntity?.let {
             it.ROI_pos = position.copy()
             it.ROI_size = size.copy()

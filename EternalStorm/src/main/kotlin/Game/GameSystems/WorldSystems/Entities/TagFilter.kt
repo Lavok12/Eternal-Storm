@@ -1,4 +1,4 @@
-package la.vok.Game.GameSystems.Entities
+package la.vok.Game.GameSystems.WorldSystems.Entities
 
 sealed class TagFilter {
 
