@@ -27,6 +27,9 @@ object AppState {
 
     var maxPhysicStep = 0.1f
 
+    var hitboxDebug: Boolean = false
+        private set
+
     var lang = "ru"
         set(value)
             {

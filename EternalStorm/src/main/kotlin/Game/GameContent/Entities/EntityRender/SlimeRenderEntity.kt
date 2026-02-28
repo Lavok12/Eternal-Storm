@@ -22,6 +22,6 @@ open class SlimeRenderEntity(layersRenderContainer: LayersRenderContainer) : Bas
 
     override fun draw(lg: LGraphics, pos: Vec2, size: Vec2, camera: Camera) {
         lg.fill(50f, 120f, 200f, 120f)
-        lg.setBlock(pos, size)
+        lg.setImage(coreController.spriteLoader.getValue("slime.png"), pos, size.x*1.2f)
     }
 }

@@ -16,21 +16,22 @@ import la.vok.Game.GameSystems.EntityComponents.GravityComponent
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
 import la.vok.Game.GameSystems.EntityComponents.Collision.CollisionDetector
+import la.vok.Game.GameSystems.EntityComponents.MobInventory
 import la.vok.Game.GameSystems.EntityComponents.HpBody
 import la.vok.Game.GameSystems.EntityComponents.RigidBody
+import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
+import la.vok.State.AppState
 
 @Suppress("UNCHECKED_CAST")
 open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) {
 
     val gameController: GameController get() = gameCycle.gameController
     val coreController: CoreController get() = gameController.coreController
-    val entityApi: EntityApi get() = gameCycle.entityApi
-    val mapApi: MapApi get() = gameCycle.mapApi
-    val vfxObjectsApi: VfxObjectsApi = gameCycle.vfxObjectsApi
 
+    open var inventory: MobInventory? = null
     // ─── State ───────────────────────────────────────────────────────────────
 
     var position = 0 v 0
@@ -38,6 +39,9 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     var systemId = 0L
     var facing = 1
 
+    open fun changeFacing(newFacing: Int) {
+        facing = newFacing
+    }
     // ─── Physics components ──────────────────────────────────────────────────
 
     var rigidBody: RigidBody? = RigidBody(this)
@@ -119,7 +123,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     open fun createDownTrigger() {
         if (hasDownTrigger) {
             val new = addHitbox("down trigger", HitboxTypes.ONLY_TRIGGER)
-            new.size = size.x*0.95f v 0.05f
+            new.size = size.x*0.9f v 0.05f
             new.delta.y = -size.y/2f-0.025f
             new.ignoreCollision = true
         }
@@ -134,6 +138,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
 
     open fun physicUpdate() {
         physicTicks++
+        inventory?.physicUpdate()
         hitboxes.values.forEach { it.resetBlockCollision() }
         gravityComponent?.useGravity()
         updateHitboxes()
@@ -161,10 +166,12 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
 
     open fun logicalUpdate() {
         logicalTicks++
+        inventory?.logicalUpdate()
     }
 
     open fun renderUpdate() {
         renderFrames++
+        inventory?.renderUpdate()
         renderEntity?.let {
             it.ROI_pos = position.copy()
             it.ROI_size = size.copy()
@@ -185,23 +192,27 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     }
     open fun show() {
         visualShow()
-        hitboxes.values.forEach { it.hitboxRender.show() }
+        if (AppState.hitboxDebug) {
+            hitboxes.values.forEach { it.hitboxRender.show() }
+        }
     }
 
     open fun hide() {
         visualHide()
-        hitboxes.values.forEach { it.hitboxRender.hide() }
+        if (AppState.hitboxDebug) {
+            hitboxes.values.forEach { it.hitboxRender.hide() }
+        }
     }
 
     var isDead = false
 
     open fun kill() {
         isDead = true
-        entityApi.hideEntity(this)
+        gameCycle.entityApi.hideEntity(this)
     }
 
     fun takeDamage(damage: DamageData, hitboxComponent: HitboxComponent) : Boolean {
-        entityApi.entityDamage(this, damage)
+        gameCycle.entityApi.entityDamage(this, damage)
         return true
     }
 

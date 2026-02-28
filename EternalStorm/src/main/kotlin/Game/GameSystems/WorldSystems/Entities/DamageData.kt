@@ -6,6 +6,6 @@ import la.vok.LavokLibrary.Vectors.Vec2
 data class DamageData(
     var value: Int,
     var force: Vec2,
-    var sourceId: Long = 0,
-    var weapon: HandItem
+    var sourceId: Long? = 0,
+    var weapon: HandItem? = null
 )

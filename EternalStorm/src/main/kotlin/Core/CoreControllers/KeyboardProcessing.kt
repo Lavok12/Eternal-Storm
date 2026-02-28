@@ -7,7 +7,7 @@ import la.vok.Core.CoreControllers.Intergaces.Controller
 
 class KeyboardProcessing(val coreController: CoreController) : KeyboardInputInterface, Controller {
 
-    private val logger = ConsoleLogger("KeyboardProcessing", LogLevel.DEBUG)
+    private val logger = ConsoleLogger("KeyboardProcessing", LogLevel.INFO)
 
     init {
         create()

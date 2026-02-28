@@ -12,14 +12,16 @@ abstract class AbstractEntityType {
     object EmptyEntityType : AbstractEntityType() {
         override val baseHp = 0
         override val baseSize = 0 v 0
-        override var tags = arrayOf(EntityTags.entity)
+        override val tags = arrayOf(EntityTags.entity)
         override fun createEntity(gameCycle: GameCycle) = EmptyEntity(gameCycle)
+        override val imgPreview = ""
     }
 
     open val tag: String = ""
     open val baseHp: Int = 0
     open val baseSize: Vec2 = 1 v 1
-    open var tags = arrayOf(EntityTags.entity)
+    open val tags = arrayOf(EntityTags.entity)
+    open val imgPreview = ""
 
     open fun createEntity(gameCycle: GameCycle) : Entity {
         return Entity(this, gameCycle)

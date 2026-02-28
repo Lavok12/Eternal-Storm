@@ -9,6 +9,7 @@ import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsSystem
 import la.vok.LavokLibrary.LGraphics.LGraphics
+import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import kotlin.math.min
@@ -36,8 +37,9 @@ class DamageVfxObject(gameCycle: GameCycle, var damage: Int = 0) : AbstractVfxOb
             size: Vec2,
             camera: Camera
         ) {
+            lg.setTextAlign(LPoint(0,0 ))
             lg.fill(200f, 140f, 50f, min(255f, 500f - progress*500f))
-            lg.setText("$damage", pos, 40f)
+            lg.setText("$damage", pos + (0 v 20f), 40f)
         }
 
     }

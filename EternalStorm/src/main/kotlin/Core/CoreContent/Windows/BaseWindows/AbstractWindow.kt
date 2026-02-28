@@ -12,6 +12,7 @@ import la.vok.LavokLibrary.Geometry.FrameRect
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Utils.Functions
 import la.vok.LavokLibrary.Vectors.Vec2
+import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
 import la.vok.Windows.Message.WindowMessage
 import processing.event.MouseEvent
@@ -232,7 +233,12 @@ open class AbstractWindow(
     override var startCenterClick: Vec2 = Vec2(0f)
     
     override fun mouseStartFrame() {}
-    override fun mouseUpdate(position: Vec2, oldPosition: Vec2) {}
+
+    open var mousePosition = 0 v 0
+
+    override fun mouseUpdate(position: Vec2, oldPosition: Vec2) {
+        mousePosition = position
+    }
     override fun mouseMove(position: Vec2, oldPosition: Vec2) {}
     override fun mouseWheel(position: Vec2, event: MouseEvent) {}
 

@@ -8,7 +8,7 @@ import la.vok.LavokLibrary.Utils.Functions
 import la.vok.LavokLibrary.Utils.MetaStorage
 import la.vok.LavokLibrary.Vectors.Vec2
 
-class WindowElement(
+open class WindowElement(
     val window: AbstractWindow,
     var position: Vec2 = Vec2.ZERO,
     var size: Vec2 = Vec2.ZERO,
@@ -42,7 +42,7 @@ class WindowElement(
         positionDirty = true
     }
 
-    var positionWithCache: Vec2
+    open var positionWithCache: Vec2
         get() {
             if (positionDirty) {
                 cachedPosition = calculatePositionInternal()
@@ -56,7 +56,7 @@ class WindowElement(
         }
 
 
-    private fun calculatePositionInternal(): Vec2 {
+    protected open fun calculatePositionInternal(): Vec2 {
         val full = window.logicalSize
         val usable = full - window.padding * 2f - size
 
@@ -106,20 +106,20 @@ class WindowElement(
     // --------------------------------------------------------------------
     // INSIDE
     // --------------------------------------------------------------------
-    fun inside(pos: Vec2): Boolean =
+    open fun inside(pos: Vec2): Boolean =
         if (insideMethod !== EMPTY_INSIDE)
             insideMethod(pos)
         else
             absInside(positionWithCache, size, pos)
 
-    fun absInside(pos: Vec2, size: Vec2, tap: Vec2) : Boolean {
+    open fun absInside(pos: Vec2, size: Vec2, tap: Vec2) : Boolean {
         return Functions.tap(pos, size, tap)
     }
 
     // --------------------------------------------------------------------
     // CALLS
     // --------------------------------------------------------------------
-    fun callUpdate() {
+    open fun callUpdate() {
         tooltip?.takeIf { mouseInside }?.let {
             window.coreController.tooltipController.push(
                 it,
@@ -128,14 +128,14 @@ class WindowElement(
         }
         update()
     }
-    fun callPhysic() = physicUpdate()
+    open fun callPhysic() = physicUpdate()
 
-    fun callPreRender(lg: LGraphics) = preRender(lg)
-    fun callRender(lg: LGraphics) = render(lg)
-    fun callPostRender(lg: LGraphics) = postRender(lg)
+    open fun callPreRender(lg: LGraphics) = preRender(lg)
+    open fun callRender(lg: LGraphics) = render(lg)
+    open fun callPostRender(lg: LGraphics) = postRender(lg)
 
-    fun callResize() = resize()
+    open fun callResize() = resize()
 
-    fun callLeftClick(pos: Vec2) = leftClick(pos)
-    fun callRightClick(pos: Vec2) = rightClick(pos)
+    open fun callLeftClick(pos: Vec2) = leftClick(pos)
+    open fun callRightClick(pos: Vec2) = rightClick(pos)
 }

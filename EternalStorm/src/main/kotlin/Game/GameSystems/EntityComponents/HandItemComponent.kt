@@ -1,9 +1,9 @@
 package la.vok.Game.GameSystems.EntityComponents
 
-import la.vok.Core.GameControllers.GameController
 import la.vok.Core.GameControllers.GameRender
 import la.vok.Game.GameContent.Entities.Entities.Entity
 import la.vok.Game.GameContent.HandItems.HandItem
+import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameController.GameCycle
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
@@ -19,15 +19,18 @@ class HandItemComponent(
     val deltaWithFacing: Vec2
         get() = delta.inverted(entity.facing == -1, false)
 
-    private var currentHandItem: HandItem? = null
-    private var pendingHandItem: HandItem? = null
+    var currentHandItem: HandItem? = null
+    var pendingHandItem: HandItem? = null
     private var changeRequested = false
 
 
-    fun setHandItem(handItem: HandItem?) {
+    private fun setHandItem(handItem: HandItem?) {
         if (handItem === currentHandItem) return
         pendingHandItem = handItem
         changeRequested = true
+    }
+    fun setItem(item: Item?) {
+        setHandItem(item?.getHandItem(this))
     }
 
     fun clearHandItem() {
@@ -53,30 +56,56 @@ class HandItemComponent(
         changeRequested = false
     }
 
+    open fun checkItemsCount() {
+        if (currentHandItem?.item?.count == 0) {
+            currentHandItem?.hide()
+            currentHandItem?.deactivate()
+            currentHandItem = null
+        }
+        if (pendingHandItem?.item?.count == 0) {
+            pendingHandItem = null
+            changeRequested = false
+        }
+    }
 
     open fun renderUpdate() {
+        checkItemsCount()
         currentHandItem?.renderUpdate()
     }
 
     open fun physicUpdate() {
+        checkItemsCount()
         tryApplyChange()
         currentHandItem?.physicUpdate()
     }
 
+    open fun leftReleased() { currentHandItem?.leftReleased() }
+    open fun rightReleased() { currentHandItem?.rightReleased() }
 
     open fun leftPressed(position: Vec2) {
+        checkItemsCount()
         currentHandItem?.leftPressed(position)
     }
 
     open fun rightPressed(position: Vec2) {
+        checkItemsCount()
         currentHandItem?.rightPressed(position)
     }
 
     open fun leftUpdate(position: Vec2, oldPosition: Vec2) {
+        checkItemsCount()
         currentHandItem?.leftUpdate(position, oldPosition)
     }
 
     open fun rightUpdate(position: Vec2, oldPosition: Vec2) {
+        checkItemsCount()
         currentHandItem?.rightUpdate(position, oldPosition)
+    }
+
+    fun isFacingBlocked(): Boolean {
+        if (currentHandItem?.block ?: false && currentHandItem?.descriptor?.canChangeFacing?: false) {
+            return true
+        }
+        return false
     }
 }

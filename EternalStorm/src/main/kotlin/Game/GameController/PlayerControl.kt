@@ -3,6 +3,7 @@ package la.vok.Game.GameController
 import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.Entities.Entities.PlayerEntity
+import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.LavokLibrary.Vectors.Vec2
@@ -16,6 +17,11 @@ class PlayerControl(var gameController: GameController) : Controller {
         create()
     }
 
+    fun getPlayerItem() : HandItem? {
+        if (!isControl()) return null
+        val player = getPlayerEntity() ?: return null
+        return player.handItemComponent.currentHandItem
+    }
     override fun physicTick() {
         super.physicTick()
         if (!entityApi.containsEntityById(playerId)) return
@@ -74,5 +80,26 @@ class PlayerControl(var gameController: GameController) : Controller {
         val player = getPlayerEntity() ?: return
 
         player.handItemComponent.rightUpdate(position, oldPosition)
+    }
+
+    fun leftReleased(position: Vec2) {
+        if (!isControl()) return
+        val player = getPlayerEntity() ?: return
+
+        player.handItemComponent.leftReleased()
+    }
+
+    fun rightReleased(position: Vec2) {
+        if (!isControl()) return
+        val player = getPlayerEntity() ?: return
+
+        player.handItemComponent.rightReleased()
+    }
+
+    fun chooseSlot(id: Int) {
+        if (!isControl()) return
+        val player = getPlayerEntity() ?: return
+
+        player.inventory?.choose(id, player.handItemComponent)
     }
 }

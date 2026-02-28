@@ -6,6 +6,7 @@ import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameContent.Map.MapController
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityController
+import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsController
 
@@ -17,6 +18,8 @@ class GameCycle(var gameController: GameController) : Controller {
     var mapController = MapController(this)
     var entityController = EntityController(this)
     var vfxObjectsController = VfxObjectsController(this)
+
+    var itemsApi = ItemsApi(this)
 
     var collisionSystem = CollisionSystem(this)
 
@@ -39,7 +42,7 @@ class GameCycle(var gameController: GameController) : Controller {
         entityController.physicTick()
         vfxObjectsController.physicTick()
 
-        entityApi.getActiveEntities().forEach {
+        entityApi.getActiveEntities().toList().forEach {
             if (!it.isDead) {
                 it.physicUpdate()
             }
@@ -51,7 +54,7 @@ class GameCycle(var gameController: GameController) : Controller {
         mapController.renderTick()
         vfxObjectsController.renderTick()
 
-        entityApi.getActiveEntities().forEach {
+        entityApi.getActiveEntities().toList().forEach {
             if (!it.isDead) {
                 it.renderUpdate()
             }

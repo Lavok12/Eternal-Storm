@@ -61,22 +61,22 @@ class MapGenerator(var mapController: MapController) {
                 }
 
                 y == surfaceY -> {
-                    mapApi.placeTile(
-                        TilesList.grass,
+                    mapApi.generateTile(
+                        TilesList.grass_block,
                         x, y
                     )
                 }
 
                 y > surfaceY - 4 -> {
-                    mapApi.placeTile(
-                        TilesList.dirt,
+                    mapApi.generateTile(
+                        TilesList.dirt_block,
                         x, y
                     )
                 }
 
                 else -> {
-                    mapApi.placeTile(
-                        TilesList.stone,
+                    mapApi.generateTile(
+                        TilesList.stone_block,
                         x, y
                     )
                 }

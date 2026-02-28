@@ -4,16 +4,17 @@ import la.vok.Game.GameContent.HandItems.AnimationType
 import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.HandItems.HandItemDescriptor
 import la.vok.Game.GameContent.HandItems.UseAction
+import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
 import la.vok.LavokLibrary.Vectors.v
 
-class SpearHandItem(component: HandItemComponent) : HandItem(
+class SpearHandItem(item: Item, component: HandItemComponent) : HandItem(
+    item,
     component,
     HandItemDescriptor(
         spriteName = "spear.png",
         spriteSize = 4 v 4,
-        useDuration = 60f,
-        useStageStep = 5f,
+        useDuration = 12f,
         spriteAngle = Math.PI.toFloat() / 4f,
         animationType = AnimationType.Thrust(
             startOffset = -1f,
@@ -21,7 +22,5 @@ class SpearHandItem(component: HandItemComponent) : HandItem(
             peakScale = 0.05f,
             shakeAmplitude = 0.1f
         ),
-
-        rightAction = UseAction.PrintOnStart("Spear block!")
     )
 )

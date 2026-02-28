@@ -6,12 +6,15 @@ import la.vok.Core.CoreControllers.CoreController
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.LayersRenderContainer
 import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
 import la.vok.Game.GameContent.Tiles.System.TileContext
+import la.vok.Game.GameController.HighlightRender
 import la.vok.LavokLibrary.KotlinPlus.forEachInArea
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.p
 import la.vok.LavokLibrary.Vectors.v
 
 class GameRender(val gameController: GameController) : Controller {
+    var highlightRender = HighlightRender(this)
+
     val coreController: CoreController
         get() {return gameController.coreController}
 
@@ -21,7 +24,13 @@ class GameRender(val gameController: GameController) : Controller {
 
     val renderLayer = LayersRenderContainer(this)
 
+    override fun logicalTick() {
+        super.logicalTick()
+        highlightRender.logicalTick()
+    }
+
     fun render(lg: LGraphics, camera: Camera) {
+        lg.bg(100f,150f,200f)
         renderLayer.drawLayer(RenderLayers.Main.B1, lg, camera)
         renderLayer.drawLayer(RenderLayers.Main.B2, lg, camera)
         renderLayer.drawLayer(RenderLayers.Main.B3, lg, camera)
@@ -50,6 +59,8 @@ class GameRender(val gameController: GameController) : Controller {
                 mapTile.render(tileContext, lg, camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1), gameController)
             }
         }
+
+        highlightRender.render(lg, camera)
 
         renderLayer.drawLayer(RenderLayers.Main.A1, lg, camera)
         renderLayer.drawLayer(RenderLayers.Main.A2, lg, camera)

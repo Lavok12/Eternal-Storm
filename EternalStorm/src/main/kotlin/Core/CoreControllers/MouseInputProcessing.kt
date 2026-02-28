@@ -9,7 +9,7 @@ import la.vok.Core.CoreControllers.Intergaces.Controller
 
 class MouseInputProcessing(var coreController: CoreController) : MouseInputInterface, Controller {
 
-    private val logger = ConsoleLogger("MouseInputProcessing", LogLevel.DEBUG)
+    private val logger = ConsoleLogger("MouseInputProcessing", LogLevel.INFO)
 
     init {
         create()

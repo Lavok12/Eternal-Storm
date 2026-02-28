@@ -5,7 +5,7 @@ import la.vok.Game.GameContent.Entities.Entities.Entity
 
 class PlayerControlComponent(entity: Entity) : EntityComponent(entity) {
     fun moveLeft() {
-        entity.facing = -1
+        entity.changeFacing(-1)
         if (entity.isAnyPhysicBlockCollision()) {
             entity.rigidBody?.speed?.x -= 1.25f * FrameLimiter.logicDeltaTime
         } else {
@@ -13,7 +13,7 @@ class PlayerControlComponent(entity: Entity) : EntityComponent(entity) {
         }
     }
     fun moveRight() {
-        entity.facing = 1
+        entity.changeFacing(1)
         if (entity.isAnyPhysicBlockCollision()) {
             entity.rigidBody?.speed?.x += 1.25f * FrameLimiter.logicDeltaTime
         } else {

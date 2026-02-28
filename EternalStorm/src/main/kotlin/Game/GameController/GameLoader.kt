@@ -5,22 +5,27 @@ import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.EntitiesList
 import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
+import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
 
 class GameLoader(var gameController: GameController) : Controller {
     val entityApi: EntityApi get() = gameController.gameCycle.entityApi
     val mapApi: MapApi get() = gameController.gameCycle.mapApi
+    val itemApi: ItemsApi get() = gameController.gameCycle.itemsApi
+
     init {
         create()
     }
+
     fun load() {
         AppState.logger.info("Load Game")
         gameController.gameCycle.mapController.createMap()
         entityApi.addInSystemWithId(-1, entityApi.getRegisteredEntity(EntitiesList.player), gameController.mainCamera.pos.copy())
         gameController.playerId = -1
 
-         entityApi.spawnEntity(EntitiesList.slime, gameController.mainCamera.pos.copy() + (30 v 0))
-        gameController.playerId = -1
+        gameController.wGamePanel?.buildInventoryButtons()
+
+        entityApi.spawnEntity(EntitiesList.slime, gameController.mainCamera.pos.copy() + (30 v 0))
     }
 }
