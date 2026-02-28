@@ -71,7 +71,7 @@ class MapSystem(
     }
 
     fun callPlace(x: Int, y: Int, item: Item) {
-        getTileType(x, y)?.place(x, y, item)
+        getTileType(x, y)?.place(x, y, item, mapController)
     }
 
     fun maxHp(x: Int, y: Int) {
@@ -91,7 +91,7 @@ class MapSystem(
         val tileType = tiles[idx] ?: return
 
         val contextBefore = TileContext(x, y, tilesHp[idx], tileType)
-        tileType.damage(x, y, damage, contextBefore)
+        tileType.damage(x, y, damage, contextBefore, mapController)
 
         tilesHp[idx] -= damage
 
@@ -115,13 +115,13 @@ class MapSystem(
         if (mineData.power < tileType.blockStrength) return
 
         val contextBefore = TileContext(x, y, tilesHp[idx], tileType)
-        tileType.damage(x, y, mineData.power, contextBefore)
+        tileType.damage(x, y, mineData.power, contextBefore, mapController)
 
         tilesHp[idx] -= mineData.power
 
         if (tilesHp[idx] <= 0) {
             val contextBreak = TileContext(x, y, tilesHp[idx], tileType)
-            tileType.onMined(x, y, mineData, contextBreak)
+            tileType.onMined(x, y, mineData, contextBreak, mapController)
             tileType.onRemoved(x, y, contextBreak, mineData)
             tiles[idx] = null
             tilesHp[idx] = 0

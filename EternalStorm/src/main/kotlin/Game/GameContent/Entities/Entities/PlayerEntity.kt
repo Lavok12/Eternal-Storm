@@ -12,6 +12,7 @@ import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
 import la.vok.Game.GameSystems.EntityComponents.MobInventory
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
+import la.vok.Game.GameSystems.EntityComponents.PickUpComponent
 import la.vok.Game.GameSystems.EntityComponents.PlayerControlComponent
 import la.vok.LavokLibrary.Vectors.v
 
@@ -21,12 +22,25 @@ class PlayerEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entit
     var playerControlComponent = PlayerControlComponent(this)
 
     var handItemComponent = HandItemComponent(this, 0.8 v 0f)
+    var pickUpComponent: PickUpComponent? = null
 
     override var inventory: MobInventory? = MobInventory(this, 10)
 
     override fun changeFacing(newFacing: Int) {
         if (handItemComponent.isFacingBlocked()) return
         facing = newFacing
+    }
+
+    override fun createCustomHitboxes() {
+        val attractTrigger = addHitbox("attract trigger", HitboxTypes.ONLY_TRIGGER, null).also {
+            it.size = 7 v 7
+            it.ignoreCollision = true
+        }
+        val pickUpTrigger = addHitbox("pickup trigger", HitboxTypes.ONLY_TRIGGER, null).also {
+            it.size = size.copy()
+            it.ignoreCollision = true
+        }
+        pickUpComponent = PickUpComponent(this, pickUpTrigger, attractTrigger, inventory!!.itemContainer, gravityPower = 2f)
     }
 
     override fun spawn() {
@@ -40,7 +54,9 @@ class PlayerEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entit
 
         handItemComponent.setItem(inventory?.itemContainer?.getItem(0))
     }
+
     override fun physicUpdate() {
+        pickUpComponent?.physicUpdate()
         handItemComponent.physicUpdate()
         super.physicUpdate()
     }

@@ -65,7 +65,7 @@ class HighlightRender(var gameRender: GameRender) : Controller {
                     lg,
                     camera.useCamera(tilePos),
                     camera.useCameraSize(tileSize) + (1 v 1),
-                    gameRender.gameController
+                    gameRender,
                 )
             } else {
                 var tilePos = gameRender.gameController.gameCycle.mapApi.getTilePos(targetMinePoint!!)

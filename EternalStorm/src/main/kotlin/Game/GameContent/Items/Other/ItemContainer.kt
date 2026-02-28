@@ -5,145 +5,102 @@ import la.vok.Game.GameController.GameCycle
 class ItemContainer(var gameCycle: GameCycle, val size: Int) {
     val slots: Array<ItemSlot> = Array(size) { ItemSlot(gameCycle, this, it) }
 
-    // --- Обновления (игнорируют заблокированные слоты) ---
-
     fun physicUpdate() {
-        slots.forEach { slot ->
-            if (slot.isActive()) slot.item?.cellPhysicUpdate(slot)
-        }
+        slots.forEach { if (it.isActive()) it.item?.cellPhysicUpdate(it) }
     }
 
     fun logicalUpdate() {
         slots.forEach { slot ->
-            if (slot.isActive()) {
-                slot.item?.cellLogicalUpdate(slot)
-                if ((slot.item?.count ?: 1) <= 0) {
-                    slot.item = null
-                }
-            }
+            if (!slot.isActive()) return@forEach
+            slot.item?.cellLogicalUpdate(slot)
+            if ((slot.item?.count ?: 1) <= 0) slot.item = null
         }
     }
 
     fun renderUpdate() {
-        slots.forEach { slot ->
-            if (slot.isActive()) slot.item?.cellRenderUpdate(slot)
-        }
+        slots.forEach { if (it.isActive()) it.item?.cellRenderUpdate(it) }
     }
 
-    // --- Информационные методы ---
+    fun hasFreeSlot() = slots.any { it.isFree() }
+    fun getFreeSlotsCount() = slots.count { it.isFree() }
+    fun getFirstFreeSlotIndex() = slots.indexOfFirst { it.isFree() }
 
-    fun hasFreeSlot(): Boolean {
-        return slots.any { it.isFree() }
-    }
-
-    fun getFreeSlotsCount(): Int {
-        return slots.count { it.isFree() }
-    }
-
-    fun getFirstFreeSlotIndex(): Int {
-        return slots.indexOfFirst { it.isFree() }
-    }
-
-    // --- Взаимодействие ---
-
-    /**
-     * Добавляет предмет в контейнер с учётом стакинга.
-     * Возвращает количество единиц, которые НЕ удалось добавить (0 = всё влезло).
-     */
+    // Добавляет с учётом стаков, возвращает остаток
     fun addItem(item: Item): Int {
         var remaining = item.count
 
-        // 1. Докидываем в существующие стаки
         if (item.itemType.maxInStack > 1) {
             for (slot in slots) {
                 if (remaining <= 0) break
                 if (!slot.isActive()) continue
                 val existing = slot.item ?: continue
                 if (!existing.canStackable(item)) continue
-
-                val canFit = existing.leftToStack()
-                val toAdd = minOf(remaining, canFit)
+                val toAdd = minOf(remaining, existing.leftToStack())
                 existing.count += toAdd
                 remaining -= toAdd
             }
         }
 
-        // 2. Остаток раскладываем по свободным слотам
         while (remaining > 0) {
             val freeSlot = slots.firstOrNull { it.isFree() } ?: break
-
             val toPlace = minOf(remaining, item.itemType.maxInStack)
-            val newItem = item.copy().apply { count = toPlace }
-            freeSlot.item = newItem
+            freeSlot.item = item.copy().apply { count = toPlace }
             remaining -= toPlace
         }
 
         return remaining
     }
 
-    /**
-     * Добавляет предмет и возвращает true, если всё удалось разместить.
-     */
-    fun addItemFully(item: Item): Boolean = addItem(item) == 0
+    // Добавляет полностью или не добавляет вовсе, возвращает успех
+    fun addItemFully(item: Item): Boolean {
+        if (getFreeCapacityFor(item) < item.count) return false
+        addItem(item)
+        return true
+    }
 
-    /**
-     * Считает сколько единиц предмета данного типа можно ещё принять.
-     */
+    // Сколько единиц данного предмета ещё можно принять
     fun getFreeCapacityFor(item: Item): Int {
         val freeSlotCapacity = getFreeSlotsCount() * item.itemType.maxInStack
-        val stackableExtra = if (item.itemType.maxInStack > 1) {
+        val stackableExtra = if (item.itemType.maxInStack > 1)
             slots.sumOf { slot ->
                 if (!slot.isActive()) return@sumOf 0
-                val existing = slot.item ?: return@sumOf 0
-                if (existing.canStackable(item)) existing.leftToStack() else 0
-            }
-        } else 0
+                slot.item?.takeIf { it.canStackable(item) }?.leftToStack() ?: 0
+            } else 0
         return freeSlotCapacity + stackableExtra
     }
 
-    /**
-     * Считает суммарное количество предметов данного типа в контейнере.
-     */
-    fun countItemsOfType(itemType: AbstractItemType): Int {
-        return slots.sumOf { slot ->
-            if (slot.isActive() && slot.item?.itemType === itemType) slot.item!!.count else 0
-        }
+    // Можно ли добавить хотя бы 1 единицу
+    fun canAddItem(item: Item): Boolean {
+        if (hasFreeSlot()) return true
+        if (item.itemType.maxInStack <= 1) return false
+        return slots.any { it.isActive() && it.item?.canStackable(item) == true && it.item!!.leftToStack() > 0 }
     }
 
-    /**
-     * Возвращает все слоты, содержащие предмет данного типа.
-     */
-    fun getSlotsWithType(itemType: AbstractItemType): List<ItemSlot> {
-        return slots.filter { it.isActive() && it.item?.itemType === itemType }
-    }
+    // Суммарное количество предметов данного типа
+    fun countItemsOfType(itemType: AbstractItemType) =
+        slots.sumOf { if (it.isActive() && it.item?.itemType === itemType) it.item!!.count else 0 }
 
-    /**
-     * Отнимает [amount] единиц из слота по индексу.
-     * Возвращает сколько фактически удалось снять.
-     */
+    // Все слоты с предметом данного типа
+    fun getSlotsWithType(itemType: AbstractItemType) =
+        slots.filter { it.isActive() && it.item?.itemType === itemType }
+
+    // Отнять amount из слота по индексу, вернуть сколько сняли
     fun removeAmount(index: Int, amount: Int): Int {
         if (!isValidIndex(index) || !slots[index].isActive()) return 0
         val item = slots[index].item ?: return 0
-
         val actual = minOf(amount, item.count)
         item.count -= actual
         if (item.count <= 0) slots[index].item = null
-
         return actual
     }
 
-    /**
-     * Отнимает [amount] единиц предмета данного типа, начиная с первых найденных слотов.
-     * Возвращает сколько фактически удалось снять.
-     */
+    // Отнять amount предметов данного типа по всем слотам, вернуть сколько сняли
     fun removeAmount(itemType: AbstractItemType, amount: Int): Int {
         var remaining = amount
         for (slot in slots) {
             if (remaining <= 0) break
             if (!slot.isActive()) continue
-            val item = slot.item ?: continue
-            if (item.itemType !== itemType) continue
-
+            val item = slot.item?.takeIf { it.itemType === itemType } ?: continue
             val actual = minOf(remaining, item.count)
             item.count -= actual
             remaining -= actual
@@ -152,21 +109,21 @@ class ItemContainer(var gameCycle: GameCycle, val size: Int) {
         return amount - remaining
     }
 
+    // Есть ли хотя бы amount единиц предмета данного типа
+    fun hasAmount(itemType: AbstractItemType, amount: Int) =
+        countItemsOfType(itemType) >= amount
+
     fun setItem(index: Int, item: Item?) {
-        if (isValidIndex(index) && slots[index].isActive()) {
-            slots[index].item = item
-        }
+        if (isValidIndex(index) && slots[index].isActive()) slots[index].item = item
     }
 
-    fun getItem(index: Int): Item? {
-        return if (isValidIndex(index) && slots[index].isActive()) slots[index].item else null
-    }
+    fun getItem(index: Int): Item? =
+        if (isValidIndex(index) && slots[index].isActive()) slots[index].item else null
 
-    fun getSlot(index: Int): ItemSlot? {
-        if (!isValidIndex(index)) return null
-        return slots[index]
-    }
+    fun getSlot(index: Int): ItemSlot? =
+        if (isValidIndex(index)) slots[index] else null
 
+    // Забрать предмет из слота (слот становится пустым)
     fun takeItem(index: Int): Item? {
         if (!isValidIndex(index) || !slots[index].isActive()) return null
         val item = slots[index].item
@@ -175,37 +132,25 @@ class ItemContainer(var gameCycle: GameCycle, val size: Int) {
     }
 
     fun removeItem(index: Int) {
-        if (isValidIndex(index) && slots[index].isActive()) {
-            slots[index].item = null
-        }
+        if (isValidIndex(index) && slots[index].isActive()) slots[index].item = null
     }
 
     fun swap(indexA: Int, indexB: Int) {
-        if (isValidIndex(indexA) && isValidIndex(indexB)) {
-            if (slots[indexA].isActive() && slots[indexB].isActive()) {
-                val temp = slots[indexA].item
-                slots[indexA].item = slots[indexB].item
-                slots[indexB].item = temp
-            }
-        }
+        if (!isValidIndex(indexA) || !isValidIndex(indexB)) return
+        if (!slots[indexA].isActive() || !slots[indexB].isActive()) return
+        val temp = slots[indexA].item
+        slots[indexA].item = slots[indexB].item
+        slots[indexB].item = temp
     }
 
-    fun clear() {
-        slots.forEach { if (it.isActive()) it.item = null }
-    }
+    fun clear() = slots.forEach { if (it.isActive()) it.item = null }
 
     fun setBlocked(index: Int, blocked: Boolean) {
-        if (isValidIndex(index)) {
-            slots[index].isBlocked = blocked
-        }
+        if (isValidIndex(index)) slots[index].isBlocked = blocked
     }
 
     fun unchooseAll() {
-        for (i in slots) {
-            if (i.item?.isChoose ?: false) {
-                i.item?.endChoose()
-            }
-        }
+        slots.forEach { if (it.item?.isChoose == true) it.item?.endChoose() }
     }
 
     fun choose(id: Int) {
@@ -214,50 +159,38 @@ class ItemContainer(var gameCycle: GameCycle, val size: Int) {
         getItem(id)?.startChoose()
     }
 
+    // Вставить в слот: стакаются — докидывает остаток; нет — меняет местами
     fun insertItem(index: Int, item: Item): Item? {
         if (!isValidIndex(index) || !slots[index].isActive()) return item
-
-        val existing = slots[index].item
-
-        if (existing == null) {
-            slots[index].item = item
-            return null
-        }
+        val existing = slots[index].item ?: run { slots[index].item = item; return null }
 
         if (existing.canStackable(item)) {
-            val canFit = existing.leftToStack()
-            val toAdd = minOf(item.count, canFit)
+            val toAdd = minOf(item.count, existing.leftToStack())
             existing.count += toAdd
             item.count -= toAdd
             return if (item.count > 0) item else null
         }
 
-        // Не стакаются — меняем местами
         slots[index].item = item
         return existing
     }
 
+    // Вставить в слот только если стакаются, иначе вернуть item без изменений
     fun insertStackOnly(index: Int, item: Item): Item? {
         if (!isValidIndex(index) || !slots[index].isActive()) return item
-
-        val existing = slots[index].item
-
-        if (existing == null) {
+        val existing = slots[index].item ?: run {
             val toPlace = minOf(item.count, item.itemType.maxInStack)
-            val newItem = item.copy().apply { count = toPlace }
-            slots[index].item = newItem
+            slots[index].item = item.copy().apply { count = toPlace }
             item.count -= toPlace
             return if (item.count > 0) item else null
         }
 
         if (!existing.canStackable(item)) return item
-
-        val canFit = existing.leftToStack()
-        val toAdd = minOf(item.count, canFit)
+        val toAdd = minOf(item.count, existing.leftToStack())
         existing.count += toAdd
         item.count -= toAdd
         return if (item.count > 0) item else null
     }
 
-    fun isValidIndex(index: Int): Boolean = index in 0 until size
+    fun isValidIndex(index: Int) = index in 0 until size
 }

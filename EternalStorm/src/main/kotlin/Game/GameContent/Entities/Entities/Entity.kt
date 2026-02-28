@@ -211,7 +211,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
         gameCycle.entityApi.hideEntity(this)
     }
 
-    fun takeDamage(damage: DamageData, hitboxComponent: HitboxComponent) : Boolean {
+    open fun takeDamage(damage: DamageData, hitboxComponent: HitboxComponent) : Boolean {
         gameCycle.entityApi.entityDamage(this, damage)
         return true
     }

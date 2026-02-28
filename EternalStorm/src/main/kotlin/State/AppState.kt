@@ -6,6 +6,7 @@ import la.vok.Core.CoreControllers.CoreController
 import la.vok.Core.CoreControllers.Loaders.Content
 import la.vok.Core.CoreControllers.Loaders.LanguageLoader
 import la.vok.LavokLibrary.LGraphics.LGraphics
+import la.vok.LavokLibrary.Vectors.v
 import la.vok.Sketch.ProcessingSketch
 
 object AppState {
@@ -26,6 +27,8 @@ object AppState {
     var doublePressDelay = 300L
 
     var maxPhysicStep = 0.1f
+
+    val itemsMergeSize = 4 v 4
 
     var hitboxDebug: Boolean = false
         private set

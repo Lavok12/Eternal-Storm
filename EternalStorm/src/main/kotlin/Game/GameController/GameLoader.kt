@@ -3,6 +3,7 @@ package la.vok.Game.GameController
 import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.EntitiesList
+import la.vok.Game.GameContent.ItemsList
 import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
@@ -12,7 +13,7 @@ import la.vok.State.AppState
 class GameLoader(var gameController: GameController) : Controller {
     val entityApi: EntityApi get() = gameController.gameCycle.entityApi
     val mapApi: MapApi get() = gameController.gameCycle.mapApi
-    val itemApi: ItemsApi get() = gameController.gameCycle.itemsApi
+    val itemsApi: ItemsApi get() = gameController.gameCycle.itemsApi
 
     init {
         create()
@@ -24,6 +25,7 @@ class GameLoader(var gameController: GameController) : Controller {
         entityApi.addInSystemWithId(-1, entityApi.getRegisteredEntity(EntitiesList.player), gameController.mainCamera.pos.copy())
         gameController.playerId = -1
 
+        itemsApi.spawnItemEntity(itemsApi.getRegisteredItem(ItemsList.pickaxe, 1), 10 v 80)
         gameController.wGamePanel?.buildInventoryButtons()
 
         entityApi.spawnEntity(EntitiesList.slime, gameController.mainCamera.pos.copy() + (30 v 0))

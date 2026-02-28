@@ -114,6 +114,9 @@ class MapApi(var mapController: MapController) {
     fun getTilePos(point: LPoint): Vec2 =
         point.x v point.y
 
+    fun getTilePos(x: Int, y: Int): Vec2 =
+        x v y
+
     fun getTileSize(): Vec2 =
         1f v 1f
 

@@ -3,6 +3,8 @@ package la.vok.Game.GameContent.Items.Other
 import la.vok.Core.CoreContent.Camera.Camera
 import la.vok.Core.CoreControllers.CoreController
 import la.vok.Core.GameControllers.GameController
+import la.vok.Game.GameContent.Entities.Entities.Entity
+import la.vok.Game.GameContent.Entities.Entities.ItemEntity
 import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.HandItems.Weapons.TileHandItem
 import la.vok.Game.GameContent.Windows.InventoryCell
@@ -35,16 +37,22 @@ open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
             }
         }
     }
-    open fun worldRender(lg: LGraphics, pos: Vec2, size: Vec2, camera: Camera) {
-        baseRender(lg, pos, size * itemType.worldSize)
-    }
-    open fun cellRender(lg: LGraphics, pos: Vec2, size: Vec2, cell: InventoryCell) {
-        baseRender(lg, pos, size * itemType.sizeInSlot)
+    open fun renderCount(lg: LGraphics, pos: Vec2, size: Vec2) {
         if (count > 1) {
             lg.fill(255f)
             lg.setTextAlign(0 p 1)
-            lg.setText("$count", pos.x, pos.y - size.y*0.55f, 14f)
+            lg.setText("$count", pos.x, pos.y - size.y * 0.55f, 14f)
         }
+    }
+
+    open fun worldRender(lg: LGraphics, pos: Vec2, size: Vec2, camera: Camera) {
+        baseRender(lg, pos + itemType.worldRenderDelta * (size * itemType.worldSize), size * itemType.worldSize)
+        renderCount(lg, pos, size)
+    }
+
+    open fun cellRender(lg: LGraphics, pos: Vec2, size: Vec2, cell: InventoryCell) {
+        baseRender(lg, pos + itemType.slotRenderDelta * (size * itemType.sizeInSlot), size * itemType.sizeInSlot)
+        renderCount(lg, pos, size)
     }
 
     open fun cellPhysicUpdate(itemSlot: ItemSlot) {
@@ -57,13 +65,13 @@ open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
 
     }
 
-    open fun logicalUpdate() {
+    open fun logicalUpdate(entity: ItemEntity) {
 
     }
-    open fun physicUpdate() {
+    open fun physicUpdate(entity: ItemEntity) {
 
     }
-    open fun renderUpdate() {
+    open fun renderUpdate(entity: ItemEntity) {
 
     }
     open fun getHandItem(component: HandItemComponent) : HandItem? {
