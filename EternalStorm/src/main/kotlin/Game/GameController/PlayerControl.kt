@@ -13,10 +13,20 @@ class PlayerControl(var gameController: GameController) : Controller {
     val mapApi: MapApi get() = gameController.gameCycle.mapApi
     val playerId: Long get() = gameController.playerId
 
+    var isInventoryOpen = false
+        private set
+
+    fun toggleInventory() {
+        isInventoryOpen = !isInventoryOpen
+    }
+
     init {
         create()
     }
 
+    fun getTarget() : Vec2 {
+        return gameController.coreController.mouseInput.logicalPosition
+    }
     fun getPlayerItem() : HandItem? {
         if (!isControl()) return null
         val player = getPlayerEntity() ?: return null

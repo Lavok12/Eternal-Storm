@@ -10,6 +10,8 @@ import la.vok.State.AppState
 class AxeItemType : AbstractItemType() {
     override val tag: String = ItemsList.axe
     override val sprite = "axe.png"
+    override val maxInStack: Int
+        get() = 1
 
     override fun createItem(gameCycle: GameCycle) : Item {
         return AxeItem(this, gameCycle)

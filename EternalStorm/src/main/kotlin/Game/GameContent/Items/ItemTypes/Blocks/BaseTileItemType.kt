@@ -16,6 +16,7 @@ open class BaseTileItemType : AbstractItemType() {
     override val usingVariants = UsingVariants.PlaceTile(TilesList.dirt_block)
     override val maxInStack: Int = 99999
     override val worldSize: Vec2 = 0.5f v 0.5
+    override val sizeInSlot: Vec2 = 0.8f v 0.8f
     override val worldRenderDelta: Vec2 = 0 v -0.22f
 
     override fun createItem(gameCycle: GameCycle): Item {

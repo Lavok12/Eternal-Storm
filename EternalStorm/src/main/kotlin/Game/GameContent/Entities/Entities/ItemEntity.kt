@@ -4,7 +4,6 @@ import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderObjectInt
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Entities.EntityRender.HpRender
 import la.vok.Game.GameContent.Entities.EntityRender.ItemRenderEntity
-import la.vok.Game.GameContent.Entities.EntityRender.SlimeRenderEntity
 import la.vok.Game.GameContent.EntityTags
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameController.GameCycle
@@ -14,11 +13,10 @@ import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
 import la.vok.Game.GameSystems.EntityComponents.MobInventory
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
 import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
-import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.State.AppState
 
 @Suppress("UNCHECKED_CAST")
-class ItemEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.ItemEntityType, gameCycle) {
+open class ItemEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.ItemEntityType, gameCycle) {
     override var renderEntity: RenderObjectInterface? = ItemRenderEntity(getRenderLayer())
 
     private val itemRender get() = renderEntity as? ItemRenderEntity
@@ -120,5 +118,13 @@ class ItemEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.ItemEntityTyp
         super.renderUpdate()
         itemRender?.item = item
         item?.renderUpdate(this)
+    }
+
+    override fun show() {
+        super.show()
+    }
+
+    override fun hide() {
+        super.hide()
     }
 }

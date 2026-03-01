@@ -3,18 +3,19 @@ package la.vok.Game.GameContent.Items.Other
 import la.vok.Core.CoreContent.Camera.Camera
 import la.vok.Core.CoreControllers.CoreController
 import la.vok.Core.GameControllers.GameController
-import la.vok.Game.GameContent.Entities.Entities.Entity
 import la.vok.Game.GameContent.Entities.Entities.ItemEntity
 import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.HandItems.Weapons.TileHandItem
 import la.vok.Game.GameContent.Windows.InventoryCell
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
-import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
+import la.vok.LavokLibrary.Gradient.ShadowInfo
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.p
 import la.vok.LavokLibrary.Vectors.v
+import la.vok.State.AppState
+import kotlin.math.sin
 
 @Suppress("UNCHECKED_CAST")
 open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
@@ -37,6 +38,7 @@ open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
             }
         }
     }
+
     open fun renderCount(lg: LGraphics, pos: Vec2, size: Vec2) {
         if (count > 1) {
             lg.fill(255f)
@@ -45,13 +47,60 @@ open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
         }
     }
 
+    open fun stackVisualCount(): Int = when {
+        count >= 5000 -> 7
+        count >= 500 -> 6
+        count >= 50 -> 5
+        count >= 10  -> 4
+        count >= 5   -> 3
+        count >= 2   -> 2
+        else         -> 1
+    }
+
+    open fun stackOffset(index: Int, size: Vec2): Vec2 {
+        val step = size * 0.1f
+        return (step * (index.toFloat())).invertedY()
+    }
+
     open fun worldRender(lg: LGraphics, pos: Vec2, size: Vec2, camera: Camera) {
-        baseRender(lg, pos + itemType.worldRenderDelta * (size * itemType.worldSize), size * itemType.worldSize)
-        renderCount(lg, pos, size)
+        val renderSize = size * itemType.worldSize
+        val visual = stackVisualCount()
+
+        for (i in 0 until visual) {
+            val offset = stackOffset(visual-i-1, renderSize)
+            var renderPos = pos + itemType.worldRenderDelta * size - offset
+            shadowRender(lg, renderPos, renderSize, itemType.shadowPower/(i/2f+0.5f))
+            baseRender(lg, renderPos, renderSize)
+        }
+    }
+
+    open fun shadowRender(lg: LGraphics, pos: Vec2, size: Vec2, power: Float = itemType.shadowPower) {
+        lg.setTint(255f, 255f*power)
+        lg.setImage(
+            ShadowInfo(
+                coreController.spriteLoader.getValue(itemType.sprite),
+                120 p 120,
+                10,
+                6,
+                true
+            ).generate(),
+                pos, size * 1.1f)
+        lg.noTint()
     }
 
     open fun cellRender(lg: LGraphics, pos: Vec2, size: Vec2, cell: InventoryCell) {
-        baseRender(lg, pos + itemType.slotRenderDelta * (size * itemType.sizeInSlot), size * itemType.sizeInSlot)
+        val renderPos = pos + itemType.slotRenderDelta * (size * itemType.sizeInSlot)
+        val renderSize = size * itemType.sizeInSlot
+        shadowRender(lg, renderPos, renderSize, itemType.shadowPower * 0.5f)
+        baseRender(lg, renderPos, renderSize)
+        renderCount(lg, pos, size)
+    }
+
+    open fun cellDragRender(lg: LGraphics, pos: Vec2, size: Vec2, cell: InventoryCell) {
+        val renderPos = pos + itemType.slotRenderDelta * (size * itemType.sizeInSlot)
+        val renderSize = size * itemType.sizeInSlot * 1.1f
+        shadowRender(lg, renderPos, renderSize)
+        baseRender(lg, renderPos, renderSize)
         renderCount(lg, pos, size)
     }
 
@@ -97,7 +146,7 @@ open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
         return rawCopy()
     }
     open fun canStackable(item: Item) : Boolean {
-        if (itemType.maxInStack == 0) return false
+        if (itemType.maxInStack <= 1) return false
         return (itemType === item.itemType)
     }
     open fun leftToStack() : Int {

@@ -11,7 +11,7 @@ class InventoryCell(
     position: Vec2 = Vec2.ZERO,
     size: Vec2 = Vec2.ZERO,
     align: Vec2 = Vec2.ZERO,
-    var cellType: InventoryCellType = InventoryCellType.STANDART,
+    var cellType: InventoryCellType = InventoryCellType.INVENTORY,
     var slot: ItemSlot?,
     update: WindowElement.() -> Unit = {},
     physicUpdate: WindowElement.() -> Unit = {},
@@ -34,20 +34,35 @@ class InventoryCell(
     start = {},
     tooltip = null
 ) {
-    override fun callPreRender(lg: LGraphics) {}
 
-    override fun callRender(lg: LGraphics) {
-        lg.fill(140f, 150f, 160f, 100f)
-        if (slot?.item?.isChoose ?: false) {
-            lg.fill(190f,200f,210f,130f)
+    var isDragTarget = false
+
+    override fun callPreRender(lg: LGraphics) {
+        if (!isVisible) return
+
+        lg.fill(0f, 20f)
+        for (i in 1..4) {
+            lg.setBlock(positionWithCache, size * 0.9f * (1f + i/30f))
         }
-        lg.noStroke()
-        lg.setBlock(positionWithCache, size, 15f)
-
-        slot?.item?.cellRender(lg, positionWithCache, size, this)
     }
 
-    override fun callPostRender(lg: LGraphics) {}
+    override fun callRender(lg: LGraphics) {
+        if (!isVisible) return
+
+        when {
+            isDragTarget -> lg.fill(220f, 230f, 255f, 160f)
+            slot?.item?.isChoose == true -> lg.fill(190f, 200f, 210f, 130f)
+            else -> lg.fill(140f, 150f, 160f, 100f)
+        }
+        lg.noStroke()
+        lg.setBlock(positionWithCache, size*0.9f, 15f)
+        slot?.item?.cellRender(lg, positionWithCache, size*0.9f, this)
+    }
+
+
+    override fun callPostRender(lg: LGraphics) {
+        if (!isVisible) return
+    }
 
     override fun callResize() {}
 }

@@ -4,6 +4,8 @@ import Core.CoreControllers.ObjectRegistration
 import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.Entities.Entities.ItemEntity
 import la.vok.Game.GameContent.Items.Other.AbstractItemType
+import la.vok.Game.GameContent.Items.Other.DropEntry
+import la.vok.Game.GameContent.Items.Other.DropTable
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameController.GameCycle
 import la.vok.LavokLibrary.Vectors.Vec2
@@ -71,5 +73,11 @@ class ItemsApi(var gameCycle: GameCycle) {
 
     fun spawnItemEntity(type: AbstractItemType, pos: Vec2, count: Int = 1, randomVelocity: Boolean = false): ItemEntity {
         return spawnItemEntity(getRegisteredItem(type, count), pos, randomVelocity)
+    }
+
+    fun spawnDropTable(dropEntry: DropEntry, pos: Vec2, randomVelocity: Boolean = true) {
+        dropEntry.resolve().forEach { (tag, count) ->
+            spawnItemEntity(tag, pos, count, randomVelocity)
+        }
     }
 }

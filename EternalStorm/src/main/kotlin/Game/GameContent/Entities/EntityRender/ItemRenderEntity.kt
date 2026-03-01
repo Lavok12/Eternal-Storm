@@ -14,7 +14,7 @@ import la.vok.LavokLibrary.Vectors.v
 open class ItemRenderEntity(layersRenderContainer: LayersRenderContainer) : BaseRenderObject(layersRenderContainer) {
     override var layerData: RenderLayerData = RenderLayerData(
         RenderLayers.Main.A2,
-        1
+        10
     )
 
     override var ROI_pos = 0 v 0

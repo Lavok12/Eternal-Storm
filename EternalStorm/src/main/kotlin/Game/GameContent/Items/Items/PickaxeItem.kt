@@ -14,7 +14,7 @@ import la.vok.LavokLibrary.Vectors.v
 open class PickaxeItem(itemType: AbstractItemType, gameCycle: GameCycle) : Item(itemType, gameCycle) {
     open val mineDamage = 40
     open val minePower = 100
-    open val handItemUseDuration = 20f
+    open val handItemUseDuration = 5f
     open val handItemTexture = "pickaxe.png"
     open val handItemSize = 3f
     open val handItemDamage = 4

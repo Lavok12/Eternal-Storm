@@ -45,6 +45,9 @@ class HighlightRender(var gameRender: GameRender) : Controller {
     fun render(lg: LGraphics, camera: Camera) {
         super.renderTick()
 
+        if (gameRender.gameController.wGamePanel?.insideUxElement(gameRender.gameController.playerControl.getTarget()) ?: true) {
+            return
+        }
         if (targetMinePoint != null) {
 
             val mapTile = gameRender.gameController.gameCycle.mapApi.getTileType(targetMinePoint!!.x, targetMinePoint!!.y)

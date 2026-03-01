@@ -34,8 +34,8 @@ open class HandItem(
 
     open fun toWorldPos(pos: Vec2): Vec2 = gameController.mainCamera.toWorldPos(pos)
     open fun toMapPos(pos: Vec2): LPoint = gameController.gameCycle.mapApi.getPointFromPos(pos)
-    open fun targetWorldPos() : LPoint = toMapPos(toWorldPos(gameController.wGamePanel?.mousePosition ?: (0 v 0)))
-    open fun targetPos() : Vec2 = toWorldPos(gameController.wGamePanel?.mousePosition ?: (0 v 0))
+    open fun targetWorldPos() : LPoint = toMapPos(toWorldPos(gameController.playerControl.getTarget()))
+    open fun targetPos() : Vec2 = toWorldPos(gameController.playerControl.getTarget())
 
 
     fun getHandPos(): Vec2 = entity.position + handItemComponent.deltaWithFacing

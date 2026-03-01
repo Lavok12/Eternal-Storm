@@ -24,7 +24,7 @@ class PlayerEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entit
     var handItemComponent = HandItemComponent(this, 0.8 v 0f)
     var pickUpComponent: PickUpComponent? = null
 
-    override var inventory: MobInventory? = MobInventory(this, 10)
+    override var inventory: MobInventory? = MobInventory(this, 50)
 
     override fun changeFacing(newFacing: Int) {
         if (handItemComponent.isFacingBlocked()) return

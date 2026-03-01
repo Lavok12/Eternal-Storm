@@ -2,7 +2,11 @@ package la.vok.Game.GameContent.Tiles.System
 
 import la.vok.Core.GameControllers.GameController
 import la.vok.Core.GameControllers.GameRender
+import la.vok.Game.GameContent.Items.Other.DropEntry
+import la.vok.Game.GameContent.Items.Other.DropTable
 import la.vok.Game.GameContent.Items.Other.Item
+import la.vok.Game.GameContent.Items.Other.NothingDrop
+import la.vok.Game.GameContent.Items.Other.dropTable
 import la.vok.Game.GameContent.Map.MapController
 import la.vok.Game.GameSystems.WorldSystems.Map.MineData
 import la.vok.LavokLibrary.LGraphics.LGraphics
@@ -16,7 +20,7 @@ abstract class AbstractTileType {
     open val maxHp: Int = 0
     open val texture: String = ""
     open val consumed: Boolean = true
-    open val baseDrop: String = ""
+    open val drop: DropEntry = NothingDrop
 
     open fun render(
         tileContext: TileContext,
@@ -63,21 +67,12 @@ abstract class AbstractTileType {
         mineData: MineData,
         tileContext: TileContext, mapController: MapController
     ) {
-        var drop = getBaseDrop(mapController)
-        if (drop != null) {
-            mapController.mapApi.gameCycle.itemsApi.spawnItemEntity(
-                drop,
-                mapController.mapApi.getTilePos(x p y),
-                true
-            )
-        }
+        mapController.gameCycle.itemsApi.spawnDropTable(
+            drop,
+            mapController.mapApi.getTilePos(x p y),
+            true
+        )
     }
-
-    open fun getBaseDrop(mapController: MapController) : Item? {
-        if (baseDrop == "") return null
-        return mapController.gameCycle.itemsApi.getRegisteredItem(baseDrop, 1)
-    }
-
     open fun onRemoved(
         x: Int,
         y: Int,

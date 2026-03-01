@@ -8,6 +8,9 @@ import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Entities.EntityRender.BaseRenderEntity
 import la.vok.Game.GameContent.Entities.EntityRender.HpRender
+import la.vok.Game.GameContent.Items.Other.DropEntry
+import la.vok.Game.GameContent.Items.Other.DropTable
+import la.vok.Game.GameContent.Items.Other.NothingDrop
 import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
@@ -208,9 +211,13 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
 
     open fun kill() {
         isDead = true
+        drop()
         gameCycle.entityApi.hideEntity(this)
     }
 
+    open fun drop() {
+        gameCycle.itemsApi.spawnDropTable(entityType.drop, position, true)
+    }
     open fun takeDamage(damage: DamageData, hitboxComponent: HitboxComponent) : Boolean {
         gameCycle.entityApi.entityDamage(this, damage)
         return true

@@ -31,6 +31,7 @@ open class WindowElement(
     }
 
     var mouseInside = false
+    var isVisible = true
 
     // --------------------------------------------------------------------
     // POSITION CACHE
@@ -69,7 +70,7 @@ open class WindowElement(
 
         return Vec2(
             topLeft.x + usable.x * norm.x,
-            topLeft.y - usable.y * norm.y
+        topLeft.y - usable.y * norm.y
         ) + position
     }
 
@@ -130,9 +131,9 @@ open class WindowElement(
     }
     open fun callPhysic() = physicUpdate()
 
-    open fun callPreRender(lg: LGraphics) = preRender(lg)
-    open fun callRender(lg: LGraphics) = render(lg)
-    open fun callPostRender(lg: LGraphics) = postRender(lg)
+    open fun callPreRender(lg: LGraphics) {if (isVisible) preRender(lg) }
+    open fun callRender(lg: LGraphics) {if (isVisible) render(lg) }
+    open fun callPostRender(lg: LGraphics) {if (isVisible) postRender(lg) }
 
     open fun callResize() = resize()
 
