@@ -141,17 +141,21 @@ class EntityApi(var entityController: EntityController) {
         entity.damage()
         return entity
     }
-    fun entityDamage(entity: Entity, damage: DamageData) {
+    fun logicalDamage(entity: Entity, damage: DamageData, hitboxComponent: HitboxComponent) {
+        entity.takeDamage(damage, hitboxComponent)
+    }
+    fun absoluteDamage(entity: Entity, damage: DamageData) {
         if (entity.hpBody == null) return
         entity.knockback(damage.force)
         entity.hpBody?.hp -= damage.value
         checkEntityHp(entity)
+        entity.damage(damage)
         gameCycle.vfxObjectsApi.spawnDamageValue(entity.position, damage.value)
     }
-    fun entityDamage(id: Long, damage: DamageData) {
+    fun absoluteDamage(id: Long, damage: DamageData) {
         var entity = getById(id)
         if (entity == null) return
-        entityDamage(entity, damage)
+        absoluteDamage(entity, damage)
     }
     fun checkEntityHp(id: Long) {
         var entity = getById(id)
@@ -165,5 +169,39 @@ class EntityApi(var entityController: EntityController) {
         if (entity.hpBody!!.hp <= 0) {
             killInSystem(entity)
         }
+    }
+
+    fun getNearestEntity(pos: Vec2, tagFilter: TagFilter = TagFilter.Any): Entity? {
+        return entityController.entitySystem.entities
+            .filter { tagFilter.matches(it.entityType.tags.toList()) }
+            .minByOrNull { (it.position - pos).length() }
+    }
+
+    fun getNearestEntity(pos: Vec2, entityType: AbstractEntityType): Entity? {
+        return entityController.entitySystem.entities
+            .filter { it.entityType === entityType }
+            .minByOrNull { (it.position - pos).length() }
+    }
+
+    fun getNearestEntity(pos: Vec2, entityTypeTag: String): Entity? {
+        return getNearestEntity(pos, getRegisteredEntityType(entityTypeTag))
+    }
+
+    fun getNearestEntity(pos: Vec2, maxDistance: Float, tagFilter: TagFilter = TagFilter.Any): Entity? {
+        return entityController.entitySystem.entities
+            .filter { tagFilter.matches(it.entityType.tags.toList()) }
+            .filter { (it.position - pos).length() <= maxDistance }
+            .minByOrNull { (it.position - pos).length() }
+    }
+
+    fun getNearestEntity(pos: Vec2, maxDistance: Float, entityType: AbstractEntityType): Entity? {
+        return entityController.entitySystem.entities
+            .filter { it.entityType === entityType }
+            .filter { (it.position - pos).length() <= maxDistance }
+            .minByOrNull { (it.position - pos).length() }
+    }
+
+    fun getNearestEntity(pos: Vec2, maxDistance: Float, entityTypeTag: String): Entity? {
+        return getNearestEntity(pos, maxDistance, getRegisteredEntityType(entityTypeTag))
     }
 }

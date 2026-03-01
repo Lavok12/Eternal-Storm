@@ -4,6 +4,7 @@ import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameContent.Map.MapController
+import la.vok.Game.GameSystems.WorldSystems.Crafts.CraftApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityController
 import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
@@ -20,7 +21,8 @@ class GameCycle(var gameController: GameController) : Controller {
     var vfxObjectsController = VfxObjectsController(this)
 
     var itemsApi = ItemsApi(this)
-
+    var craftApi = CraftApi(this)
+    
     var collisionSystem = CollisionSystem(this)
 
     init {

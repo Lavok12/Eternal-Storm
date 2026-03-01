@@ -3,6 +3,8 @@ package Core.CoreControllers.Loaders
 import Core.CoreControllers.ObjectRegistration
 import Game.GameContent.TileTypes.GrassTileType
 import la.vok.Core.CoreControllers.CoreController
+import la.vok.Game.GameContent.Crafts.CraftRegistrator
+import la.vok.Game.GameContent.Crafts.craft
 import la.vok.Game.GameContent.Entities.EntitiTypes.PlayerEntityType
 import la.vok.Game.GameContent.Entities.EntitiTypes.SlimeEntityType
 import la.vok.Game.GameContent.Items.ItemTypes.AxeItemType
@@ -31,5 +33,11 @@ class MainContentRegistration(coreController: CoreController) {
 
         objectRegistration.registrationEntityType(PlayerEntityType())
         objectRegistration.registrationEntityType(SlimeEntityType())
+
+        for (i in 0 .. 10) {
+            CraftRegistrator.registration(objectRegistration)
+        }
+
+        objectRegistration.resolveAllCrafts()
     }
 }

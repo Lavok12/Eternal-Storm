@@ -5,6 +5,7 @@ import la.vok.Core.GameContent.RenderSystem.RenderLayers.LayersRenderContainer
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderObjectInterface
 import la.vok.Core.GameControllers.GameController
 import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
+import la.vok.Game.GameContent.Entities.Ai.AbstractAI
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Entities.EntityRender.BaseRenderEntity
 import la.vok.Game.GameContent.Entities.EntityRender.HpRender
@@ -30,11 +31,13 @@ import la.vok.State.AppState
 
 @Suppress("UNCHECKED_CAST")
 open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) {
-
     val gameController: GameController get() = gameCycle.gameController
     val coreController: CoreController get() = gameController.coreController
 
     open var inventory: MobInventory? = null
+
+    open val ai: AbstractAI? = null
+
     // ─── State ───────────────────────────────────────────────────────────────
 
     var position = 0 v 0
@@ -111,6 +114,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
         createBaseHitbox()
         createDownTrigger()
         createCustomHitboxes()
+        ai?.spawn()
     }
 
     var hasCollisionDetector = true
@@ -141,6 +145,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
 
     open fun physicUpdate() {
         physicTicks++
+        ai?.physicUpdate()
         inventory?.physicUpdate()
         hitboxes.values.forEach { it.resetBlockCollision() }
         gravityComponent?.useGravity()
@@ -209,7 +214,8 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
 
     var isDead = false
 
-    open fun kill() {
+    open fun die() {
+        ai?.die()
         isDead = true
         drop()
         gameCycle.entityApi.hideEntity(this)
@@ -219,8 +225,12 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
         gameCycle.itemsApi.spawnDropTable(entityType.drop, position, true)
     }
     open fun takeDamage(damage: DamageData, hitboxComponent: HitboxComponent) : Boolean {
-        gameCycle.entityApi.entityDamage(this, damage)
+        gameCycle.entityApi.absoluteDamage(this, damage)
         return true
+    }
+
+    open fun damage(damage: DamageData) {
+        ai?.damage(damage)
     }
 
     open fun knockback(force: Vec2) {

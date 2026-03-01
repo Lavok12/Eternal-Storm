@@ -96,7 +96,7 @@ class EntitySystem(var entityController: EntityController) {
             entityController.entityApi.hideEntity(entity)
             idMap.remove(entity.systemId)
             entities.remove(entity)
-            entity.kill()
+            entity.die()
             killed++
         }
 

@@ -15,7 +15,6 @@ class MapGenerator(var mapController: MapController) {
 
     fun create(mapSystem: MapSystem) {
         AppState.logger.debug("GenerateMap")
-
         generateTerrain()
     }
 
@@ -23,68 +22,25 @@ class MapGenerator(var mapController: MapController) {
     // 🌍 TERRAIN
     // --------------------------------------------------------
 
+    private val surfaceY = height / 2
+
     private fun generateTerrain() {
-
-        val baseHeight = 60f
-        val amplitude = 10f
-        val segmentSize = 10
-
-        var previousHeight = baseHeight
-
-        for (segment in 0 until width step segmentSize) {
-
-            val nextHeight =
-                baseHeight + AppState.main.random(-amplitude, amplitude)
-
-            for (i in 0 until segmentSize) {
-
-                val x = segment + i
-                if (x >= width) break
-
-                val t = i / segmentSize.toFloat()
-                val surfaceY = lerp(previousHeight, nextHeight, t).toInt()
-
-                generateColumn(x, surfaceY)
-            }
-
-            previousHeight = nextHeight
+        for (x in 0 until width) {
+            generateColumn(x, surfaceY)
         }
     }
 
     private fun generateColumn(x: Int, surfaceY: Int) {
-
         for (y in 0 until height) {
-
             when {
-                y > surfaceY -> {
-                    // воздух
-                }
+                y > surfaceY -> {}
 
-                y == surfaceY -> {
-                    mapApi.generateTile(
-                        TilesList.grass_block,
-                        x, y
-                    )
-                }
+                y == surfaceY -> mapApi.generateTile(TilesList.grass_block, x, y)
 
-                y > surfaceY - 4 -> {
-                    mapApi.generateTile(
-                        TilesList.dirt_block,
-                        x, y
-                    )
-                }
+                y > surfaceY - 4 -> mapApi.generateTile(TilesList.dirt_block, x, y)
 
-                else -> {
-                    mapApi.generateTile(
-                        TilesList.stone_block,
-                        x, y
-                    )
-                }
+                else -> mapApi.generateTile(TilesList.stone_block, x, y)
             }
         }
-    }
-
-    private fun lerp(a: Float, b: Float, t: Float): Float {
-        return a + (b - a) * t
     }
 }

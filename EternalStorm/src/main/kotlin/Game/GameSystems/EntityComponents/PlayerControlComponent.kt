@@ -21,7 +21,7 @@ class PlayerControlComponent(entity: Entity) : EntityComponent(entity) {
         }
     }
     fun tryJump() {
-        if (entity.hitboxes["down trigger"]?.blocksCollision ?: false) {
+        if (entity.downTrigger?.blocksCollision ?: false) {
             entity.rigidBody?.speed?.y = 0.55f
         }
     }

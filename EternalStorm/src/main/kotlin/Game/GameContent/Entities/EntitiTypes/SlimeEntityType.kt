@@ -16,7 +16,7 @@ import la.vok.State.AppState
 
 class SlimeEntityType() : AbstractEntityType() {
     override val tag: String = EntitiesList.slime
-    override val baseHp: Int = 10
+    override val baseHp: Int = 100
     override val baseSize: Vec2 = 2.6 v 2.4
     override val tags = arrayOf(EntityTags.entity, EntityTags.enemy)
     override val imgPreview = "slime.png"
