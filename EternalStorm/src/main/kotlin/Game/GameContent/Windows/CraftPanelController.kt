@@ -9,7 +9,6 @@ import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameController.PlayerControl
 import la.vok.LLibs.AnimationType
 import la.vok.LLibs.FloatAnimation
-import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
@@ -28,7 +27,7 @@ class CraftPanelController(
     val inventoryMargin = 15f
     val animSpeed = 3f
     val updateInterval = 60
-    val waveOverlap = 0.6f  // перекрытие волны между рядами
+    val waveOverlap = 0.6f
 
     private val craftAnim = FloatAnimation(0f, 1f, AnimationType.EaseInOut(3f))
 
@@ -40,29 +39,39 @@ class CraftPanelController(
     var animProgress = 0f
     private var ticksSinceUpdate = 0
 
-    // За экраном снизу
     private val closedPos: Vec2
-        get() = 0f v (-window.logicalSize.y / 2f - cellSize.y * 2f)
+        get() = -1000f v -2000f
 
-    // Сортировка: больший процент → выше (больший row)
-    private fun sortedByPercent(crafts: List<CraftType>, containers: List<la.vok.Game.GameContent.Items.Other.ItemContainer>): List<Pair<CraftType, Float>> {
-        return crafts.map { craft ->
-            craft to gameCycle.craftApi.getCompletionPercent(craft, *containers.toTypedArray())
-        }.sortedBy { (_, percent) -> percent }  // меньший процент — нижние ряды, больший — верхние
+    private fun sortedByPercent(): List<Pair<CraftType, Float>> {
+        val snap = gameCycle.craftApi.snapshot(*getContainers().toTypedArray())
+        val sorted = gameCycle.craftApi.allCrafts
+            .map { craft -> craft to gameCycle.craftApi.getCompletionPercent(craft, snap) }
+            .sortedByDescending { (_, percent) -> -percent }
+
+        val result = ArrayList<Pair<CraftType, Float>>(sorted.size)
+        var i = 0
+        while (i < sorted.size) {
+            val rowEnd = minOf(i + craftsPerRow, sorted.size)
+            val row = sorted.subList(i, rowEnd).sortedBy { (_, percent) -> -percent }
+            result.addAll(row)
+            i += craftsPerRow
+        }
+        return result
     }
 
     private fun openPos(idx: Int): Vec2 {
         val col = idx % craftsPerRow
         val row = idx / craftsPerRow
-        val startX = -window.logicalSize.x / 2f + inventoryMargin + cellSize.x / 2f + col * cellSpacing
-        val startY = -window.logicalSize.y / 2f + inventoryMargin + cellSize.y / 2f + cellSpacing * 5f + row * cellSpacing
-        return startX v startY
+        val x = -window.logicalSize.x / 2f + inventoryMargin + cellSize.x / 2f + col * cellSpacing
+        val y = -window.logicalSize.y / 2f + inventoryMargin + cellSize.y / 2f + row * cellSpacing
+        return x v y
     }
 
-    // Ремаппинг прогресса для волны снизу вверх — нижние ряды анимируются первыми
-    private fun remapProgress(t: Float, row: Int, totalRows: Int): Float {
-        val step = (1f - waveOverlap) / totalRows.coerceAtLeast(1)
-        val start = row * step
+    private fun remapProgress(t: Float, row: Int, col: Int, totalRows: Int, totalCols: Int): Float {
+        val totalSteps = totalRows + totalCols - 1
+        val diag = (totalRows - 1 - row) + col
+        val step = (1f - waveOverlap) / totalSteps.coerceAtLeast(1)
+        val start = diag * step
         val end = start + waveOverlap + step
         return ((t - start) / (end - start)).coerceIn(0f, 1f)
     }
@@ -70,15 +79,27 @@ class CraftPanelController(
     private fun lerp(a: Float, b: Float, t: Float) = a + (b - a) * t
     private fun lerpVec(a: Vec2, b: Vec2, t: Float) = lerp(a.x, b.x, t) v lerp(a.y, b.y, t)
 
+    private fun getContainers() = listOfNotNull(
+        playerControl.getPlayerEntity()?.inventory?.itemContainer
+    )
+
+    private fun doCraft(craft: CraftType, windowElements: ArrayList<WindowElement>) {
+        val container = getContainers().firstOrNull() ?: return
+        val entity = playerControl.getPlayerEntity() ?: return
+        val success = gameCycle.craftApi.craft(container, craft, entity, 1)
+        if (success) {
+            refresh(windowElements)
+            updatePositions()
+        }
+    }
+
     // =====================================================================
-    // ПОСТРОЕНИЕ И ОБНОВЛЕНИЕ
+    // ПОСТРОЕНИЕ
     // =====================================================================
 
     fun build(windowElements: ArrayList<WindowElement>) {
         clear(windowElements)
-
-        val containers = getContainers()
-        val sorted = sortedByPercent(gameCycle.craftApi.allCrafts, containers)
+        val sorted = sortedByPercent()
 
         sorted.forEachIndexed { idx, (craft, percent) ->
             val cell = CraftCell(
@@ -87,7 +108,8 @@ class CraftPanelController(
                 size = cellSize,
                 align = 0 v 0,
                 craft = craft,
-                completionPercent = percent
+                completionPercent = percent,
+                leftClick = { doCraft(craft, windowElements) }
             )
             cell.isVisible = false
             craftCells += cell to openPos(idx)
@@ -98,10 +120,8 @@ class CraftPanelController(
     }
 
     fun refresh(windowElements: ArrayList<WindowElement>) {
-        val containers = getContainers()
-        val sorted = sortedByPercent(gameCycle.craftApi.allCrafts, containers)
+        val sorted = sortedByPercent()
 
-        // Добавляем новые
         while (craftCells.size < sorted.size) {
             val idx = craftCells.size
             val (craft, percent) = sorted[idx]
@@ -111,20 +131,19 @@ class CraftPanelController(
                 size = cellSize,
                 align = 0 v 0,
                 craft = craft,
-                completionPercent = percent
+                completionPercent = percent,
+                leftClick = { doCraft(craft, windowElements) }
             )
             cell.isVisible = animProgress > 0f
             craftCells += cell to openPos(idx)
             windowElements += cell
         }
 
-        // Удаляем лишние
         while (craftCells.size > sorted.size) {
             val (cell, _) = craftCells.removeLast()
             windowElements.remove(cell)
         }
 
-        // Обновляем крафт и проценты (порядок мог измениться)
         craftCells.forEachIndexed { idx, (cell, _) ->
             val (craft, percent) = sorted.getOrNull(idx) ?: return@forEachIndexed
             cell.craft = craft
@@ -137,12 +156,8 @@ class CraftPanelController(
         craftCells.clear()
     }
 
-    private fun getContainers() = listOfNotNull(
-        playerControl.getPlayerEntity()?.inventory?.itemContainer
-    )
-
     // =====================================================================
-    // АНИМАЦИЯ — волна снизу вверх
+    // АНИМАЦИЯ
     // =====================================================================
 
     private fun updatePositions() {
@@ -150,7 +165,8 @@ class CraftPanelController(
 
         craftCells.forEachIndexed { idx, (cell, open) ->
             val row = idx / craftsPerRow
-            val rowT = craftAnim.evaluate(remapProgress(animProgress, row, totalRows))
+            val col = idx % craftsPerRow
+            val rowT = craftAnim.evaluate(remapProgress(animProgress, row, col, totalRows, craftsPerRow))
             cell.position = lerpVec(closedPos, open, rowT)
             cell.isVisible = animProgress > 0f
             cell.markDirty()
@@ -178,6 +194,9 @@ class CraftPanelController(
             onInventoryClosed(windowElements)
         }
     }
+
+    fun isMouseOverAnyCraft(position: Vec2): Boolean =
+        craftCells.any { (cell, _) -> cell.isVisible && cell.inside(position) }
 
     fun show(windowElements: ArrayList<WindowElement>) {
         if (craftCells.isEmpty()) build(windowElements)

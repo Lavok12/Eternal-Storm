@@ -34,9 +34,7 @@ class MainContentRegistration(coreController: CoreController) {
         objectRegistration.registrationEntityType(PlayerEntityType())
         objectRegistration.registrationEntityType(SlimeEntityType())
 
-        for (i in 0 .. 10) {
-            CraftRegistrator.registration(objectRegistration)
-        }
+        CraftRegistrator.registration(objectRegistration)
 
         objectRegistration.resolveAllCrafts()
     }

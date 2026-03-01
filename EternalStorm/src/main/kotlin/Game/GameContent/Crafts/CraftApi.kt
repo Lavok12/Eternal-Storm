@@ -7,6 +7,10 @@ import la.vok.Game.GameContent.Items.Other.AbstractItemType
 import la.vok.Game.GameContent.Items.Other.ItemContainer
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
+import kotlin.collections.get
+import kotlin.collections.minusAssign
+import kotlin.compareTo
+import kotlin.times
 
 // --- Результат анализа крафта ---
 
@@ -43,26 +47,64 @@ class CraftApi(val gameCycle: GameCycle) {
         get() = objectRegistration.crafts
 
     // =========================================================
+    // СНАПШОТ — подсчёт всех предметов за один проход
+    // =========================================================
+
+    fun snapshot(vararg containers: ItemContainer): Map<AbstractItemType, Int> {
+        val map = HashMap<AbstractItemType, Int>()
+        for (container in containers) {
+            for (slot in container.slots) {
+                val item = slot.item ?: continue
+                map[item.itemType] = (map[item.itemType] ?: 0) + item.count
+            }
+        }
+        return map
+    }
+
+    fun snapshot(containers: List<ItemContainer>): Map<AbstractItemType, Int> =
+        snapshot(*containers.toTypedArray())
+
+    // =========================================================
     // АНАЛИЗ
     // =========================================================
 
-    fun analyze(craft: CraftType, vararg containers: ItemContainer): CraftAnalysis {
+    fun analyze(craft: CraftType, snap: Map<AbstractItemType, Int>): CraftAnalysis {
         val statuses = craft.ingredientTypes.map { (type, required) ->
-            val available = containers.sumOf { it.countItemsOfType(type) }
+            val available = snap[type] ?: 0
             CraftIngredientStatus(type, required, available)
         }
         return CraftAnalysis(craft, statuses)
     }
 
+    fun analyze(craft: CraftType, vararg containers: ItemContainer): CraftAnalysis =
+        analyze(craft, snapshot(*containers))
+
     fun analyze(craft: CraftType, containers: List<ItemContainer>): CraftAnalysis =
-        analyze(craft, *containers.toTypedArray())
+        analyze(craft, snapshot(containers))
 
     // =========================================================
-    // ФИЛЬТРАЦИЯ КРАФТОВ
+    // ПАКЕТНЫЙ АНАЛИЗ — один снапшот на все крафты
     // =========================================================
 
-    fun getAvailableCrafts(vararg containers: ItemContainer): List<CraftType> =
-        allCrafts.filter { analyze(it, *containers).canCraft }
+    fun analyzeAll(vararg containers: ItemContainer): List<CraftAnalysis> {
+        val snap = snapshot(*containers)
+        return allCrafts.map { analyze(it, snap) }
+    }
+
+    fun analyzeAll(containers: List<ItemContainer>): List<CraftAnalysis> =
+        analyzeAll(*containers.toTypedArray())
+
+    fun analyzeAll(snap: Map<AbstractItemType, Int>): List<CraftAnalysis> =
+        allCrafts.map { analyze(it, snap) }
+
+    // =========================================================
+    // ФИЛЬТРАЦИЯ
+    // =========================================================
+
+    fun getAvailableCrafts(vararg containers: ItemContainer): List<CraftType> {
+        val snap = snapshot(*containers)
+        return allCrafts.filter { analyze(it, snap).canCraft }
+    }
 
     fun getAvailableCrafts(containers: List<ItemContainer>): List<CraftType> =
         getAvailableCrafts(*containers.toTypedArray())
@@ -73,49 +115,61 @@ class CraftApi(val gameCycle: GameCycle) {
     fun getCraftsByPriority(priority: Int): List<CraftType> =
         objectRegistration.craftsByPriority[priority] ?: emptyList()
 
-    fun getCraftsWithTagFilter(tagFilter: TagFilter): List<CraftType> =
-        allCrafts  // расширяемо если у CraftType появятся теги
-
-    fun analyzeAll(vararg containers: ItemContainer): List<CraftAnalysis> =
-        allCrafts.map { analyze(it, *containers) }
-
-    fun analyzeAll(containers: List<ItemContainer>): List<CraftAnalysis> =
-        analyzeAll(*containers.toTypedArray())
-
     // =========================================================
     // ЧТО ХВАТАЕТ / НЕ ХВАТАЕТ
     // =========================================================
 
-    fun getMissing(craft: CraftType, vararg containers: ItemContainer): List<CraftIngredientStatus> =
+    fun getMissing(craft: CraftType, vararg containers: ItemContainer) =
         analyze(craft, *containers).missingIngredients
 
-    fun getSatisfied(craft: CraftType, vararg containers: ItemContainer): List<CraftIngredientStatus> =
+    fun getSatisfied(craft: CraftType, vararg containers: ItemContainer) =
         analyze(craft, *containers).satisfiedIngredients
 
     fun getCompletionPercent(craft: CraftType, vararg containers: ItemContainer): Float =
-        analyze(craft, *containers).completionPercent
+        analyze(craft, snapshot(*containers)).completionPercent
 
-    fun getMissingForAll(vararg containers: ItemContainer): Map<CraftType, List<CraftIngredientStatus>> =
-        allCrafts.associateWith { getMissing(it, *containers) }
+    fun getCompletionPercent(craft: CraftType, snap: Map<AbstractItemType, Int>): Float =
+        analyze(craft, snap).completionPercent
 
-    fun getSatisfiedForAll(vararg containers: ItemContainer): Map<CraftType, List<CraftIngredientStatus>> =
-        allCrafts.associateWith { getSatisfied(it, *containers) }
+    // Один вызов — один снапшот для всех крафтов
+    fun getCompletionPercentForAll(vararg containers: ItemContainer): Map<CraftType, Float> {
+        val snap = snapshot(*containers)
+        return allCrafts.associateWith { analyze(it, snap).completionPercent }
+    }
 
-    fun getCompletionPercentForAll(vararg containers: ItemContainer): Map<CraftType, Float> =
-        allCrafts.associateWith { getCompletionPercent(it, *containers) }
+    fun getMissingForAll(vararg containers: ItemContainer): Map<CraftType, List<CraftIngredientStatus>> {
+        val snap = snapshot(*containers)
+        return allCrafts.associateWith { analyze(it, snap).missingIngredients }
+    }
+
+    fun getSatisfiedForAll(vararg containers: ItemContainer): Map<CraftType, List<CraftIngredientStatus>> {
+        val snap = snapshot(*containers)
+        return allCrafts.associateWith { analyze(it, snap).satisfiedIngredients }
+    }
+
+    fun canCraft(craft: CraftType, vararg containers: ItemContainer): Boolean =
+        analyze(craft, snapshot(*containers)).canCraft
+
+    fun canCraft(craft: CraftType, snap: Map<AbstractItemType, Int>): Boolean =
+        analyze(craft, snap).canCraft
+
+    fun maxCraftAmount(craft: CraftType, vararg containers: ItemContainer): Int {
+        val snap = snapshot(*containers)
+        return maxCraftAmount(craft, snap)
+    }
+
+    fun maxCraftAmount(craft: CraftType, snap: Map<AbstractItemType, Int>): Int {
+        if (craft.ingredientTypes.isEmpty()) return Int.MAX_VALUE
+        return craft.ingredientTypes.minOf { (type, required) ->
+            if (required == 0) Int.MAX_VALUE
+            else (snap[type] ?: 0) / required
+        }
+    }
 
     // =========================================================
     // КРАФТ
     // =========================================================
 
-    /**
-     * Выполнить крафт.
-     * @param container контейнер с ингредиентами и для результата
-     * @param craft крафт
-     * @param entity сущность для выброса лишнего (если нет места)
-     * @param amount сколько раз скрафтить
-     * @return true если успешно
-     */
     fun craft(
         container: ItemContainer,
         craft: CraftType,
@@ -123,43 +177,20 @@ class CraftApi(val gameCycle: GameCycle) {
         amount: Int = 1
     ): Boolean {
         if (amount <= 0) return false
+        val snap = snapshot(container)
 
-        // Проверяем что хватает ингредиентов на amount раз
         for ((type, required) in craft.ingredientTypes) {
-            val totalRequired = required * amount
-            if (!container.hasAmount(type, totalRequired)) return false
+            if ((snap[type] ?: 0) < required * amount) return false
         }
 
-        // Снимаем ингредиенты
         for ((type, required) in craft.ingredientTypes) {
             container.removeAmount(type, required * amount)
         }
 
-        // Выдаём основной результат
-        val resultType = craft.resultType ?: return false
-        val resultItem = gameCycle.itemsApi.getRegisteredItem(resultType, craft.result.count * amount)
-        val remaining = container.addItem(resultItem)
-        if (remaining > 0 && entity != null) {
-            val spawnItem = gameCycle.itemsApi.getRegisteredItem(resultType, remaining)
-            gameCycle.itemsApi.spawnItemEntity(spawnItem, entity.position, randomVelocity = true)
-        }
-
-        // Выдаём доп результаты
-        for ((type, count) in craft.extraResultTypes) {
-            val extraItem = gameCycle.itemsApi.getRegisteredItem(type, count * amount)
-            val extraRemaining = container.addItem(extraItem)
-            if (extraRemaining > 0 && entity != null) {
-                val spawnItem = gameCycle.itemsApi.getRegisteredItem(type, extraRemaining)
-                gameCycle.itemsApi.spawnItemEntity(spawnItem, entity.position, randomVelocity = true)
-            }
-        }
-
+        spawnResults(craft, container, entity, amount)
         return true
     }
 
-    /**
-     * Крафт из нескольких контейнеров-источников в контейнер-результат.
-     */
     fun craft(
         sourceContainers: List<ItemContainer>,
         resultContainer: ItemContainer,
@@ -168,65 +199,40 @@ class CraftApi(val gameCycle: GameCycle) {
         amount: Int = 1
     ): Boolean {
         if (amount <= 0) return false
+        val snap = snapshot(sourceContainers)
 
-        // Проверяем наличие ингредиентов суммарно
         for ((type, required) in craft.ingredientTypes) {
-            val totalAvailable = sourceContainers.sumOf { it.countItemsOfType(type) }
-            if (totalAvailable < required * amount) return false
+            if ((snap[type] ?: 0) < required * amount) return false
         }
 
-        // Снимаем ингредиенты из источников по очереди
         for ((type, required) in craft.ingredientTypes) {
             var toRemove = required * amount
             for (src in sourceContainers) {
                 if (toRemove <= 0) break
-                val removed = src.removeAmount(type, toRemove)
-                toRemove -= removed
+                toRemove -= src.removeAmount(type, toRemove)
             }
         }
 
-        // Выдаём результат
-        val resultType = craft.resultType ?: return false
-        val resultItem = gameCycle.itemsApi.getRegisteredItem(resultType, craft.result.count * amount)
-        val remaining = resultContainer.addItem(resultItem)
-        if (remaining > 0 && entity != null) {
-            gameCycle.itemsApi.spawnItemEntity(
-                gameCycle.itemsApi.getRegisteredItem(resultType, remaining),
-                entity.position, randomVelocity = true
-            )
-        }
+        spawnResults(craft, resultContainer, entity, amount)
+        return true
+    }
 
-        for ((type, count) in craft.extraResultTypes) {
-            val extraItem = gameCycle.itemsApi.getRegisteredItem(type, count * amount)
-            val extraRemaining = resultContainer.addItem(extraItem)
-            if (extraRemaining > 0 && entity != null) {
+    private fun spawnResults(craft: CraftType, container: ItemContainer, entity: Entity?, amount: Int) {
+        fun giveItem(type: AbstractItemType, count: Int) {
+            val item = gameCycle.itemsApi.getRegisteredItem(type, count)
+            val remaining = container.addItem(item)
+            if (remaining > 0 && entity != null) {
                 gameCycle.itemsApi.spawnItemEntity(
-                    gameCycle.itemsApi.getRegisteredItem(type, extraRemaining),
+                    gameCycle.itemsApi.getRegisteredItem(type, remaining),
                     entity.position, randomVelocity = true
                 )
             }
         }
 
-        return true
-    }
-
-    /**
-     * Максимальное количество раз, которое можно скрафтить
-     */
-    fun maxCraftAmount(craft: CraftType, vararg containers: ItemContainer): Int {
-        if (craft.ingredientTypes.isEmpty()) return Int.MAX_VALUE
-        return craft.ingredientTypes.minOf { (type, required) ->
-            if (required == 0) Int.MAX_VALUE
-            else containers.sumOf { it.countItemsOfType(type) } / required
+        val resultType = craft.resultType ?: return
+        giveItem(resultType, craft.result.count * amount)
+        for ((type, count) in craft.extraResultTypes) {
+            giveItem(type, count * amount)
         }
     }
-
-    fun maxCraftAmount(craft: CraftType, containers: List<ItemContainer>): Int =
-        maxCraftAmount(craft, *containers.toTypedArray())
-
-    fun canCraft(craft: CraftType, vararg containers: ItemContainer): Boolean =
-        analyze(craft, *containers).canCraft
-
-    fun canCraft(craft: CraftType, containers: List<ItemContainer>): Boolean =
-        canCraft(craft, *containers.toTypedArray())
 }
