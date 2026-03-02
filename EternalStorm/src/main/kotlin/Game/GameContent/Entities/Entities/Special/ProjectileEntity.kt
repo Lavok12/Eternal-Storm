@@ -84,11 +84,12 @@ open class ProjectileEntity(
     }
 
     open fun onHit(hitbox: HitboxComponent) {
+        if (isDead) return
         val target = hitbox.entity
         if (!target.isDead) {
             target.takeDamage(DamageData(
                 damage,
-                (rigidBody?.speed?.normalized() ?: (0 v 0)) * knockBack + (0 v upKnockBack),
+                (rigidBody?.speed?.normalized() ?: (Vec2.ZERO)) * knockBack + (0 v upKnockBack),
                 source,
                 null
                 ), hitbox)

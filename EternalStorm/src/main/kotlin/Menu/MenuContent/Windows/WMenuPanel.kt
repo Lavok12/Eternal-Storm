@@ -21,7 +21,7 @@ class WMenuPanel(windowsManager: WindowsManager, var menuController: MenuControl
     private val menuAurora = MenuAurora(this)
 
     override var padding: Vec2
-        get() = 0 v 0
+        get() = Vec2.ZERO
         set(value) {}
 
     override var tags: Array<String>

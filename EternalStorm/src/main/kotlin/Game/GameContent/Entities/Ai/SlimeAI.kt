@@ -3,6 +3,8 @@ package la.vok.Game.GameContent.Entities.Ai
 import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.EntitiesList
 import la.vok.Game.GameController.GameCycle
+import la.vok.LavokLibrary.Vectors.LPoint
+import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
 open class SlimeAI(entity: Entity, gameCycle: GameCycle) : AbstractAI(entity, gameCycle) {
@@ -30,5 +32,18 @@ open class SlimeAI(entity: Entity, gameCycle: GameCycle) : AbstractAI(entity, ga
                 entity.rigidBody?.addForce(jumpPower * (direction v 1))
             }
         }
+    }
+
+    override fun targetScreenPos(): Vec2 {
+        return worldToScreen(targetWorldPos())
+    }
+
+    override fun targetWorldPos(): Vec2 {
+        val target = gameCycle.entityApi.getNearestEntity(entity.position, 50f, EntitiesList.player)
+        return target?.position ?: (Vec2.ZERO)
+    }
+
+    override fun targetMapPos(): LPoint {
+        return worldToMap(targetWorldPos())
     }
 }

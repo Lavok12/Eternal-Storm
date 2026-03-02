@@ -40,7 +40,7 @@ class InventoryPanelController(
         val y = window.logicalSize.y / 2f - inventoryMargin - cellSize.y / 2f - 4 * cellSpacing - 10f
         return x v y
     }
-    private val hotbarOpenAlign = 0 v 0
+    private val hotbarOpenAlign = Vec2.ZERO
 
     private fun inventoryOpenPos(idx: Int): Vec2 {
         val col = idx % 10
@@ -49,7 +49,7 @@ class InventoryPanelController(
         val y = window.logicalSize.y / 2f - inventoryMargin - cellSize.y / 2f - row * cellSpacing
         return x v y
     }
-    private val inventoryOpenAlign = 0 v 0
+    private val inventoryOpenAlign = Vec2.ZERO
 
     private val inventoryClosedPos: Vec2
         get() {
@@ -57,7 +57,7 @@ class InventoryPanelController(
             val y = -window.logicalSize.y / 2f + inventoryMargin - cellSize.y * 3f
             return x v y
         }
-    private val inventoryClosedAlign = 0 v 0
+    private val inventoryClosedAlign = Vec2.ZERO
 
     // =====================================================================
 

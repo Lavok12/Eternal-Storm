@@ -27,7 +27,7 @@ class HighlightRender(var gameRender: GameRender) : Controller {
         }
 
         val mapApi = gameRender.gameController.gameCycle.mapApi
-        val targetPoint = item.handItemComponent.targetMapPos()
+        val targetPoint = item.entity.ai?.targetMapPos() ?: LPoint.ZERO
 
         targetMinePoint = if (item.descriptor.renderMineHighlight) targetPoint else null
 

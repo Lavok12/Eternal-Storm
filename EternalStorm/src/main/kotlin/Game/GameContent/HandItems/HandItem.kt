@@ -7,6 +7,7 @@ import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
 import la.vok.LavokLibrary.Vectors.Vec2
+import la.vok.LavokLibrary.Vectors.v
 import kotlin.math.atan2
 
 open class HandItem(
@@ -48,10 +49,10 @@ val gameRender: GameRender get() = gameController.gameRender
     open fun rightUpdate(pos: Vec2, oldPosition: Vec2) {}
 
     private fun startUse(action: UseAction) {
-        if (handItemComponent.targetScreenPos().x < entity.position.x) {
+        if ((entity.ai?.targetScreenPos()?.x ?: 0f) < entity.position.x) {
             entity.changeFacing(-1)
         }
-        if (handItemComponent.targetScreenPos().x > entity.position.x) {
+        if ((entity.ai?.targetScreenPos()?.x ?: 0f) > entity.position.x) {
             entity.changeFacing(1)
         }
         if (action is UseAction.None) return
@@ -59,7 +60,7 @@ val gameRender: GameRender get() = gameController.gameRender
         when (descriptor.animationType) {
             is AnimationType.Spear,
             is AnimationType.DirectionalThrust -> {
-                val target  = handItemComponent.targetWorldPos()
+                val target  = entity.ai?.targetWorldPos() ?: Vec2.ZERO
                 val handPos = handItemComponent.getHandPos()
                 val dx = target.x - handPos.x
                 val dy = target.y - handPos.y
@@ -140,7 +141,7 @@ val gameRender: GameRender get() = gameController.gameRender
             is AnimationType.Spear,
             is AnimationType.DirectionalThrust -> {
                 if (!block) {
-                    val target = handItemComponent.targetWorldPos()
+                    val target = entity.ai?.targetWorldPos() ?: Vec2.ZERO
                     val handPos = handItemComponent.getHandPos()
                     val dx = target.x - handPos.x
                     val dy = target.y - handPos.y

@@ -15,7 +15,7 @@ import la.vok.LavokLibrary.Vectors.v
 abstract class AbstractEntityType {
     object EmptyEntityType : AbstractEntityType() {
         override val baseHp = 0
-        override val baseSize = 0 v 0
+        override val baseSize = Vec2.ZERO
         override val tags = arrayOf(EntityTags.entity)
         override fun createEntity(gameCycle: GameCycle) = EmptyEntity(gameCycle)
         override val imgPreview = ""

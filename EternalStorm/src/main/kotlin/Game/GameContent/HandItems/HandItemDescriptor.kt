@@ -6,7 +6,7 @@ import la.vok.LavokLibrary.Vectors.v
 data class HandItemDescriptor(
     val spriteName: String,
     val spriteSize: Vec2 = 1 v 1,
-    val renderDelta: Vec2 = 0 v 0,
+    val renderDelta: Vec2 = Vec2.ZERO,
     val useDuration: Float = 100f,
     val useStageStep: Float = 1f,
     val animationType: AnimationType = AnimationType.Swing(),

@@ -32,7 +32,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
 
     // ─── State ───────────────────────────────────────────────────────────────
 
-    var position = 0 v 0
+    var position = Vec2.ZERO
     var size = 1 v 1
     var systemId = 0L
     var facing = 1
@@ -233,6 +233,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
         gameCycle.itemsApi.spawnDropTable(entityType.drop, position, true)
     }
     open fun takeDamage(damage: DamageData, hitboxComponent: HitboxComponent) : Boolean {
+        if (isDead) return false
         if (invulnerabilityTicks > 0) return false
         gameCycle.entityApi.absoluteDamage(this, damage)
         return true

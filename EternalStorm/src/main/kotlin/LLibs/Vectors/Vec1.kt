@@ -8,7 +8,7 @@ data class Vec1(var x: Float = 0f) {
     constructor(v: Vec1) : this(v.x)
 
     companion object {
-        val ZERO: Vec1 = Vec1(0f)
+        val ZERO: Vec1 get() = Vec1(0f)
     }
     // ===== Длина =====
     fun length(): Float = kotlin.math.abs(x)

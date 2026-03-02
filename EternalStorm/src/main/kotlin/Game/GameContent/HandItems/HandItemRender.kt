@@ -26,9 +26,9 @@ open class HandItemRender(
         desc.renderLayer
     )
 
-    override var ROI_pos = 0 v 0
+    override var ROI_pos = Vec2.ZERO
     override var ROI_size = 1 v 1
-    override var ROI_delta = 0 v 0
+    override var ROI_delta = Vec2.ZERO
 
     open var facing = 1
     open var useStage = 0f
@@ -125,7 +125,7 @@ open class HandItemRender(
     }
 
     private fun drawSpear(lg: LGraphics, anim: AnimationType.Spear, camera: Camera) {
-        val cursorX = handItem.handItemComponent.targetScreenPos().x
+        val cursorX = handItem.entity.ai?.targetScreenPos()?.x ?: 0f
         val entityX = handItem.entity.position.x
         val flipped = cursorX < entityX
 
@@ -165,7 +165,7 @@ open class HandItemRender(
     }
 
     private fun drawDirectionalThrust(lg: LGraphics, anim: AnimationType.DirectionalThrust, camera: Camera) {
-        val cursorX = handItem.handItemComponent.targetWorldPos().x
+        val cursorX = handItem.entity.ai?.targetWorldPos()?.x ?: 0f
         val entityX = handItem.entity.position.x
         val flipped = cursorX < entityX
 
@@ -205,7 +205,7 @@ open class HandItemRender(
     }
 
     private fun drawDirectionalIdle(lg: LGraphics, anim: AnimationType.DirectionalThrust, camera: Camera) {
-        val cursorX = handItem.handItemComponent.targetScreenPos().x
+        val cursorX = handItem.entity.ai?.targetScreenPos()?.x ?: 0f
         val entityX = handItem.entity.position.x
         val flipped = cursorX < entityX
 

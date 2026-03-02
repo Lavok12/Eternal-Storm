@@ -8,8 +8,8 @@ import kotlin.math.abs
 import kotlin.math.sign
 
 class RigidBody(entity: Entity) : EntityComponent(entity) {
-    var deltaPosition = 0 v 0
-    var speed = 0 v 0
+    var deltaPosition = Vec2.ZERO
+    var speed = Vec2.ZERO
     var friction = 0.025f
     var blockFriction = 0.14f
 
@@ -60,7 +60,7 @@ class RigidBody(entity: Entity) : EntityComponent(entity) {
     }
     fun addDeltaPos() {
         entity.position = entity.position + deltaPosition
-        deltaPosition = 0 v 0
+        deltaPosition = Vec2.ZERO
     }
 
     fun addForce(force: Vec2) {

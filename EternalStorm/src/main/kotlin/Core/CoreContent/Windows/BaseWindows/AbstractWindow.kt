@@ -234,7 +234,7 @@ open class AbstractWindow(
     
     override fun mouseStartFrame() {}
 
-    open var mousePosition = 0 v 0
+    open var mousePosition = Vec2.ZERO
 
     override fun mouseUpdate(position: Vec2, oldPosition: Vec2) {
         mousePosition = position

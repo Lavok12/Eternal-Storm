@@ -69,11 +69,13 @@ class EntitySystem(var entityController: EntityController) {
 
     fun kill(entity: Entity) {
         AppState.logger.info("Kill Entity $entity")
+        entity.isDead = true
         killBuffer.add(entity)
     }
 
     fun kill(id: Long) {
         AppState.logger.info("Kill Entity $id")
+        idMap[id]?.isDead = true
         idMap[id]?.let { killBuffer.add(it) }
     }
 

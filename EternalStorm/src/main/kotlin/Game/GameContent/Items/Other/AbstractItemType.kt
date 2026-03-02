@@ -8,8 +8,8 @@ abstract class AbstractItemType {
     open val tag: String = ""
     open val worldSize: Vec2 = 1 v 1
     open val sizeInSlot: Vec2 = 1 v 1
-    open val worldRenderDelta: Vec2 = 0 v 0
-    open val slotRenderDelta: Vec2 = 0 v 0
+    open val worldRenderDelta: Vec2 = Vec2.ZERO
+    open val slotRenderDelta: Vec2 = Vec2.ZERO
     open val shadowPower = 0.7f
 
     open val sprite = ""

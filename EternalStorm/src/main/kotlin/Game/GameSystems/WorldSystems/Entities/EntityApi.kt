@@ -60,7 +60,7 @@ class EntityApi(var entityController: EntityController) {
         entityController.entitySystem.add(id, entity)
         return entity.systemId
     }
-    fun spawnEntity(type: String, pos: Vec2 = 0 v 0) : Entity? {
+    fun spawnEntity(type: String, pos: Vec2 = Vec2.ZERO) : Entity? {
         val entity = getRegisteredEntity(type)
         addInSystem(entity, pos)
         return entity

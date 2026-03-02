@@ -106,7 +106,7 @@ class CraftPanelController(
                 window = window,
                 position = closedPos,
                 size = cellSize,
-                align = 0 v 0,
+                align = Vec2.ZERO,
                 craft = craft,
                 completionPercent = percent,
                 leftClick = { doCraft(craft, windowElements) }
@@ -129,7 +129,7 @@ class CraftPanelController(
                 window = window,
                 position = if (animProgress > 0f) openPos(idx) else closedPos,
                 size = cellSize,
-                align = 0 v 0,
+                align = Vec2.ZERO,
                 craft = craft,
                 completionPercent = percent,
                 leftClick = { doCraft(craft, windowElements) }

@@ -11,6 +11,8 @@ import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
 import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
 import la.vok.Game.GameSystems.WorldSystems.Map.MineData
+import la.vok.LavokLibrary.Vectors.LPoint
+import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
 open class PickaxeHandItem(item: PickaxeItem, component: HandItemComponent) : HandItem(
@@ -43,7 +45,7 @@ open class PickaxeHandItem(item: PickaxeItem, component: HandItemComponent) : Ha
                     AxeSwingTraceVfxObject(gameCycle, entity.facing),
                     entity.position + ((0.5f+descriptor.spriteSize.x/2f) * entity.facing v 0.2f),
                     descriptor.spriteSize * 1.4f,
-                    (entity.rigidBody?.speed ?: (0 v 0)) * (1f v 0.3f)
+                    (entity.rigidBody?.speed ?: (Vec2.ZERO)) * (1f v 0.3f)
                 )
 
                 (this as PickaxeHandItem).onMineTile()
@@ -52,7 +54,7 @@ open class PickaxeHandItem(item: PickaxeItem, component: HandItemComponent) : Ha
     )
 ) {
     open fun onMineTile() {
-        var placePos = handItemComponent.targetMapPos()
+        var placePos = entity.ai?.targetMapPos() ?: LPoint.ZERO
         var mineData = MineData((item as PickaxeItem).mineDamage, (item as PickaxeItem).minePower, entity.systemId, this)
         gameCycle.mapApi.mineTile(placePos.x, placePos.y, mineData)
     }

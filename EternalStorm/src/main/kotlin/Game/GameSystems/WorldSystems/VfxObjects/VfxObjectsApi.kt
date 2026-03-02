@@ -27,7 +27,7 @@ class VfxObjectsApi(var vfxObjectsController: VfxObjectsController) {
 
     }
 
-    fun addInSystem(vfx: AbstractVfxObject, pos: Vec2, size: Vec2 = 1 v 1, speed: Vec2 = 0 v 0) {
+    fun addInSystem(vfx: AbstractVfxObject, pos: Vec2, size: Vec2 = 1 v 1, speed: Vec2 = Vec2.ZERO) {
         vfx.position = pos.copy()
         vfx.size = size.copy()
         vfx.vfxObjectsSystem = vfxObjectsController.vfxObjectsSystem

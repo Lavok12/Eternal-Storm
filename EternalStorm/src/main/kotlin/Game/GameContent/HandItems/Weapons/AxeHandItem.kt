@@ -10,6 +10,7 @@ import la.vok.Game.GameContent.VfxObjects.AxeSwingTraceVfxObject
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
 import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
+import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
 class AxeHandItem(item: Item, component: HandItemComponent) : HandItem(
@@ -36,7 +37,7 @@ class AxeHandItem(item: Item, component: HandItemComponent) : HandItem(
 
                 gameController.gameCycle.vfxObjectsApi.addInSystem(
                     AxeSwingTraceVfxObject(gameCycle, entity.facing), entity.position + (2f * entity.facing v 0.2f), descriptor.spriteSize * 1.4f,
-                    (entity.rigidBody?.speed ?: (0 v 0)) * (1f v 0.3f)
+                    (entity.rigidBody?.speed ?: (Vec2.ZERO)) * (1f v 0.3f)
                 )
             },
         ),

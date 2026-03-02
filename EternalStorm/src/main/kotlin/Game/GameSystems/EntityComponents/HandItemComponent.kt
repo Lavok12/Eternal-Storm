@@ -11,7 +11,7 @@ import la.vok.LavokLibrary.Vectors.v
 
 class HandItemComponent(
     entity: Entity,
-    var delta: Vec2 = 0 v 0
+    var delta: Vec2 = Vec2.ZERO
 ) : EntityComponent(entity) {
 
     val gameCycle: GameCycle get() = entity.gameCycle
@@ -87,10 +87,9 @@ class HandItemComponent(
         if (!(handItem.descriptor.changeFacingToTarget)) return
 
         entity.facing =
-            if (targetWorldPos().x > entity.position.x) 1
+            if ((entity.ai?.targetWorldPos()?.x ?: 0f) > entity.position.x) 1
             else -1
     }
-
     open fun leftReleased() { currentHandItem?.leftReleased() }
     open fun rightReleased() { currentHandItem?.rightReleased() }
 
@@ -120,36 +119,13 @@ class HandItemComponent(
             return true
         }
         return false
+
     }
 
-    fun screenToWorld(screenPos: Vec2): Vec2 =
-        gameCycle.gameController.mainCamera.toWorldPos(screenPos)
-
-    fun worldToMap(worldPos: Vec2): LPoint =
-        gameCycle.gameController.gameCycle.mapApi.getPointFromPos(worldPos)
-
-    fun screenToMap(screenPos: Vec2): LPoint =
-        worldToMap(screenToWorld(screenPos))
-
-    fun targetScreenPos(): Vec2 =
-        gameCycle.gameController.playerControl.getTarget()
-
-    fun targetWorldPos(): Vec2 =
-        screenToWorld(targetScreenPos())
-
-    fun targetMapPos(): LPoint =
-        worldToMap(targetWorldPos())
-
-    fun entityWorldPos(entity: Entity): Vec2 =
-        entity.position
-
-    fun entityMapPos(entity: Entity): LPoint =
-        worldToMap(entity.position)
+    fun getHandPos(): Vec2 = entity.position + deltaWithFacing
 
     fun targetDirection(): Vec2 =
-        (targetWorldPos() - getHandPos()).normalized()
+        ((entity.ai?.targetWorldPos() ?: (Vec2.ZERO)) - getHandPos()).normalized()
 
-    fun getHandPos(): Vec2 = entity.position + deltaWithFacing
     fun getVisualHandPos(): Vec2 = gameCycle.gameController.mainCamera.useCamera(getHandPos())
-
 }

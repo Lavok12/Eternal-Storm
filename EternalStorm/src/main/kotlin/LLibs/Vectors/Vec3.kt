@@ -13,7 +13,7 @@ data class Vec3(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f) {
     constructor(p2: Vec2, p: Float) : this(p2.x, p2.y, p)
 
     companion object {
-        val ZERO: Vec3 = Vec3(0f)
+        val ZERO: Vec3 get() = Vec3(0f)
     }
     // ===== Комбинированные свойства =====
     var xy: Vec2

@@ -16,9 +16,9 @@ open class SlimeRenderEntity(layersRenderContainer: LayersRenderContainer) : Bas
         1
     )
 
-    override var ROI_pos = 0 v 0
+    override var ROI_pos = Vec2.ZERO
     override var ROI_size = 1 v 1
-    override var ROI_delta = 0 v 0
+    override var ROI_delta = Vec2.ZERO
 
     override fun draw(lg: LGraphics, pos: Vec2, size: Vec2, camera: Camera) {
         lg.fill(50f, 120f, 200f, 120f)

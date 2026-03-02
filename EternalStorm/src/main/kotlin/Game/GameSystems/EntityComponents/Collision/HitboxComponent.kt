@@ -12,7 +12,7 @@ import la.vok.State.AppState
 
 class HitboxComponent(var hitboxType: HitboxTypes, entity: Entity, var rigidBody: RigidBody? = null) : EntityComponent(entity), FrameRect {
     var size = 1 v 1
-    var delta = 0 v 0
+    var delta = Vec2.ZERO
     var hitboxRender = HitboxRender(this, entity.getRenderLayer())
 
     var ignoreCollision = false

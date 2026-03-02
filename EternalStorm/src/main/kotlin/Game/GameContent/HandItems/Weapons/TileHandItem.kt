@@ -7,6 +7,8 @@ import la.vok.Game.GameContent.HandItems.UseAction
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
+import la.vok.LavokLibrary.Vectors.LPoint
+import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
 class TileHandItem(item: Item, component: HandItemComponent, var abstractTileType: AbstractTileType) : HandItem(
@@ -21,7 +23,7 @@ class TileHandItem(item: Item, component: HandItemComponent, var abstractTileTyp
         animationType = AnimationType.Idle,
         leftAction = UseAction.Custom(
             onStart = {
-                var placePos = handItemComponent.targetMapPos()
+                var placePos = entity.ai?.targetMapPos() ?: LPoint.ZERO
                 gameCycle.mapApi.controlPlaceTile(abstractTileType, placePos.x, placePos.y, item, abstractTileType.consumed)
             },
         ),

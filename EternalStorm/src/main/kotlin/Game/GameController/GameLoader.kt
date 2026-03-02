@@ -7,6 +7,7 @@ import la.vok.Game.GameContent.ItemsList
 import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
+import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
 
@@ -28,6 +29,6 @@ class GameLoader(var gameController: GameController) : Controller {
         itemsApi.spawnItemEntity(itemsApi.getRegisteredItem(ItemsList.pickaxe, 1), 10 v 80)
         gameController.wGamePanel?.buildInventoryButtons()
 
-        entityApi.spawnEntity(EntitiesList.slime, gameController.mainCamera.pos.copy() + (30 v 0))
+        entityApi.spawnEntity(EntitiesList.slime, gameController.mainCamera.pos.copy() + (20 v 0))
     }
 }

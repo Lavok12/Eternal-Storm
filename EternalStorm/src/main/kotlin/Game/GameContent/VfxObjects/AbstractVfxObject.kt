@@ -11,6 +11,7 @@ import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsSystem
+import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
 abstract class AbstractVfxObject(var gameCycle: GameCycle) {
@@ -36,9 +37,9 @@ abstract class AbstractVfxObject(var gameCycle: GameCycle) {
 
     var isDead = false
 
-    var position = 0 v 0
+    var position = Vec2.ZERO
     var size = 1 v 1
-    var speed = 0 v 0
+    var speed = Vec2.ZERO
 
     open fun physicUpdate() {
         position = position + speed

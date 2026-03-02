@@ -28,7 +28,7 @@ class DamageVfxObject(gameCycle: GameCycle, var damage: Int = 0) : AbstractVfxOb
         override var layerData: RenderLayerData = RenderLayerData(
             RenderLayers.Main.A5,
             3)
-        override var ROI_pos: Vec2 = 0 v 0
+        override var ROI_pos: Vec2 = Vec2.ZERO
         override var ROI_size: Vec2 = 1 v 1
 
         override fun draw(

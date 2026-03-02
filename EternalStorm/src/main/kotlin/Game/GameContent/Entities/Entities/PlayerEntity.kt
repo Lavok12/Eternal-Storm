@@ -10,14 +10,14 @@ import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
 import la.vok.Game.GameSystems.EntityComponents.MobInventory
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
 import la.vok.Game.GameSystems.EntityComponents.PickUpComponent
-import la.vok.Game.GameSystems.EntityComponents.PlayerControlComponent
+import la.vok.Game.GameContent.Entities.Ai.PlayerAI
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
 import la.vok.LavokLibrary.Vectors.v
 
 @Suppress("UNCHECKED_CAST")
 class PlayerEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(entityType, gameCycle) {
     override var renderEntity: RenderObjectInterface? = BaseRenderEntity(getRenderLayer())
-    var playerControlComponent = PlayerControlComponent(this)
+    override var ai = PlayerAI(this, gameCycle)
 
     var handItemComponent = HandItemComponent(this, 0.8 v 0f)
     var pickUpComponent: PickUpComponent? = null

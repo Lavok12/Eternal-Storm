@@ -50,18 +50,18 @@ class PlayerControl(var gameController: GameController) : Controller {
     fun tapA() {
         if (!isControl()) return
         val player = getPlayerEntity() ?: return
-        player.playerControlComponent.moveLeft()
+        player.ai.moveLeft()
     }
     fun tapD() {
         if (!isControl()) return
         val player = getPlayerEntity() ?: return
-        player.playerControlComponent.moveRight()
+        player.ai.moveRight()
     }
 
     fun tapSpace() {
         if (!isControl()) return
         val player = getPlayerEntity() ?: return
-        player.playerControlComponent.tryJump()
+        player.ai.tryJump()
     }
 
     fun leftPressed(position: Vec2) {

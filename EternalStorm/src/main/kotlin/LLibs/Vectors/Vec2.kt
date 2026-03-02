@@ -8,7 +8,7 @@ import kotlin.math.sqrt
 data class Vec2(var x: Float = 0f, var y: Float = 0f) {
 
     companion object {
-        val ZERO = Vec2(0f)
+        val ZERO get() = Vec2(0f)
     }
     constructor(p: Vec2) : this(p.x, p.y)
     constructor(p: Float) : this(p, p)

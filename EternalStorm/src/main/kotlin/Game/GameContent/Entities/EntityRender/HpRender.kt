@@ -19,7 +19,7 @@ class HpRender(layersRenderContainer: LayersRenderContainer, var hpBody: HpBody,
         1000
     )
 
-    override var ROI_pos = 0 v 0
+    override var ROI_pos = Vec2.ZERO
     override var ROI_size = 1 v 1
 
     fun update() {
