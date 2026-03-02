@@ -24,8 +24,8 @@ class AxeHandItem(item: Item, component: HandItemComponent) : HandItem(
         animationType = AnimationType.Swing(),
         leftAction = UseAction.Custom(
             onStart = {
-                gameCycle.entityApi.damageZone(entity.position + (component.entity.facing*2f v 0),
-                4 v 5,
+                gameCycle.entityApi.damageZone(entity.position + (component.entity.facing*2.2f v 0),
+                4.4f v 5,
                 DamageData(
                     10,
                     (component.entity.facing*0.2f v 0.15),

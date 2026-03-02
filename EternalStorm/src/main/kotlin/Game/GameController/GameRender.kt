@@ -60,6 +60,7 @@ class GameRender(val gameController: GameController) : Controller {
             }
         }
 
+        gameController.gameCycle.particleController.particleSystem.render(lg, camera)
         highlightRender.render(lg, camera)
 
         renderLayer.drawLayer(RenderLayers.Main.A1, lg, camera)

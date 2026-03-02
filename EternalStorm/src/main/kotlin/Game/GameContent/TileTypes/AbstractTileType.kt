@@ -9,9 +9,12 @@ import la.vok.Game.GameContent.Items.Other.NothingDrop
 import la.vok.Game.GameContent.Items.Other.dropTable
 import la.vok.Game.GameContent.Map.MapController
 import la.vok.Game.GameSystems.WorldSystems.Map.MineData
+import la.vok.Game.GameSystems.WorldSystems.Particles.Particles.TileParticle
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.p
+import la.vok.LavokLibrary.Vectors.v
+import la.vok.State.AppState
 
 abstract class AbstractTileType {
 
@@ -59,6 +62,20 @@ abstract class AbstractTileType {
         tileContext: TileContext,
         mapController: MapController
     ) {
+        // TODO ЭТО ПОЛНОЕ ГОВНО ПЕРЕДЕЛАТЬ
+        for (i in 0 .. 4) {
+            mapController.gameCycle.particleController.particleSystem.addParticle(
+                TileParticle(
+                    mapController.gameCycle,
+                    this,
+                    mapController.gameCycle.mapApi.getTilePos(x, y) + (AppState.main.random(
+                        -0.5f,
+                        0.5f
+                    ) v AppState.main.random(-0.5f, 0.5f)),
+                    (AppState.main.random(-1f, 1f) v AppState.main.random(-1f, 1f)) * AppState.main.random(0.025f, 0.05f)
+                )
+            )
+        }
     }
 
     open fun onMined(
@@ -72,6 +89,20 @@ abstract class AbstractTileType {
             mapController.mapApi.getTilePos(x p y),
             true
         )
+            // TODO ЭТО ПОЛНОЕ ГОВНО ПЕРЕДЕЛАТЬ
+        for (i in 0 .. 8) {
+            mapController.gameCycle.particleController.particleSystem.addParticle(
+                TileParticle(
+                    mapController.gameCycle,
+                    this,
+                    mapController.gameCycle.mapApi.getTilePos(x, y) + (AppState.main.random(
+                        -0.5f,
+                        0.5f
+                    ) v AppState.main.random(-0.5f, 0.5f)),
+                    (AppState.main.random(-1f, 1f) v AppState.main.random(-1f, 1f)) * AppState.main.random(0.025f, 0.05f)
+                )
+            )
+        }
     }
     open fun onRemoved(
         x: Int,

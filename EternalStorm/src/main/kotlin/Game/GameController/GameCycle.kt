@@ -8,6 +8,7 @@ import la.vok.Game.GameSystems.WorldSystems.Crafts.CraftApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityController
 import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
+import la.vok.Game.GameSystems.WorldSystems.Particles.ParticleController
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsController
 
@@ -19,6 +20,7 @@ class GameCycle(var gameController: GameController) : Controller {
     var mapController = MapController(this)
     var entityController = EntityController(this)
     var vfxObjectsController = VfxObjectsController(this)
+    var particleController = ParticleController(this)
 
     var itemsApi = ItemsApi(this)
     var craftApi = CraftApi(this)
@@ -43,6 +45,7 @@ class GameCycle(var gameController: GameController) : Controller {
         mapController.physicTick()
         entityController.physicTick()
         vfxObjectsController.physicTick()
+        particleController.physicTick()
 
         entityApi.getActiveEntities().toList().forEach {
             if (!it.isDead) {
