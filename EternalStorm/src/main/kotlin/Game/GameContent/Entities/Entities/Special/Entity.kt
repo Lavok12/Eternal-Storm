@@ -1,21 +1,15 @@
-package la.vok.Game.GameContent.Entities.Entities
+package la.vok.Game.GameContent.Entities.Entities.Special
 
 import la.vok.Core.CoreControllers.CoreController
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.LayersRenderContainer
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderObjectInterface
 import la.vok.Core.GameControllers.GameController
-import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
 import la.vok.Game.GameContent.Entities.Ai.AbstractAI
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Entities.EntityRender.BaseRenderEntity
 import la.vok.Game.GameContent.Entities.EntityRender.HpRender
-import la.vok.Game.GameContent.Items.Other.DropEntry
-import la.vok.Game.GameContent.Items.Other.DropTable
-import la.vok.Game.GameContent.Items.Other.NothingDrop
-import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
-import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.EntityComponents.GravityComponent
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
@@ -23,8 +17,6 @@ import la.vok.Game.GameSystems.EntityComponents.Collision.CollisionDetector
 import la.vok.Game.GameSystems.EntityComponents.MobInventory
 import la.vok.Game.GameSystems.EntityComponents.HpBody
 import la.vok.Game.GameSystems.EntityComponents.RigidBody
-import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
-import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
@@ -44,6 +36,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     var size = 1 v 1
     var systemId = 0L
     var facing = 1
+    var invulnerabilityTicks: Int = 0
 
     open fun changeFacing(newFacing: Int) {
         facing = newFacing
@@ -105,6 +98,14 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
 
     // ─── Lifecycle ───────────────────────────────────────────────────────────
 
+    open var bodyDamage = 10
+    open var bodyKnockBack = 0.12f
+    open fun bodyDamage(hitboxComponent: HitboxComponent) {
+        var damageFacing = if (position.x < hitboxComponent.entity.position.x) 1 else -1
+        gameCycle.entityApi.logicalDamage(hitboxComponent.entity,
+            DamageData(bodyDamage, (damageFacing v 1f) * bodyKnockBack, systemId, null),
+        hitboxComponent)
+    }
     open fun spawn() {
         hpBody?.let { hp ->
             hp.maxHp = entityType.baseHp
@@ -145,12 +146,15 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
 
     open fun physicUpdate() {
         physicTicks++
+        if (invulnerabilityTicks > 0) {
+            invulnerabilityTicks--
+        }
         ai?.physicUpdate()
         inventory?.physicUpdate()
         hitboxes.values.forEach { it.resetBlockCollision() }
         gravityComponent?.useGravity()
         updateHitboxes()
-        updateMoving()
+        updateMoving(hasCollisionDetector)
     }
 
     open fun updateMoving(updateDetector: Boolean = false) {
@@ -159,10 +163,14 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
         rb.useFriction()
         if (updateDetector) collisionDetector?.update()
         do {
-            rb.deltaStep()
-            updateHitboxes()
-            if (updateDetector) collisionDetector?.update()
+            moveStep(updateDetector)
         } while (rb.containsSteps())
+    }
+
+    open fun moveStep(updateDetector: Boolean = false) {
+        rigidBody!!.deltaStep()
+        updateHitboxes()
+        if (updateDetector) collisionDetector?.update()
     }
 
     open fun updateHitboxes() {
@@ -225,6 +233,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
         gameCycle.itemsApi.spawnDropTable(entityType.drop, position, true)
     }
     open fun takeDamage(damage: DamageData, hitboxComponent: HitboxComponent) : Boolean {
+        if (invulnerabilityTicks > 0) return false
         gameCycle.entityApi.absoluteDamage(this, damage)
         return true
     }

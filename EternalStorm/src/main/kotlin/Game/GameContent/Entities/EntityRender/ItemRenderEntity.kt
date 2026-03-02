@@ -5,7 +5,6 @@ import la.vok.Core.GameContent.RenderSystem.RenderLayers.LayersRenderContainer
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.BaseRenderObject
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderLayerData
 import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
-import la.vok.Game.GameContent.Entities.Entities.ItemEntity
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2

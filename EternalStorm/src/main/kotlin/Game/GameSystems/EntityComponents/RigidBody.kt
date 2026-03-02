@@ -1,6 +1,6 @@
 package la.vok.Game.GameSystems.EntityComponents
 
-import la.vok.Game.GameContent.Entities.Entities.Entity
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState

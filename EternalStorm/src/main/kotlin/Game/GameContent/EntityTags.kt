@@ -7,4 +7,5 @@ object EntityTags {
     const val entity = "ENTITY"
     const val enemy = "ENEMY"
     const val item = "ITEM"
+    const val projectile = "PROJECTILE"
 }

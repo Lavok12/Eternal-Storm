@@ -1,6 +1,6 @@
 package la.vok.Game.GameSystems.EntityComponents.Collision
 
-import la.vok.Game.GameContent.Entities.Entities.Entity
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameController.CollisionSystem
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter

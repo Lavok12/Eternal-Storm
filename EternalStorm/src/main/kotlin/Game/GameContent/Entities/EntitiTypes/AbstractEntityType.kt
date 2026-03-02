@@ -1,9 +1,10 @@
 package la.vok.Game.GameContent.Entities.EntitiTypes
 
-import la.vok.Core.GameControllers.GameController
-import la.vok.Game.GameContent.Entities.Entities.EmptyEntity
-import la.vok.Game.GameContent.Entities.Entities.Entity
-import la.vok.Game.GameContent.Entities.Entities.ItemEntity
+import la.vok.Game.GameContent.Entities.Entities.Special.ProjectileEntity
+import la.vok.Game.GameContent.Entities.Entities.Special.EmptyEntity
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
+import la.vok.Game.GameContent.Entities.Entities.Special.ItemEntity
+import la.vok.Game.GameContent.EntitiesList
 import la.vok.Game.GameContent.EntityTags
 import la.vok.Game.GameContent.Items.Other.DropEntry
 import la.vok.Game.GameContent.Items.Other.NothingDrop
@@ -26,6 +27,17 @@ abstract class AbstractEntityType {
         override val tags = arrayOf(EntityTags.item)
         override fun createEntity(gameCycle: GameCycle) = ItemEntity(gameCycle)
         override val imgPreview = ""
+    }
+
+    object ProjectileEntityType : AbstractEntityType() {
+        override val tag: String = EntitiesList.projectile
+        override val baseHp: Int = 1
+        override val baseSize: Vec2 = 1f v 1f
+        override val tags = arrayOf(EntityTags.projectile)
+
+        override fun createEntity(gameCycle: GameCycle) : Entity {
+            return ProjectileEntity(gameCycle, 0, -1L)
+        }
     }
 
     open val tag: String = ""

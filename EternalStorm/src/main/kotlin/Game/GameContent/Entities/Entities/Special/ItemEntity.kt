@@ -1,4 +1,4 @@
-package la.vok.Game.GameContent.Entities.Entities
+package la.vok.Game.GameContent.Entities.Entities.Special
 
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderObjectInterface
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType

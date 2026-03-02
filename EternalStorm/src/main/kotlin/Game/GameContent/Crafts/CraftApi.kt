@@ -2,15 +2,10 @@ package la.vok.Game.GameSystems.WorldSystems.Crafts
 
 import Core.CoreControllers.ObjectRegistration
 import la.vok.Game.GameContent.Crafts.CraftType
-import la.vok.Game.GameContent.Entities.Entities.Entity
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.Items.Other.AbstractItemType
 import la.vok.Game.GameContent.Items.Other.ItemContainer
 import la.vok.Game.GameController.GameCycle
-import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
-import kotlin.collections.get
-import kotlin.collections.minusAssign
-import kotlin.compareTo
-import kotlin.times
 
 // --- Результат анализа крафта ---
 

@@ -1,8 +1,6 @@
-package la.vok.Game.GameContent.Entities.Entities
+package la.vok.Game.GameContent.Entities.Entities.Special
 
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderObjectInterface
-import la.vok.Core.GameControllers.GameController
-import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Entities.EntityRender.HpRender
 import la.vok.Game.GameController.GameCycle

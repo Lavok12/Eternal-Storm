@@ -11,18 +11,8 @@ object CraftRegistrator {
 
         reg.registrationCraft(craft {
             priority(1)
-            result(ItemsList.pickaxe, 1)
+            result(ItemsList.most_common_stick, 1)
             ingredient(ItemsList.stone_block, 3)
-        })
-        reg.registrationCraft(craft {
-            priority(1)
-            result(ItemsList.stone_block, 1)
-            ingredient(ItemsList.grass_block, 3)
-        })
-        reg.registrationCraft(craft {
-            priority(1)
-            result(ItemsList.spear, 1)
-            ingredient(ItemsList.dirt_block, 3)
         })
     }
 }

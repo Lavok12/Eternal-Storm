@@ -2,13 +2,12 @@ package la.vok.Game.GameContent.HandItems
 
 import la.vok.Core.GameControllers.GameController
 import la.vok.Core.GameControllers.GameRender
-import la.vok.Game.GameContent.Entities.Entities.Entity
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
-import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.Vec2
-import la.vok.LavokLibrary.Vectors.v
+import kotlin.math.atan2
 
 open class HandItem(
     var item: Item,
@@ -17,7 +16,7 @@ open class HandItem(
 ) {
     val gameCycle: GameCycle get() = handItemComponent.gameCycle
     val gameController: GameController get() = gameCycle.gameController
-    val gameRender: GameRender get() = gameController.gameRender
+val gameRender: GameRender get() = gameController.gameRender
 
     val entity: Entity = handItemComponent.entity
 
@@ -31,15 +30,6 @@ open class HandItem(
 
     private var leftHeld = false
     private var rightHeld = false
-
-    open fun toWorldPos(pos: Vec2): Vec2 = gameController.mainCamera.toWorldPos(pos)
-    open fun toMapPos(pos: Vec2): LPoint = gameController.gameCycle.mapApi.getPointFromPos(pos)
-    open fun targetWorldPos() : LPoint = toMapPos(toWorldPos(gameController.playerControl.getTarget()))
-    open fun targetPos() : Vec2 = toWorldPos(gameController.playerControl.getTarget())
-
-
-    fun getHandPos(): Vec2 = entity.position + handItemComponent.deltaWithFacing
-    fun getVisualHandPos(): Vec2 = gameController.mainCamera.useCamera(getHandPos())
 
     open fun leftPressed(pos: Vec2) {
         leftHeld = true
@@ -58,13 +48,26 @@ open class HandItem(
     open fun rightUpdate(pos: Vec2, oldPosition: Vec2) {}
 
     private fun startUse(action: UseAction) {
-        if (targetPos().x < entity.position.x) {
+        if (handItemComponent.targetScreenPos().x < entity.position.x) {
             entity.changeFacing(-1)
         }
-        if (targetPos().x > entity.position.x) {
+        if (handItemComponent.targetScreenPos().x > entity.position.x) {
             entity.changeFacing(1)
         }
         if (action is UseAction.None) return
+
+        when (descriptor.animationType) {
+            is AnimationType.Spear,
+            is AnimationType.DirectionalThrust -> {
+                val target  = handItemComponent.targetWorldPos()
+                val handPos = handItemComponent.getHandPos()
+                val dx = target.x - handPos.x
+                val dy = target.y - handPos.y
+                handItemRender.lockedAimAngle = atan2(dy, dx)
+            }
+            else -> {}
+        }
+
         block = true
         activeAction = action
         actionTriggered = false
@@ -119,7 +122,7 @@ open class HandItem(
 
                 if (descriptor.autoRepeat) {
                     when {
-                        leftHeld -> startUse(descriptor.leftAction)
+                        leftHeld  -> startUse(descriptor.leftAction)
                         rightHeld -> startUse(descriptor.rightAction)
                     }
                 }
@@ -128,8 +131,23 @@ open class HandItem(
     }
 
     open fun renderUpdate() {
-        handItemRender.ROI_pos = getHandPos()
+        handItemRender.ROI_pos = handItemComponent.getHandPos()
         handItemRender.facing = entity.facing
         handItemRender.useStage = useStage.toFloat()
+
+        // обновляем угол каждый кадр для направленных анимаций
+        when (descriptor.animationType) {
+            is AnimationType.Spear,
+            is AnimationType.DirectionalThrust -> {
+                if (!block) {
+                    val target = handItemComponent.targetWorldPos()
+                    val handPos = handItemComponent.getHandPos()
+                    val dx = target.x - handPos.x
+                    val dy = target.y - handPos.y
+                    handItemRender.lockedAimAngle = atan2(dy, dx)
+                }
+            }
+            else -> {}
+        }
     }
 }

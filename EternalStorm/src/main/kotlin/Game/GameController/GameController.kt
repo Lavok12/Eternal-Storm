@@ -3,6 +3,7 @@ package la.vok.Core.GameControllers
 import la.vok.Core.CoreContent.Camera.SoftCamera
 import la.vok.Core.CoreControllers.CoreController
 import la.vok.Core.CoreControllers.Interfaces.SceneController
+import la.vok.Game.ClientContent.Windows.WDevPanel
 import la.vok.Game.ClientContent.Windows.WGamePanel
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameController.GameLoader
@@ -26,6 +27,8 @@ class GameController(var coreController: CoreController) : SceneController {
     }
 
     var wGamePanel: WGamePanel? = null
+    var wDevPanel: WDevPanel? = null
+
     var playerId = -1L
 
     override fun deactivate(coreController: CoreController) {

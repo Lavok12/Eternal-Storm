@@ -1,6 +1,6 @@
 package la.vok.Game.GameSystems.EntityComponents.Collision
 
-import la.vok.Game.GameContent.Entities.Entities.Entity
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.Entities.EntityRender.HitboxRender
 import la.vok.Game.GameSystems.EntityComponents.EntityComponent
 import la.vok.Game.GameSystems.EntityComponents.RigidBody

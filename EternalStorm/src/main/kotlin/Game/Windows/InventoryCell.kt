@@ -1,4 +1,4 @@
-package la.vok.Game.GameContent.Windows
+package la.vok.Game.Windows
 
 import la.vok.Core.CoreContent.Windows.WindowsStorage.Templates.AbstractWindow
 import la.vok.Core.CoreControllers.CoreContent.Windows.ElementsStrorage.WindowElement

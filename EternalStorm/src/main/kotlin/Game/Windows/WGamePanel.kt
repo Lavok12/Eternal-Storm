@@ -8,6 +8,7 @@ import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameController.PlayerControl
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
+import la.vok.State.AppState
 
 class WGamePanel(windowsManager: WindowsManager, var gameController: GameController) : WStandartPanel(windowsManager) {
     val playerControl: PlayerControl get() = gameController.playerControl
@@ -18,7 +19,7 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
     val inventory = InventoryPanelController(this, playerControl)
     val crafts = CraftPanelController(this, playerControl, gameController.gameCycle)
 
-    // --- Рендер ---
+// --- Рендер ---
 
     override fun draw(mainRender: MainRender) {
         super.draw(mainRender)
@@ -105,6 +106,13 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
             KeyCode.NUM_8 -> playerControl.chooseSlot(7)
             KeyCode.NUM_9 -> playerControl.chooseSlot(8)
             KeyCode.NUM_0 -> playerControl.chooseSlot(9)
+            KeyCode.F1 -> {
+                if (gameController.coreController.windowsManager.containsTag("dev")) return
+                gameController.wDevPanel = WDevPanel(coreController.windowsManager, gameController).apply {
+                    windowSize = AppState.lg.frameSize
+                }
+                coreController.windowsManager.addWindow(gameController.wDevPanel!!)
+            }
         }
     }
 

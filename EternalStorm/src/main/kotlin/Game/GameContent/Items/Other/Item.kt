@@ -3,19 +3,16 @@ package la.vok.Game.GameContent.Items.Other
 import la.vok.Core.CoreContent.Camera.Camera
 import la.vok.Core.CoreControllers.CoreController
 import la.vok.Core.GameControllers.GameController
-import la.vok.Game.GameContent.Entities.Entities.ItemEntity
+import la.vok.Game.GameContent.Entities.Entities.Special.ItemEntity
 import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.HandItems.Weapons.TileHandItem
-import la.vok.Game.GameContent.Windows.InventoryCell
+import la.vok.Game.Windows.InventoryCell
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
 import la.vok.LavokLibrary.Gradient.ShadowInfo
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.p
-import la.vok.LavokLibrary.Vectors.v
-import la.vok.State.AppState
-import kotlin.math.sin
 
 @Suppress("UNCHECKED_CAST")
 open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {

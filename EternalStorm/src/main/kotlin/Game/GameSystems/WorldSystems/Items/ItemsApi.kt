@@ -2,14 +2,12 @@ package la.vok.Game.GameSystems.WorldSystems.Items
 
 import Core.CoreControllers.ObjectRegistration
 import la.vok.Core.GameControllers.GameController
-import la.vok.Game.GameContent.Entities.Entities.ItemEntity
+import la.vok.Game.GameContent.Entities.Entities.Special.ItemEntity
 import la.vok.Game.GameContent.Items.Other.AbstractItemType
 import la.vok.Game.GameContent.Items.Other.DropEntry
-import la.vok.Game.GameContent.Items.Other.DropTable
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameController.GameCycle
 import la.vok.LavokLibrary.Vectors.Vec2
-import la.vok.LavokLibrary.Vectors.p
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
 

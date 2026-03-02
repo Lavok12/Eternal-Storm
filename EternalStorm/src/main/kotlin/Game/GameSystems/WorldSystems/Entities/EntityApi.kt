@@ -3,8 +3,9 @@ package la.vok.Game.GameSystems.WorldSystems.Entities
 import Core.CoreControllers.ObjectRegistration
 import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
-import la.vok.Game.GameContent.Entities.Entities.DamageEntity
-import la.vok.Game.GameContent.Entities.Entities.Entity
+import la.vok.Game.GameContent.Entities.Entities.Special.DamageEntity
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
+import la.vok.Game.GameContent.Entities.Entities.Special.ProjectileEntity
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
 import la.vok.LavokLibrary.Vectors.LPoint
@@ -203,5 +204,20 @@ class EntityApi(var entityController: EntityController) {
 
     fun getNearestEntity(pos: Vec2, maxDistance: Float, entityTypeTag: String): Entity? {
         return getNearestEntity(pos, maxDistance, getRegisteredEntityType(entityTypeTag))
+    }
+
+    fun spawnProjectile(
+        projectile: ProjectileEntity,
+        pos: Vec2,
+        direction: Vec2,
+        speed: Float,
+        targetTags: List<String> = projectile.targetTags
+    ): ProjectileEntity {
+        projectile.targetTags = targetTags
+        addInSystem(projectile, pos)
+        projectile.spawn()
+        showEntity(projectile)
+        projectile.launch(direction, speed)
+        return projectile
     }
 }

@@ -83,18 +83,18 @@ object KeyCode {
     // =========================
     // ФУНКЦИОНАЛЬНЫЕ
     // =========================
-    const val F1  = 112
-    const val F2  = 113
-    const val F3  = 114
-    const val F4  = 115
-    const val F5  = 116
-    const val F6  = 117
-    const val F7  = 118
-    const val F8  = 119
-    const val F9  = 120
-    const val F10 = 121
-    const val F11 = 122
-    const val F12 = 123
+    const val F1  = 97
+    const val F2  = 98
+    const val F3  = 99
+    const val F4  = 100
+    const val F5  = 101
+    const val F6  = 102
+    const val F7  = 103
+    const val F8  = 104
+    const val F9  = 105
+    const val F10 = 106
+    const val F11 = 107
+    const val F12 = 108
 
     // =========================
     // NUMPAD

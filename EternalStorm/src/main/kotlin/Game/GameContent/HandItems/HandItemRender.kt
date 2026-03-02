@@ -11,6 +11,7 @@ import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
+import kotlin.math.cos
 import kotlin.math.sin
 
 open class HandItemRender(
@@ -32,20 +33,32 @@ open class HandItemRender(
     open var facing = 1
     open var useStage = 0f
 
+    var lockedAimAngle: Float = 0f
+
     val progress: Float get() = useStage / desc.useDuration
 
     private val sprite get() = AppState.coreController.spriteLoader.getValue(desc.spriteName)
-    private val visualHandPos get() = handItem.getVisualHandPos()
-    private val handPos get() = handItem.getHandPos()
+    private val visualHandPos get() = handItem.handItemComponent.getVisualHandPos()
+    private val handPos get() = handItem.handItemComponent.getHandPos()
 
     private val isFlipped get() = facing < 0
 
     override fun draw(lg: LGraphics, pos: Vec2, size: Vec2, camera: Camera) {
         when (val anim = desc.animationType) {
-            is AnimationType.Swing  -> drawSwing(lg, anim, camera)
-            is AnimationType.Thrust -> drawThrust(lg, anim, camera)
-            is AnimationType.Idle   -> drawIdle(lg, camera)
-            is AnimationType.Custom -> anim.draw(this, lg, pos, size, camera)
+            is AnimationType.Swing             -> drawSwing(lg, anim, camera)
+            is AnimationType.Thrust            -> drawThrust(lg, anim, camera)
+            is AnimationType.Spear             -> drawSpear(lg, anim, camera)
+            is AnimationType.DirectionalThrust -> drawDirectionalThrust(lg, anim, camera)
+            is AnimationType.Idle              -> drawIdle(lg, camera)
+            is AnimationType.Custom            -> anim.draw(this, lg, pos, size, camera)
+        }
+    }
+
+    private fun directionalAngle(flipped: Boolean): Float {
+        return if (flipped) {
+            -(Math.PI.toFloat() + lockedAimAngle)
+        } else {
+            -lockedAimAngle
         }
     }
 
@@ -108,6 +121,104 @@ open class HandItemRender(
             desc.spriteAngle * facing,
             camera.useCamera(worldPos),
             isFlipped
+        )
+    }
+
+    private fun drawSpear(lg: LGraphics, anim: AnimationType.Spear, camera: Camera) {
+        val cursorX = handItem.handItemComponent.targetScreenPos().x
+        val entityX = handItem.entity.position.x
+        val flipped = cursorX < entityX
+
+        val thrustProgress = if (progress < 0.5f) {
+            easeOut(progress / 0.5f)
+        } else {
+            easeIn(1f - (progress - 0.5f) / 0.5f)
+        }
+
+        val offsetDist = anim.startOffset + thrustProgress * (anim.maxOffset - anim.startOffset)
+        val offsetVec = Vec2(
+            offsetDist * cos(lockedAimAngle),
+            offsetDist * sin(lockedAimAngle)
+        )
+        val worldPos = handPos + offsetVec
+
+        val peakScale = if (progress in 0.4f..0.6f) {
+            1f + anim.peakScale * sin((progress - 0.4f) / 0.2f * Math.PI.toFloat())
+        } else 1f
+        val scaledSize = desc.spriteSize * peakScale
+
+        val shake = if (progress > 0.52f) {
+            val t = (progress - 0.52f) / 0.48f
+            sin(t * Math.PI.toFloat() * 4f) * anim.shakeAmplitude * (1f - t)
+        } else 0f
+
+        val drawAngle = directionalAngle(flipped) + anim.restAngleOffset
+
+        lg.setRotateImageAround(
+            sprite,
+            camera.useCamera(worldPos + Vec2(0f, shake)),
+            camera.useCameraSize(scaledSize),
+            drawAngle,
+            camera.useCamera(worldPos),
+            flipped
+        )
+    }
+
+    private fun drawDirectionalThrust(lg: LGraphics, anim: AnimationType.DirectionalThrust, camera: Camera) {
+        val cursorX = handItem.handItemComponent.targetWorldPos().x
+        val entityX = handItem.entity.position.x
+        val flipped = cursorX < entityX
+
+        val thrustProgress = if (progress < 0.5f) {
+            easeOut(progress / 0.5f)
+        } else {
+            easeIn(1f - (progress - 0.5f) / 0.5f)
+        }
+
+        val offsetDist = anim.startOffset + thrustProgress * (anim.maxOffset - anim.startOffset)
+        val offsetVec = Vec2(
+            offsetDist * cos(lockedAimAngle),
+            offsetDist * sin(lockedAimAngle)
+        )
+        val worldPos = handPos + desc.renderDelta + offsetVec
+
+        val peakScale = if (progress in 0.4f..0.6f) {
+            1f + anim.peakScale * sin((progress - 0.4f) / 0.2f * Math.PI.toFloat())
+        } else 1f
+        val scaledSize = desc.spriteSize * peakScale
+
+        val shake = if (progress > 0.52f) {
+            val t = (progress - 0.52f) / 0.48f
+            sin(t * Math.PI.toFloat() * 4f) * anim.shakeAmplitude * (1f - t)
+        } else 0f
+
+        val drawAngle = directionalAngle(flipped) + desc.spriteAngle
+
+        lg.setRotateImageAround(
+            sprite,
+            camera.useCamera(worldPos + Vec2(0f, shake)),
+            camera.useCameraSize(scaledSize),
+            drawAngle,
+            camera.useCamera(worldPos),
+            flipped
+        )
+    }
+
+    private fun drawDirectionalIdle(lg: LGraphics, anim: AnimationType.DirectionalThrust, camera: Camera) {
+        val cursorX = handItem.handItemComponent.targetScreenPos().x
+        val entityX = handItem.entity.position.x
+        val flipped = cursorX < entityX
+
+        val worldPos = handPos + desc.renderDelta
+        val drawAngle = directionalAngle(flipped) + desc.spriteAngle
+
+        lg.setRotateImageAround(
+            sprite,
+            camera.useCamera(worldPos),
+            camera.useCameraSize(desc.spriteSize),
+            drawAngle,
+            camera.useCamera(worldPos),
+            flipped
         )
     }
 

@@ -1,7 +1,7 @@
 package la.vok.Game.GameSystems.EntityComponents
 
 import la.vok.Core.FrameLimiter
-import la.vok.Game.GameContent.Entities.Entities.Entity
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 
 class PlayerControlComponent(entity: Entity) : EntityComponent(entity) {
     fun moveLeft() {

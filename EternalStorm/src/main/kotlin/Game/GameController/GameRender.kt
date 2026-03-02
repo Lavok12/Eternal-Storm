@@ -74,5 +74,11 @@ class GameRender(val gameController: GameController) : Controller {
         renderLayer.drawLayer(RenderLayers.Main.C4, lg, camera)
         renderLayer.drawLayer(RenderLayers.Main.C5, lg, camera)
 
+        if (!gameController.gameCycle.entityApi.containsEntityById(gameController.playerControl.playerId)) {
+            lg.fill(250f, 50f, 50f)
+            for (i in 0..255) {
+                lg.setText("АХАХХАХАХА УМЕР", 0f, 0f, 100f)
+            }
+        }
     }
 }

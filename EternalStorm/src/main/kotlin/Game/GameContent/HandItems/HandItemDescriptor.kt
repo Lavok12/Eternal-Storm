@@ -14,7 +14,9 @@ data class HandItemDescriptor(
     val spriteAngle: Float = 0f,
     val leftAction: UseAction = UseAction.None,
     val rightAction: UseAction = UseAction.None,
-    val canChangeFacing: Boolean = true,
+    val blockFacing: Boolean = true,
+    val changeFacingToTarget: Boolean = false,
+
     val autoRepeat: Boolean = false,
     val renderMineHighlight: Boolean = false,
     val renderPlaceHighlight: Boolean = false,

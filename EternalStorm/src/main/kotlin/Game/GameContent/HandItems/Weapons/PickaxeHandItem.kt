@@ -52,7 +52,7 @@ open class PickaxeHandItem(item: PickaxeItem, component: HandItemComponent) : Ha
     )
 ) {
     open fun onMineTile() {
-        var placePos = targetWorldPos()
+        var placePos = handItemComponent.targetMapPos()
         var mineData = MineData((item as PickaxeItem).mineDamage, (item as PickaxeItem).minePower, entity.systemId, this)
         gameCycle.mapApi.mineTile(placePos.x, placePos.y, mineData)
     }

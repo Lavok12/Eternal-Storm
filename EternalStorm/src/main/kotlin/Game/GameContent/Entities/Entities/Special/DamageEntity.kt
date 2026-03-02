@@ -1,4 +1,4 @@
-package la.vok.Game.GameContent.Entities.Entities
+package la.vok.Game.GameContent.Entities.Entities.Special
 
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData

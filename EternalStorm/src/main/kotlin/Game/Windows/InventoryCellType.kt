@@ -1,4 +1,4 @@
-package la.vok.Game.GameContent.Windows
+package la.vok.Game.Windows
 
 enum class InventoryCellType {
     HOTBAR,

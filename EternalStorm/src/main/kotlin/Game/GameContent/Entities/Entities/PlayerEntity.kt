@@ -1,12 +1,9 @@
 package la.vok.Game.GameContent.Entities.Entities
 
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderObjectInterface
-import la.vok.Core.GameControllers.GameController
-import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.Entities.EntityRender.BaseRenderEntity
-import la.vok.Game.GameContent.HandItems.Items.AxeHandItem
-import la.vok.Game.GameContent.HandItems.Items.SpearHandItem
 import la.vok.Game.GameContent.ItemsList
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
@@ -14,6 +11,7 @@ import la.vok.Game.GameSystems.EntityComponents.MobInventory
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
 import la.vok.Game.GameSystems.EntityComponents.PickUpComponent
 import la.vok.Game.GameSystems.EntityComponents.PlayerControlComponent
+import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
 import la.vok.LavokLibrary.Vectors.v
 
 @Suppress("UNCHECKED_CAST")
@@ -64,5 +62,19 @@ class PlayerEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entit
     override fun renderUpdate() {
         handItemComponent.renderUpdate()
         super.renderUpdate()
+    }
+
+    override fun show() {
+        super.show()
+        handItemComponent.currentHandItem?.show()
+    }
+    override fun hide() {
+        super.hide()
+        handItemComponent.currentHandItem?.hide()
+    }
+
+    override fun damage(damage: DamageData) {
+        super.damage(damage)
+        invulnerabilityTicks = 15
     }
 }

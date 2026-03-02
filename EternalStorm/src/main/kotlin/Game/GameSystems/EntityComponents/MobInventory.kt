@@ -1,6 +1,6 @@
 package la.vok.Game.GameSystems.EntityComponents
 
-import la.vok.Game.GameContent.Entities.Entities.Entity
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.Items.Other.ItemContainer
 
 class MobInventory(entity: Entity, size: Int) : EntityComponent(entity) {

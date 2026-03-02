@@ -1,9 +1,8 @@
 package la.vok.Game.GameContent.Entities.Ai
 
-import la.vok.Game.GameContent.Entities.Entities.Entity
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.EntitiesList
 import la.vok.Game.GameController.GameCycle
-import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.LavokLibrary.Vectors.v
 
 open class SlimeAI(entity: Entity, gameCycle: GameCycle) : AbstractAI(entity, gameCycle) {

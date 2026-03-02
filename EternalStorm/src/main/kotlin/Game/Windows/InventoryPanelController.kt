@@ -1,9 +1,11 @@
 package la.vok.Game.ClientContent.Windows
 
 import la.vok.Core.CoreContent.Windows.WindowsStorage.Templates.AbstractWindow
+import la.vok.Core.CoreControllers.CoreContent.Windows.ElementsStrorage.WindowElement
 import la.vok.Core.FrameLimiter
-import la.vok.Game.GameContent.Windows.InventoryCell
-import la.vok.Game.GameContent.Windows.InventoryCellType
+import la.vok.Game.GameContent.Items.Other.Item
+import la.vok.Game.Windows.InventoryCell
+import la.vok.Game.Windows.InventoryCellType
 import la.vok.Game.GameController.PlayerControl
 import la.vok.LLibs.AnimationType
 import la.vok.LLibs.FloatAnimation
@@ -87,7 +89,7 @@ class InventoryPanelController(
     // ПОСТРОЕНИЕ
     // =====================================================================
 
-    fun build(windowElements: ArrayList<la.vok.Core.CoreControllers.CoreContent.Windows.ElementsStrorage.WindowElement>) {
+    fun build(windowElements: ArrayList<WindowElement>) {
         AppState.logger.info("InventoryPanelController build cells")
         windowElements.clear()
         hotbarCells.clear()
@@ -180,7 +182,7 @@ class InventoryPanelController(
         }
     }
 
-    fun endDrag(position: Vec2, onDrop: (item: la.vok.Game.GameContent.Items.Other.Item) -> Unit) {
+    fun endDrag(position: Vec2, onDrop: (item: Item) -> Unit) {
         val dragged = draggedCell ?: return
         draggedCell = null
         allCells().forEach { (cell, _) -> cell.isDragTarget = false }

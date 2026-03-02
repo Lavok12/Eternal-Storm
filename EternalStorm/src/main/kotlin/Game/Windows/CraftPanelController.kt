@@ -4,7 +4,7 @@ import la.vok.Core.CoreContent.Windows.WindowsStorage.Templates.AbstractWindow
 import la.vok.Core.CoreControllers.CoreContent.Windows.ElementsStrorage.WindowElement
 import la.vok.Core.FrameLimiter
 import la.vok.Game.GameContent.Crafts.CraftType
-import la.vok.Game.GameContent.Windows.CraftCell
+import la.vok.Game.Windows.CraftCell
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameController.PlayerControl
 import la.vok.LLibs.AnimationType

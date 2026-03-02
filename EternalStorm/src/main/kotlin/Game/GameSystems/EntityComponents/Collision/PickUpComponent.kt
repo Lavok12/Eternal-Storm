@@ -1,7 +1,7 @@
 package la.vok.Game.GameSystems.EntityComponents
 
-import la.vok.Game.GameContent.Entities.Entities.Entity
-import la.vok.Game.GameContent.Entities.Entities.ItemEntity
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
+import la.vok.Game.GameContent.Entities.Entities.Special.ItemEntity
 import la.vok.Game.GameContent.Items.Other.ItemContainer
 import la.vok.Game.GameSystems.EntityComponents.Collision.CollisionDetector
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent

@@ -21,7 +21,7 @@ class TileHandItem(item: Item, component: HandItemComponent, var abstractTileTyp
         animationType = AnimationType.Idle,
         leftAction = UseAction.Custom(
             onStart = {
-                var placePos = targetWorldPos()
+                var placePos = handItemComponent.targetMapPos()
                 gameCycle.mapApi.controlPlaceTile(abstractTileType, placePos.x, placePos.y, item, abstractTileType.consumed)
             },
         ),

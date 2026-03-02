@@ -1,10 +1,11 @@
 package la.vok.Game.GameSystems.EntityComponents
 
 import la.vok.Core.GameControllers.GameRender
-import la.vok.Game.GameContent.Entities.Entities.Entity
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameController.GameCycle
+import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
@@ -77,6 +78,17 @@ class HandItemComponent(
         checkItemsCount()
         tryApplyChange()
         currentHandItem?.physicUpdate()
+        updateFacingToTarget()
+    }
+
+    private fun updateFacingToTarget() {
+        val handItem = currentHandItem ?: return
+
+        if (!(handItem.descriptor.changeFacingToTarget)) return
+
+        entity.facing =
+            if (targetWorldPos().x > entity.position.x) 1
+            else -1
     }
 
     open fun leftReleased() { currentHandItem?.leftReleased() }
@@ -103,9 +115,41 @@ class HandItemComponent(
     }
 
     fun isFacingBlocked(): Boolean {
-        if (currentHandItem?.block ?: false && currentHandItem?.descriptor?.canChangeFacing?: false) {
+        if ((currentHandItem?.descriptor?.changeFacingToTarget?: false)) return true
+        if (currentHandItem?.block ?: false && (currentHandItem?.descriptor?.blockFacing?: false)) {
             return true
         }
         return false
     }
+
+    fun screenToWorld(screenPos: Vec2): Vec2 =
+        gameCycle.gameController.mainCamera.toWorldPos(screenPos)
+
+    fun worldToMap(worldPos: Vec2): LPoint =
+        gameCycle.gameController.gameCycle.mapApi.getPointFromPos(worldPos)
+
+    fun screenToMap(screenPos: Vec2): LPoint =
+        worldToMap(screenToWorld(screenPos))
+
+    fun targetScreenPos(): Vec2 =
+        gameCycle.gameController.playerControl.getTarget()
+
+    fun targetWorldPos(): Vec2 =
+        screenToWorld(targetScreenPos())
+
+    fun targetMapPos(): LPoint =
+        worldToMap(targetWorldPos())
+
+    fun entityWorldPos(entity: Entity): Vec2 =
+        entity.position
+
+    fun entityMapPos(entity: Entity): LPoint =
+        worldToMap(entity.position)
+
+    fun targetDirection(): Vec2 =
+        (targetWorldPos() - getHandPos()).normalized()
+
+    fun getHandPos(): Vec2 = entity.position + deltaWithFacing
+    fun getVisualHandPos(): Vec2 = gameCycle.gameController.mainCamera.useCamera(getHandPos())
+
 }

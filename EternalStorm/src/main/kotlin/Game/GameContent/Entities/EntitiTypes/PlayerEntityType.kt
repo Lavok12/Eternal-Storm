@@ -1,14 +1,12 @@
 package la.vok.Game.GameContent.Entities.EntitiTypes
 
-import la.vok.Core.GameControllers.GameController
-import la.vok.Game.GameContent.Entities.Entities.Entity
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.Entities.Entities.PlayerEntity
 import la.vok.Game.GameContent.EntitiesList
 import la.vok.Game.GameContent.EntityTags
 import la.vok.Game.GameController.GameCycle
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
-import la.vok.State.AppState
 
 class PlayerEntityType() : AbstractEntityType() {
     override val tag: String = EntitiesList.player
