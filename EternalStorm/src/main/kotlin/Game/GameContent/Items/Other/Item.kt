@@ -13,6 +13,7 @@ import la.vok.LavokLibrary.Gradient.ShadowInfo
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.p
+import la.vok.LavokLibrary.Vectors.v
 
 @Suppress("UNCHECKED_CAST")
 open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {

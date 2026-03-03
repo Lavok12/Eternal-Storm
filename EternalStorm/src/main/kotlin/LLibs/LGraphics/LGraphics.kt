@@ -57,16 +57,32 @@ class LGraphics() : FrameRect {
         windowWidth = width
         windowHeight = height
 
-        disW = width.toFloat()
-        disH = height.toFloat()
+        val screenW = width.toFloat()
+        val screenH = height.toFloat()
+
+        // 1. Считаем правильный коэффициент масштабирования относительно базы
+        val screenAspect = screenW / screenH
+        val baseAspect = baseVirtualWidth / baseVirtualHeight
+
+        if (screenAspect < baseAspect) {
+            M = screenW / baseVirtualWidth
+        } else {
+            M = screenH / baseVirtualHeight
+        }
+
+        // 2. Теперь логические координаты disW/disH ВСЕГДА будут
+        // пропорциональны вашей базе (2000x1000)
+        disW = screenW / M
+        disH = screenH / M
         disW2 = disW / 2
         disH2 = disH / 2
 
-        M = mp
-        M2 = mp
+        // Учитываем плотность пикселей и множитель
+        M2 = AppState.pixelDensityFactor * mp
+        M *= M2
 
-        canvasPixelX = width.toFloat()*mp
-        canvasPixelY = height.toFloat()*mp
+        canvasPixelX = width * AppState.pixelDensityFactor * mp
+        canvasPixelY = height * AppState.pixelDensityFactor * mp
 
         pg = AppState.main.createGraphics(
             canvasPixelX.toInt(),
@@ -74,13 +90,6 @@ class LGraphics() : FrameRect {
             PApplet.P2D
         )
         (pg as PGraphicsOpenGL).textureSampling(3)
-
-        /*PApplet.println(
-            "Resolution initialized (fixed):",
-            "Logical (disW, disH): ${disW}x${disH}",
-            "Actual (windowWidth, windowHeight): ${windowWidth}x${windowHeight}",
-            "Scale factor M: ${M}"
-        )*/
     }
 
 
