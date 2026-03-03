@@ -4,6 +4,7 @@ import la.vok.Game.GameContent.EntityTags
 import la.vok.Game.GameContent.HandItems.AnimationType
 import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.HandItems.HandItemDescriptor
+import la.vok.Game.GameContent.HandItems.SpeedMultiplierType
 import la.vok.Game.GameContent.HandItems.UseAction
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameContent.VfxObjects.AxeSwingTraceVfxObject
@@ -17,6 +18,7 @@ class AxeHandItem(item: Item, component: HandItemComponent) : HandItem(
     item,
     component,
     HandItemDescriptor(
+        speedType = SpeedMultiplierType.Melee,
         spriteName = "axe.png",
         spriteSize = 5 v 5,
         useDuration = 10f,

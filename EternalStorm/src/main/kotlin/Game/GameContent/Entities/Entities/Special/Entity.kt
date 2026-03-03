@@ -9,6 +9,7 @@ import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Entities.EntityRender.BaseRenderEntity
 import la.vok.Game.GameContent.Entities.EntityRender.HpRender
 import la.vok.Game.GameController.GameCycle
+import la.vok.Game.GameSystems.EntityComponents.BuffSystem
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
 import la.vok.Game.GameSystems.EntityComponents.GravityComponent
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
@@ -21,7 +22,6 @@ import la.vok.Game.GameSystems.WorldSystems.Particles.Particles.EntityParticle
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
-import java.util.Vector
 
 @Suppress("UNCHECKED_CAST")
 open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) {
@@ -44,7 +44,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     var logicalTicks = 0L
     var renderFrames = 0L
 
-    open var knockBackResistanse = 0f
+    open var baseBackResistance = 0f
     open var bodyDamage = 10
     open var bodyKnockBack = 0.12f
 
@@ -60,7 +60,11 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     var rigidBody: RigidBody? = RigidBody(this)
     var gravityComponent: GravityComponent? = GravityComponent(this, rigidBody!!, -0.035f)
     var hpBody: HpBody? = HpBody(this)
+    var buffSystem: BuffSystem = BuffSystem(this)
 
+    open fun useBuffs() {
+
+    }
     // ─── Hitboxes ────────────────────────────────────────────────────────────
 
     var collisionDetector: CollisionDetector? = null
@@ -110,7 +114,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
 
     open fun spawn() {
         hpBody?.let { hp ->
-            hp.maxHp = entityType.baseHp
+            hp.rawMaxHp = entityType.baseHp
             hp.fullHp()
         }
         size = entityType.baseSize.copy()
@@ -236,7 +240,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     }
 
     open fun knockback(force: Vec2) {
-        rigidBody?.addForce(force * (1f - knockBackResistanse))
+        rigidBody?.addForce(force * (1f - baseBackResistance) * (1f - buffSystem.knockbackResistance))
     }
 
     // ─── Death ───────────────────────────────────────────────────────────────

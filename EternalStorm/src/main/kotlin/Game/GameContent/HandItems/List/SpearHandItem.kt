@@ -3,6 +3,7 @@ package la.vok.Game.GameContent.HandItems.Items
 import la.vok.Game.GameContent.HandItems.AnimationType
 import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.HandItems.HandItemDescriptor
+import la.vok.Game.GameContent.HandItems.SpeedMultiplierType
 import la.vok.Game.GameContent.HandItems.UseAction
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
@@ -12,6 +13,7 @@ class SpearHandItem(item: Item, component: HandItemComponent) : HandItem(
     item,
     component,
     HandItemDescriptor(
+        speedType = SpeedMultiplierType.Melee,
         spriteName = "spear.png",
         spriteSize = 4 v 4,
         useDuration = 12f,

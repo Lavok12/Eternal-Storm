@@ -3,6 +3,7 @@ package la.vok.Game.GameContent.HandItems.Weapons
 import la.vok.Game.GameContent.HandItems.AnimationType
 import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.HandItems.HandItemDescriptor
+import la.vok.Game.GameContent.HandItems.SpeedMultiplierType
 import la.vok.Game.GameContent.HandItems.UseAction
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
@@ -15,6 +16,7 @@ class TileHandItem(item: Item, component: HandItemComponent, var abstractTileTyp
     item,
     component,
     HandItemDescriptor(
+        speedType = SpeedMultiplierType.Placing,
         spriteName = abstractTileType.texture,
         spriteSize = 1 v 1,
         useDuration = 6f,

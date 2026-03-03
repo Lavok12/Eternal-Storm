@@ -1,22 +1,15 @@
 package la.vok.Game.GameContent.Entities.Entities
 
-import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderLayerData
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderObjectInterface
 import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
-import la.vok.Game.GameContent.Entities.Ai.AbstractAI
 import la.vok.Game.GameContent.Entities.Ai.BossAi
-import la.vok.Game.GameContent.Entities.Ai.SlimeAI
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
-import la.vok.Game.GameContent.Entities.EntitiTypes.BossEntityType
 import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.Entities.EntityRender.BossRenderEntity
-import la.vok.Game.GameContent.Entities.EntityRender.SlimeRenderEntity
 import la.vok.Game.GameContent.EntityTags
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
-import la.vok.Game.GameSystems.EntityComponents.GravityComponent
-import la.vok.Game.GameSystems.EntityComponents.RigidBody
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
@@ -25,9 +18,7 @@ import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
 import kotlin.math.PI
-import kotlin.math.atan
 import kotlin.math.atan2
-import kotlin.random.Random
 
 @Suppress("UNCHECKED_CAST")
 class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(entityType, gameCycle) {
@@ -44,13 +35,13 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
     var bossParts = 15
     var number = 0
     private val segmentLength = 2f
-    override var knockBackResistanse = 0.2f
+    override var baseBackResistance = 0.2f
 
     init {
         gravityComponent = null
         hasCollisionDetector = true
         rigidBody?.friction = 0.01f
-        knockBackResistanse = 0.95f
+        baseBackResistance = 0.95f
     }
 
     override fun spawn() {

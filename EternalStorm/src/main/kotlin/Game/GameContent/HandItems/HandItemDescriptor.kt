@@ -3,6 +3,10 @@ package la.vok.Game.GameContent.HandItems
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
+enum class SpeedMultiplierType {
+    None, Melee, Ranged, Digging, Placing
+}
+
 data class HandItemDescriptor(
     val spriteName: String,
     val spriteSize: Vec2 = 1 v 1,
@@ -21,6 +25,6 @@ data class HandItemDescriptor(
     val renderMineHighlight: Boolean = false,
     val renderPlaceHighlight: Boolean = false,
 
-    ) {
+    val speedType: SpeedMultiplierType = SpeedMultiplierType.None
+) {
 }
-

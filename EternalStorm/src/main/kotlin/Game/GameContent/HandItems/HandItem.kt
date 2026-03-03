@@ -111,7 +111,16 @@ val gameRender: GameRender get() = gameController.gameRender
 
     open fun physicUpdate() {
         if (block) {
-            useStage += descriptor.useStageStep
+            val buffSystem = entity.buffSystem
+            val multiplier = when (descriptor.speedType) {
+                SpeedMultiplierType.Melee -> buffSystem.meleeAttackSpeedMultiplier
+                SpeedMultiplierType.Ranged -> buffSystem.rangedAttackSpeedMultiplier
+                SpeedMultiplierType.Digging -> buffSystem.diggingSpeedMultiplier
+                SpeedMultiplierType.Placing -> buffSystem.placingSpeedMultiplier
+                else -> 1.0f
+            }
+            useStage += descriptor.useStageStep * multiplier
+
             val progress = useStage / descriptor.useDuration
             onActionProgress(activeAction, progress)
             if (useStage > descriptor.useDuration) {

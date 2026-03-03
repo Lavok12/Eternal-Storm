@@ -4,6 +4,7 @@ import la.vok.Game.GameContent.EntityTags
 import la.vok.Game.GameContent.HandItems.AnimationType
 import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.HandItems.HandItemDescriptor
+import la.vok.Game.GameContent.HandItems.SpeedMultiplierType
 import la.vok.Game.GameContent.HandItems.UseAction
 import la.vok.Game.GameContent.Items.Items.PickaxeItem
 import la.vok.Game.GameContent.VfxObjects.AxeSwingTraceVfxObject
@@ -19,6 +20,7 @@ open class PickaxeHandItem(item: PickaxeItem, component: HandItemComponent) : Ha
     item,
     component,
     HandItemDescriptor(
+        speedType = SpeedMultiplierType.Digging,
         spriteName = item.handItemTexture,
         spriteSize = item.handItemSize v item.handItemSize,
         useDuration = item.handItemUseDuration,
