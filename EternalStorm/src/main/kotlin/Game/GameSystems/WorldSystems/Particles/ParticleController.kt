@@ -5,6 +5,7 @@ import la.vok.Game.GameController.GameCycle
 
 class ParticleController(var gameCycle: GameCycle) : Controller {
     var particleSystem = ParticleSystem(this)
+    var particlesApi = ParticlesApi(this)
 
     init {
         create()

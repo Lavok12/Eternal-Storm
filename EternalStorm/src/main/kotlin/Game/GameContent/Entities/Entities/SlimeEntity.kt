@@ -13,7 +13,7 @@ import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
 @Suppress("UNCHECKED_CAST")
 class SlimeEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(entityType, gameCycle) {
     override var renderEntity: RenderObjectInterface? = SlimeRenderEntity(getRenderLayer())
-    override val ai: AbstractAI? = SlimeAI(this, gameCycle)
+    override var ai: AbstractAI? = SlimeAI(this, gameCycle)
     override var bodyDamage = 10
     override var bodyKnockBack = 0.3f
 

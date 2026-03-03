@@ -2,6 +2,7 @@ package la.vok.Game.GameController
 
 import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.GameControllers.GameController
+import la.vok.Game.GameContent.Entities.Ai.PlayerAI
 import la.vok.Game.GameContent.Entities.Entities.PlayerEntity
 import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.Map.MapApi
@@ -50,18 +51,18 @@ class PlayerControl(var gameController: GameController) : Controller {
     fun tapA() {
         if (!isControl()) return
         val player = getPlayerEntity() ?: return
-        player.ai.moveLeft()
+        (player.ai as PlayerAI).moveLeft()
     }
     fun tapD() {
         if (!isControl()) return
         val player = getPlayerEntity() ?: return
-        player.ai.moveRight()
+        (player.ai as PlayerAI).moveRight()
     }
 
     fun tapSpace() {
         if (!isControl()) return
         val player = getPlayerEntity() ?: return
-        player.ai.tryJump()
+        (player.ai as PlayerAI).tryJump()
     }
 
     fun leftPressed(position: Vec2) {

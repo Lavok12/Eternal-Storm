@@ -18,8 +18,8 @@ class AxeHandItem(item: Item, component: HandItemComponent) : HandItem(
     component,
     HandItemDescriptor(
         spriteName = "axe.png",
-        spriteSize = 3 v 3,
-        useDuration = 30f,
+        spriteSize = 5 v 5,
+        useDuration = 10f,
         autoRepeat = true,
         animationType = AnimationType.Swing(),
         leftAction = UseAction.Custom(
@@ -27,7 +27,7 @@ class AxeHandItem(item: Item, component: HandItemComponent) : HandItem(
                 gameCycle.entityApi.damageZone(entity.position + (component.entity.facing*2.2f v 0),
                 4.4f v 5,
                 DamageData(
-                    10,
+                    40,
                     (component.entity.facing*0.2f v 0.15),
                     component.entity.systemId,
                     this),

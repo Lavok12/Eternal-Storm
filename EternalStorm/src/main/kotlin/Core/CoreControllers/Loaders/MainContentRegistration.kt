@@ -31,6 +31,7 @@ class MainContentRegistration(var coreController: CoreController) {
 
         objectRegistration.registrationEntityType(PlayerEntityType())
         objectRegistration.registrationEntityType(SlimeEntityType())
+        objectRegistration.registrationEntityType(BossEntityType())
 
         CraftRegistrator.registration(objectRegistration)
 

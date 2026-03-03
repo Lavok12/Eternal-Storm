@@ -1,6 +1,7 @@
 package la.vok.Game.GameContent.Entities.Entities
 
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderObjectInterface
+import la.vok.Game.GameContent.Entities.Ai.AbstractAI
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.Entities.EntityRender.BaseRenderEntity
@@ -17,7 +18,7 @@ import la.vok.LavokLibrary.Vectors.v
 @Suppress("UNCHECKED_CAST")
 class PlayerEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(entityType, gameCycle) {
     override var renderEntity: RenderObjectInterface? = BaseRenderEntity(getRenderLayer())
-    override var ai = PlayerAI(this, gameCycle)
+    override var ai: AbstractAI? = PlayerAI(this, gameCycle)
 
     var handItemComponent = HandItemComponent(this, 0.8 v 0f)
     var pickUpComponent: PickUpComponent? = null

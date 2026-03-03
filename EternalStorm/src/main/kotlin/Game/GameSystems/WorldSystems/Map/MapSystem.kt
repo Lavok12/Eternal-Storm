@@ -9,7 +9,7 @@ class MapSystem(
     var mapController: MapController,
 ) {
 
-    val width: Int = 100
+    val width: Int = 300
     val height: Int = 100
     private val size = width * height
 
@@ -115,9 +115,9 @@ class MapSystem(
         if (mineData.power < tileType.blockStrength) return
 
         val contextBefore = TileContext(x, y, tilesHp[idx], tileType)
-        tileType.damage(x, y, mineData.power, contextBefore, mapController)
+        tileType.damage(x, y, mineData.value, contextBefore, mapController)
 
-        tilesHp[idx] -= mineData.power
+        tilesHp[idx] -= mineData.value
 
         if (tilesHp[idx] <= 0) {
             val contextBreak = TileContext(x, y, tilesHp[idx], tileType)

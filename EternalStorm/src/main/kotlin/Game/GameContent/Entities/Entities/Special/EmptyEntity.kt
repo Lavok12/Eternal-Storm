@@ -16,6 +16,7 @@ open class EmptyEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.EmptyEn
         hasCollisionDetector = false
     }
 
+    override fun spawnDieParticles() {}
     override fun spawn() { size = entityType.baseSize.copy() }
     override fun physicUpdate() {}
     override fun renderUpdate() {}

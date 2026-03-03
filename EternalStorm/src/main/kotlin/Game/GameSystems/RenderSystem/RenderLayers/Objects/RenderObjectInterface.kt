@@ -33,4 +33,13 @@ interface RenderObjectInterface {
         isShow = false
         getContainer().removePrint(this)
     }
+
+    fun changeLayer(newLayer: RenderLayers.Main, newSubLayer: Int? = null) {
+        if (isShow) getContainer().removePrint(this)
+        layerData = layerData.copy(
+            layer = newLayer,
+            sublayer = newSubLayer ?: layerData.sublayer
+        )
+        if (isShow) getContainer().addPrint(this)
+    }
 }

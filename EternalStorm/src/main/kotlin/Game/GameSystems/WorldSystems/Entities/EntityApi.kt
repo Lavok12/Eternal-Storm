@@ -24,7 +24,6 @@ class EntityApi(var entityController: EntityController) {
     }
     fun getRegisteredEntity(tag: String) : Entity {
         return objectRegistration.entities[tag]!!.createEntity(gameCycle).apply {
-            spawn()
         }
     }
     fun getRegisteredEntityType(tag: String) : AbstractEntityType {
@@ -32,7 +31,6 @@ class EntityApi(var entityController: EntityController) {
     }
     fun getRegisteredEntityByType(type: AbstractEntityType) : Entity {
         return type.createEntity(gameCycle).apply {
-            spawn()
         }
     }
     fun showEntity(entity: Entity) {
@@ -44,25 +42,29 @@ class EntityApi(var entityController: EntityController) {
         entity.hide()
     }
 
-    fun addInSystem(entity: Entity, pos: Vec2) : Long {
+    fun addInSystem(entity: Entity, pos: Vec2, spawn: Boolean = true) : Long {
         entityController.entitySystem.add(entity, pos)
+        if (spawn) entity.spawn()
         return entity.systemId
     }
-    fun addInSystem(entity: Entity) : Long {
+    fun addInSystem(entity: Entity, spawn: Boolean = true) : Long {
         entityController.entitySystem.add(entity)
+        if (spawn) entity.spawn()
         return entity.systemId
     }
-    fun addInSystemWithId(id: Long, entity: Entity, pos: Vec2) : Long {
+    fun addInSystemWithId(id: Long, entity: Entity, pos: Vec2, spawn: Boolean = true) : Long {
         entityController.entitySystem.add(id, entity, pos)
+        if (spawn) entity.spawn()
         return entity.systemId
     }
-    fun addInSystemWithId(id: Long, entity: Entity) : Long {
+    fun addInSystemWithId(id: Long, entity: Entity, spawn: Boolean = true) : Long {
         entityController.entitySystem.add(id, entity)
+        if (spawn) entity.spawn()
         return entity.systemId
     }
-    fun spawnEntity(type: String, pos: Vec2 = Vec2.ZERO) : Entity? {
+    fun spawnEntity(type: String, pos: Vec2 = Vec2.ZERO, spawn: Boolean = true) : Entity? {
         val entity = getRegisteredEntity(type)
-        addInSystem(entity, pos)
+        addInSystem(entity, pos, spawn)
         return entity
     }
 

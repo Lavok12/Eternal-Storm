@@ -10,7 +10,7 @@ class MapGenerator(var mapController: MapController) {
 
     val mapApi: MapApi get() = mapController.mapApi
 
-    private val width = 100
+    private val width = 300
     private val height = 100
 
     fun create(mapSystem: MapSystem) {

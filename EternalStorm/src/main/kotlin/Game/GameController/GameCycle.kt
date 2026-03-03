@@ -9,22 +9,26 @@ import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityController
 import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
 import la.vok.Game.GameSystems.WorldSystems.Particles.ParticleController
+import la.vok.Game.GameSystems.WorldSystems.Particles.ParticlesApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsController
 
 class GameCycle(var gameController: GameController) : Controller {
     val entityApi: EntityApi get() = entityController.entityApi
     val mapApi: MapApi get() = mapController.mapApi
+    val particlesApi: ParticlesApi get() = particleController.particlesApi
     val vfxObjectsApi: VfxObjectsApi get() = vfxObjectsController.vfxObjectsApi
+    var itemsApi = ItemsApi(this)
+    var craftApi = CraftApi(this)
+
 
     var mapController = MapController(this)
     var entityController = EntityController(this)
     var vfxObjectsController = VfxObjectsController(this)
     var particleController = ParticleController(this)
 
-    var itemsApi = ItemsApi(this)
-    var craftApi = CraftApi(this)
-    
+
+
     var collisionSystem = CollisionSystem(this)
 
     init {
