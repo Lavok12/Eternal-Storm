@@ -6,7 +6,7 @@ import la.vok.Game.GameContent.Entities.Ai.SlimeAI
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.Entities.EntityRender.SlimeRenderEntity
-import la.vok.Game.GameContent.EntityTags
+import la.vok.Game.GameContent.ContentList.EntityTags
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
 

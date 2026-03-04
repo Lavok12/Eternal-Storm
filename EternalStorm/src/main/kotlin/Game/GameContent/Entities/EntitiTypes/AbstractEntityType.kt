@@ -4,8 +4,8 @@ import la.vok.Game.GameContent.Entities.Entities.Special.ProjectileEntity
 import la.vok.Game.GameContent.Entities.Entities.Special.EmptyEntity
 import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.Entities.Entities.Special.ItemEntity
-import la.vok.Game.GameContent.EntitiesList
-import la.vok.Game.GameContent.EntityTags
+import la.vok.Game.GameContent.ContentList.EntitiesList
+import la.vok.Game.GameContent.ContentList.EntityTags
 import la.vok.Game.GameContent.Items.Other.DropEntry
 import la.vok.Game.GameContent.Items.Other.NothingDrop
 import la.vok.Game.GameController.GameCycle

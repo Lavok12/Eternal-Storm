@@ -4,12 +4,13 @@ import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
 enum class SpeedMultiplierType {
-    None, Melee, Ranged, Digging, Placing
+    None, Melee, Ranged, Digging, PlacingBlock, PlacingWall,
 }
 
 data class HandItemDescriptor(
     val spriteName: String,
     val spriteSize: Vec2 = 1 v 1,
+    val sizeMP: Float = 1.0f,
     val renderDelta: Vec2 = Vec2.ZERO,
     val useDuration: Float = 100f,
     val useStageStep: Float = 1f,

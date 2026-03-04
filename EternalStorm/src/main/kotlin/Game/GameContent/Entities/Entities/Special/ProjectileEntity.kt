@@ -5,9 +5,8 @@ import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderObjectInt
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Entities.EntityRender.BaseRenderEntity
 import la.vok.Game.GameContent.Entities.EntityRender.HpRender
-import la.vok.Game.GameContent.EntityTags
+import la.vok.Game.GameContent.ContentList.EntityTags
 import la.vok.Game.GameController.GameCycle
-import la.vok.Game.GameSystems.EntityComponents.Collision.CollisionDetector
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
@@ -15,7 +14,6 @@ import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
-import javax.xml.transform.Source
 
 open class ProjectileEntity(
     gameCycle: GameCycle,

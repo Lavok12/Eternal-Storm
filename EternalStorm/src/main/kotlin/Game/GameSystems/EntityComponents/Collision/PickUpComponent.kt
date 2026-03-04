@@ -6,7 +6,7 @@ import la.vok.Game.GameContent.Items.Other.ItemContainer
 import la.vok.Game.GameSystems.EntityComponents.Collision.CollisionDetector
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
 import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
-import la.vok.Game.GameContent.EntityTags
+import la.vok.Game.GameContent.ContentList.EntityTags
 
 class PickUpComponent(
     entity: Entity,

@@ -1,11 +1,10 @@
 package la.vok.Game.GameContent.TileTypes
 
 import la.vok.Game.GameContent.Items.Other.DropEntry
-import la.vok.Game.GameContent.Items.Other.NothingDrop
 import la.vok.Game.GameContent.Items.Other.SingleDrop
-import la.vok.Game.GameContent.ItemsList
+import la.vok.Game.GameContent.ContentList.ItemsList
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
-import la.vok.Game.GameContent.TilesList
+import la.vok.Game.GameContent.ContentList.TilesList
 
 class DirtTileType() : AbstractTileType() {
     override val tag: String = TilesList.dirt_block

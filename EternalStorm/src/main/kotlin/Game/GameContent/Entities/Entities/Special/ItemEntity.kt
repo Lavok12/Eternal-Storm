@@ -4,7 +4,7 @@ import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderObjectInt
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Entities.EntityRender.HpRender
 import la.vok.Game.GameContent.Entities.EntityRender.ItemRenderEntity
-import la.vok.Game.GameContent.EntityTags
+import la.vok.Game.GameContent.ContentList.EntityTags
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.Collision.CollisionDetector

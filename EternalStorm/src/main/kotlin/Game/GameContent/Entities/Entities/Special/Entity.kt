@@ -9,7 +9,7 @@ import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Entities.EntityRender.BaseRenderEntity
 import la.vok.Game.GameContent.Entities.EntityRender.HpRender
 import la.vok.Game.GameController.GameCycle
-import la.vok.Game.GameSystems.EntityComponents.BuffSystem
+import la.vok.Game.GameSystems.EntityComponents.BuffController
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
 import la.vok.Game.GameSystems.EntityComponents.GravityComponent
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
@@ -60,7 +60,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     var rigidBody: RigidBody? = RigidBody(this)
     var gravityComponent: GravityComponent? = GravityComponent(this, rigidBody!!, -0.035f)
     var hpBody: HpBody? = HpBody(this)
-    var buffSystem: BuffSystem = BuffSystem(this)
+    var buffController: BuffController = BuffController(this)
 
     open fun useBuffs() {
 
@@ -240,7 +240,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     }
 
     open fun knockback(force: Vec2) {
-        rigidBody?.addForce(force * (1f - baseBackResistance) * (1f - buffSystem.knockbackResistance))
+        rigidBody?.addForce(force * (1f - baseBackResistance) * (1f - buffController.knockbackResistance))
     }
 
     // ─── Death ───────────────────────────────────────────────────────────────

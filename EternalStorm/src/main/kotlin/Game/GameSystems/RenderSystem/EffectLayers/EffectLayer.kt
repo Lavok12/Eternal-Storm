@@ -11,7 +11,7 @@ open class EffectLayer(var point: LPoint, var mp: Float = 1f) {
 
     var lg: LGraphics? = null
 
-    fun beginDraw() {
+    protected fun beginDraw() {
         if (mud) {
             initLg()
         }
@@ -26,11 +26,11 @@ open class EffectLayer(var point: LPoint, var mp: Float = 1f) {
             draw = false
         }
     }
-    open fun draw() {
+    protected open fun draw() {
 
     }
 
-    fun endDraw() {
+    protected fun endDraw() {
         if (lg == null) {
             AppState.logger.error("LG ${this::class.simpleName} is null")
         }
@@ -54,6 +54,10 @@ open class EffectLayer(var point: LPoint, var mp: Float = 1f) {
         lg = null
     }
 
+    fun containsImage() : Boolean {
+
+        return lg != null
+    }
     fun getImage() : PImage {
         if (lg == null) {
             AppState.logger.error("getImage() LG ${this::class.simpleName} is null")

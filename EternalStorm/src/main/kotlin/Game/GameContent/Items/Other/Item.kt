@@ -5,6 +5,7 @@ import la.vok.Core.CoreControllers.CoreController
 import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.Entities.Entities.Special.ItemEntity
 import la.vok.Game.GameContent.HandItems.HandItem
+import la.vok.Game.GameContent.HandItems.List.WallHandItem
 import la.vok.Game.GameContent.HandItems.Weapons.TileHandItem
 import la.vok.Game.Windows.InventoryCell
 import la.vok.Game.GameController.GameCycle
@@ -17,7 +18,7 @@ import la.vok.LavokLibrary.Vectors.v
 
 @Suppress("UNCHECKED_CAST")
 open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
-
+    val consumed: Boolean = true
     val gameController: GameController get() = gameCycle.gameController
     val coreController: CoreController get() = gameController.coreController
 
@@ -25,13 +26,16 @@ open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
     var count = 1;
 
     open fun baseRender(lg: LGraphics, pos: Vec2, size: Vec2) {
-        if (itemType.sprite != "") {
+        if (itemType.texture != "") {
             when (itemType.usingVariants) {
                 is UsingVariants.PlaceTile -> {
-                    lg.setImage(coreController.spriteLoader.getValue(itemType.sprite), pos, size*0.8f)
+                    lg.setImage(coreController.spriteLoader.getValue(itemType.texture), pos, size*0.7f)
+                }
+                is UsingVariants.PlaceWall -> {
+                    lg.setImage(coreController.spriteLoader.getValue(itemType.texture), pos, size*0.9f)
                 }
                 else -> {
-                    lg.setImage(coreController.spriteLoader.getValue(itemType.sprite), pos, size)
+                    lg.setImage(coreController.spriteLoader.getValue(itemType.texture), pos, size)
                 }
             }
         }
@@ -67,7 +71,7 @@ open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
         for (i in 0 until visual) {
             val offset = stackOffset(visual-i-1, renderSize)
             var renderPos = pos + itemType.worldRenderDelta * size - offset
-            shadowRender(lg, renderPos, renderSize, itemType.shadowPower/(i/2f+0.5f))
+            shadowRender(lg, renderPos, renderSize, itemType.shadowPower)
             baseRender(lg, renderPos, renderSize)
         }
     }
@@ -76,7 +80,7 @@ open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
         lg.setTint(255f, 255f*power)
         lg.setImage(
             ShadowInfo(
-                coreController.spriteLoader.getValue(itemType.sprite),
+                coreController.spriteLoader.getValue(itemType.texture),
                 120 p 120,
                 10,
                 6,
@@ -124,6 +128,9 @@ open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
     open fun getHandItem(component: HandItemComponent) : HandItem? {
         if (itemType.usingVariants is UsingVariants.PlaceTile) {
             return TileHandItem(this, component, gameCycle.mapApi.getRegisteredTileType((itemType.usingVariants as UsingVariants.PlaceTile).tileTag))
+        }
+        if (itemType.usingVariants is UsingVariants.PlaceWall) {
+            return WallHandItem(this, component, gameCycle.mapApi.getRegisteredWallType((itemType.usingVariants as UsingVariants.PlaceWall).wallTag))
         }
         return null
     }

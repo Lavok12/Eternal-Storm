@@ -5,7 +5,7 @@ import la.vok.Game.GameContent.Entities.Ai.AbstractAI
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.Entities.EntityRender.BaseRenderEntity
-import la.vok.Game.GameContent.ItemsList
+import la.vok.Game.GameContent.ContentList.ItemsList
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
 import la.vok.Game.GameSystems.EntityComponents.MobInventory

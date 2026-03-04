@@ -3,29 +3,24 @@ package la.vok.Game.GameContent.Tiles.System
 import la.vok.Core.GameControllers.GameController
 import la.vok.Core.GameControllers.GameRender
 import la.vok.Game.GameContent.Items.Other.DropEntry
-import la.vok.Game.GameContent.Items.Other.DropTable
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameContent.Items.Other.NothingDrop
-import la.vok.Game.GameContent.Items.Other.dropTable
 import la.vok.Game.GameContent.Map.MapController
+import la.vok.Game.GameSystems.WorldSystems.Map.IBlockType
 import la.vok.Game.GameSystems.WorldSystems.Map.MineData
-import la.vok.Game.GameSystems.WorldSystems.Particles.Particles.TileParticle
 import la.vok.LavokLibrary.Gradient.ShadowInfo
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.p
-import la.vok.LavokLibrary.Vectors.v
-import la.vok.State.AppState
 import processing.core.PImage
 
-abstract class AbstractTileType {
+abstract class AbstractTileType : IBlockType {
 
-    open val tag: String = ""
-    open val blockStrength: Int = 0
-    open val maxHp: Int = 0
-    open val texture: String = ""
-    open val consumed: Boolean = true
-    open val drop: DropEntry = NothingDrop
+    override val tag: String = ""
+    override val blockStrength: Int = 0
+    override val maxHp: Int = 0
+    override val texture: String = ""
+    override val drop: DropEntry = NothingDrop
 
     open fun render(
         tileContext: TileContext,
@@ -95,15 +90,15 @@ abstract class AbstractTileType {
     open fun place(x: Int, y: Int, item: Item, mapController: MapController) {}
 
     open fun spawnTileParticle(x: Int, y: Int, tileContext: TileContext, mapController: MapController, speed: Vec2 = Vec2.ZERO) {
-        mapController.gameCycle.particlesApi.spawnTileParticleRandom(this, mapController.gameCycle.mapApi.getTilePos(x, y), 1f)
+        mapController.gameCycle.particlesApi.spawnTileParticleRandom(this, mapController.gameCycle.mapApi.getBlockPos(x, y), 1f)
     }
 
     open fun damage(x: Int, y: Int, damage: Int, tileContext: TileContext, mapController: MapController) {
-        mapController.gameCycle.particlesApi.spawnTileParticles(this, mapController.gameCycle.mapApi.getTilePos(x, y), 5)
+        mapController.gameCycle.particlesApi.spawnTileParticles(this, mapController.gameCycle.mapApi.getBlockPos(x, y), 5)
     }
 
     open fun onMined(x: Int, y: Int, mineData: MineData, tileContext: TileContext, mapController: MapController) {
-        val pos = mapController.mapApi.getTilePos(x p y)
+        val pos = mapController.mapApi.getBlockPos(x p y)
         mapController.gameCycle.itemsApi.spawnDropTable(drop, pos, true)
         mapController.gameCycle.particlesApi.spawnTileParticles(this, pos, 9)
     }

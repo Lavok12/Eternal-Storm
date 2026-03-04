@@ -1,8 +1,7 @@
 package la.vok.Game.GameContent.Crafts
 
-import Core.CoreControllers.Loaders.MainContentRegistration
 import Core.CoreControllers.ObjectRegistration
-import la.vok.Game.GameContent.ItemsList
+import la.vok.Game.GameContent.ContentList.ItemsList
 
 object CraftRegistrator {
     fun registration(reg: ObjectRegistration) {

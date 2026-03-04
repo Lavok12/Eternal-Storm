@@ -1,8 +1,7 @@
 package la.vok.Game.GameContent.Entities.Ai
 
-import la.vok.Game.GameContent.Entities.Ai.AbstractAI
 import la.vok.Game.GameContent.Entities.Entities.Special.Entity
-import la.vok.Game.GameContent.EntitiesList
+import la.vok.Game.GameContent.ContentList.EntitiesList
 import la.vok.Game.GameController.GameCycle
 import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.Vec2

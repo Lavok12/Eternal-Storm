@@ -6,10 +6,12 @@ import la.vok.Game.GameContent.Crafts.CraftType
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Items.Other.AbstractItemType
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
+import la.vok.Game.GameContent.Tiles.System.AbstractWallType
 import la.vok.State.AppState
 
 class ObjectRegistration(var coreController: CoreController) : Controller {
     var tiles = HashMap<String, AbstractTileType>()
+    var walls = HashMap<String, AbstractWallType>()
     var entities = HashMap<String, AbstractEntityType>()
     var items = HashMap<String, AbstractItemType>()
     var crafts = ArrayList<CraftType>()
@@ -19,6 +21,7 @@ class ObjectRegistration(var coreController: CoreController) : Controller {
 
     fun clear() {
         tiles.clear()
+        walls.clear()
         entities.clear()
         items.clear()
         crafts.clear()
@@ -28,6 +31,11 @@ class ObjectRegistration(var coreController: CoreController) : Controller {
     fun registrationTileType(tileType: AbstractTileType) {
         AppState.logger.debug("Registration tile type: ${tileType.tag}")
         tiles[tileType.tag] = tileType
+    }
+
+    fun registrationWallType(wallType: AbstractWallType) {
+        AppState.logger.debug("Registration wall type: ${wallType.tag}")
+        walls[wallType.tag] = wallType
     }
 
     fun registrationEntityType(entityType: AbstractEntityType) {
@@ -53,6 +61,9 @@ class ObjectRegistration(var coreController: CoreController) : Controller {
 
     fun getTileType(tag: String): AbstractTileType =
         tiles[tag] ?: error("TileType not found: $tag")
+
+    fun getWallType(tag: String): AbstractWallType =
+        walls[tag] ?: error("WallType not found: $tag")
 
     fun getEntityType(tag: String): AbstractEntityType =
         entities[tag] ?: error("EntityType not found: $tag")

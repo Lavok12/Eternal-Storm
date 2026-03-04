@@ -65,7 +65,7 @@ class CraftCell(
 
         // Иконка результата
         val resultType = craft?.resultType ?: return
-        lg.setImage(window.coreController.spriteLoader.getValue(resultType.sprite), positionWithCache, size * 0.75f)
+        lg.setImage(window.coreController.spriteLoader.getValue(resultType.texture), positionWithCache, size * 0.75f)
 
         // Количество результата
         val count = craft?.result?.count ?: return

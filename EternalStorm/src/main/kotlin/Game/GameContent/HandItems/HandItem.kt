@@ -7,7 +7,6 @@ import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
 import la.vok.LavokLibrary.Vectors.Vec2
-import la.vok.LavokLibrary.Vectors.v
 import kotlin.math.atan2
 
 open class HandItem(
@@ -111,12 +110,14 @@ val gameRender: GameRender get() = gameController.gameRender
 
     open fun physicUpdate() {
         if (block) {
-            val buffSystem = entity.buffSystem
+            val buffSystem = entity.buffController
             val multiplier = when (descriptor.speedType) {
                 SpeedMultiplierType.Melee -> buffSystem.meleeAttackSpeedMultiplier
                 SpeedMultiplierType.Ranged -> buffSystem.rangedAttackSpeedMultiplier
                 SpeedMultiplierType.Digging -> buffSystem.diggingSpeedMultiplier
-                SpeedMultiplierType.Placing -> buffSystem.placingSpeedMultiplier
+                SpeedMultiplierType.PlacingBlock -> buffSystem.placingBlockSpeedMultiplier
+                SpeedMultiplierType.PlacingWall -> buffSystem.placingWallSpeedMultiplier
+
                 else -> 1.0f
             }
             useStage += descriptor.useStageStep * multiplier
@@ -125,6 +126,7 @@ val gameRender: GameRender get() = gameController.gameRender
             onActionProgress(activeAction, progress)
             if (useStage > descriptor.useDuration) {
                 onActionEnd(activeAction)
+
                 activeAction = UseAction.None
                 block = false
                 useStage = 0f

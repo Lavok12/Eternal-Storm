@@ -37,7 +37,7 @@ abstract class AbstractAI(var entity: Entity, var gameCycle: GameCycle) {
 // ───────── MAP (TILE) ─────────
 
     fun mapToWorld(mapPos: LPoint): Vec2 =
-        gameCycle.mapApi.getTilePos(mapPos)
+        gameCycle.mapApi.getBlockPos(mapPos)
 
     fun mapToScreen(mapPos: LPoint): Vec2 =
         worldToScreen(mapToWorld(mapPos))

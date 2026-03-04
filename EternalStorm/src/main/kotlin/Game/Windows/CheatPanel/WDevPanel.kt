@@ -2,7 +2,6 @@ package la.vok.Game.ClientContent.Windows
 
 import la.vok.Core.CoreContent.Input.KeyCode
 import la.vok.Core.CoreContent.Windows.WindowsStorage.Templates.WStandartPanel
-import la.vok.Core.CoreControllers.CoreContent.Windows.ElementsStrorage.WindowElement
 import la.vok.Core.CoreControllers.MainRender
 import la.vok.Core.CoreControllers.WindowsManager
 import la.vok.Core.FrameLimiter
@@ -11,7 +10,6 @@ import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Items.Other.AbstractItemType
 import la.vok.LLibs.AnimationType
 import la.vok.LLibs.FloatAnimation
-import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import processing.event.MouseEvent
@@ -231,7 +229,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
 
             // Иконка
             try {
-                val sprite = gameController.coreController.spriteLoader.getValue(item.sprite)
+                val sprite = gameController.coreController.spriteLoader.getValue(item.texture)
                 lg.setImage(sprite, cx - cellWs / 2f + 24f, y, cellHs * 0.7f, cellHs * 0.7f)
             } catch (_: Exception) {}
 
@@ -267,7 +265,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
 
         if (item != null) {
             try {
-                val sprite = gameController.coreController.spriteLoader.getValue(item.sprite)
+                val sprite = gameController.coreController.spriteLoader.getValue(item.texture)
                 lg.setImage(sprite, previewX + previewW / 2f, previewY, previewW * 0.7f, previewH * 0.7f)
             } catch (_: Exception) {}
             lg.fill(200f, 180f, 130f, 200f * alpha)

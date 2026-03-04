@@ -3,10 +3,13 @@ package la.vok.Core.GameControllers
 import la.vok.Core.CoreContent.Camera.Camera
 import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.CoreControllers.CoreController
+import la.vok.Core.FrameLimiter
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.LayersRenderContainer
 import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
 import la.vok.Game.GameContent.Tiles.System.TileContext
 import la.vok.Game.GameController.HighlightRender
+import la.vok.Game.GameSystems.EffectLayers.AOTiles
+import la.vok.Game.GameSystems.WorldSystems.Map.WallContext
 import la.vok.LavokLibrary.KotlinPlus.forEachInArea
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.p
@@ -14,6 +17,9 @@ import la.vok.LavokLibrary.Vectors.v
 
 class GameRender(val gameController: GameController) : Controller {
     var highlightRender = HighlightRender(this)
+
+    var aOTiles: AOTiles? = null
+
 
     val coreController: CoreController
         get() {return gameController.coreController}
@@ -24,6 +30,19 @@ class GameRender(val gameController: GameController) : Controller {
 
     val renderLayer = LayersRenderContainer(this)
 
+    override fun renderTick() {
+        super.renderTick()
+
+        if (aOTiles == null) {
+            aOTiles = AOTiles(this, gameController.wGamePanel!!.logicalSize.toLPoint())
+        }
+
+        aOTiles!!.camera = gameController.mainCamera
+        if (FrameLimiter.totalRenderFrames % 2f == 0f) {
+            aOTiles!!.draw = true
+        }
+        aOTiles!!.tick()
+    }
     override fun logicalTick() {
         super.logicalTick()
         highlightRender.logicalTick()
@@ -31,11 +50,6 @@ class GameRender(val gameController: GameController) : Controller {
 
     fun render(lg: LGraphics, camera: Camera) {
         lg.bg(100f,150f,200f)
-        renderLayer.drawLayer(RenderLayers.Main.B1, lg, camera)
-        renderLayer.drawLayer(RenderLayers.Main.B2, lg, camera)
-        renderLayer.drawLayer(RenderLayers.Main.B3, lg, camera)
-        renderLayer.drawLayer(RenderLayers.Main.B4, lg, camera)
-        renderLayer.drawLayer(RenderLayers.Main.B5, lg, camera)
 
         val mapApi = gameController.gameCycle.mapController.mapApi
         val mapSystem = gameController.gameCycle.mapController.mapSystem
@@ -43,6 +57,32 @@ class GameRender(val gameController: GameController) : Controller {
         var p1 = mapApi.getPointFromPos(camera.toWorldPos(gameController.wGamePanel!!.frameLeftBottom))
         var p2 = mapApi.getPointFromPos(camera.toWorldPos(gameController.wGamePanel!!.frameRightTop))
 
+        var wallContext = WallContext()
+        forEachInArea(p1, p2, 1) { ix, iy ->
+            if (mapSystem.containsTile(ix, iy)) return@forEachInArea
+            val mapTile = mapSystem.getWallType(ix, iy) ?: return@forEachInArea
+
+            if (mapSystem.containsWall(ix, iy)) {
+                wallContext.hp = mapApi.getWallHp(ix, iy)
+                wallContext.positionX = ix
+                wallContext.positionY = iy
+                wallContext.wallType = mapTile
+
+                var tilePos = mapApi.getBlockPos(ix p iy)
+                var tileSize = mapApi.getBlockSize()
+                mapTile.render(wallContext, lg, camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1), gameController)
+            }
+        }
+
+        renderLayer.drawLayer(RenderLayers.Main.B1, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.B2, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.B3, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.B4, lg, camera)
+        renderLayer.drawLayer(RenderLayers.Main.B5, lg, camera)
+
+        if (aOTiles!!.containsImage()) {
+            lg.setImage(aOTiles!!.getImage(), 0 v 0, lg.windowWidth v lg.windowHeight)
+        }
 
         var tileContext = TileContext()
         forEachInArea(p1, p2, 1) { ix, iy ->
@@ -54,8 +94,8 @@ class GameRender(val gameController: GameController) : Controller {
                 tileContext.positionY = iy
                 tileContext.tileType = mapTile
 
-                var tilePos = mapApi.getTilePos(ix p iy)
-                var tileSize = mapApi.getTileSize()
+                var tilePos = mapApi.getBlockPos(ix p iy)
+                var tileSize = mapApi.getBlockSize()
                 mapTile.render(tileContext, lg, camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1), gameController)
             }
         }

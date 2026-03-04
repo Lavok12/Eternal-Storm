@@ -2,12 +2,11 @@ package la.vok.Game.GameController
 
 import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.GameControllers.GameController
-import la.vok.Game.GameContent.EntitiesList
-import la.vok.Game.GameContent.ItemsList
+import la.vok.Game.GameContent.ContentList.EntitiesList
+import la.vok.Game.GameContent.ContentList.ItemsList
 import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
-import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
 

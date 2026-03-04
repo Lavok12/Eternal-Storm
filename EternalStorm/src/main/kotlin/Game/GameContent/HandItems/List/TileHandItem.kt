@@ -16,7 +16,7 @@ class TileHandItem(item: Item, component: HandItemComponent, var abstractTileTyp
     item,
     component,
     HandItemDescriptor(
-        speedType = SpeedMultiplierType.Placing,
+        speedType = SpeedMultiplierType.PlacingBlock,
         spriteName = abstractTileType.texture,
         spriteSize = 1 v 1,
         useDuration = 6f,
@@ -26,7 +26,7 @@ class TileHandItem(item: Item, component: HandItemComponent, var abstractTileTyp
         leftAction = UseAction.Custom(
             onStart = {
                 var placePos = entity.ai?.targetMapPos() ?: LPoint.ZERO
-                gameCycle.mapApi.controlPlaceTile(abstractTileType, placePos.x, placePos.y, item, abstractTileType.consumed)
+                gameCycle.mapApi.controlPlaceTile(abstractTileType, placePos.x, placePos.y, item, item.consumed)
             },
         ),
     )

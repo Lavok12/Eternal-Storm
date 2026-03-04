@@ -24,7 +24,7 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
     override fun draw(mainRender: MainRender) {
         super.draw(mainRender)
         lg.bg(0f)
-        gameController.renderTick(lg)
+        gameController.render(lg)
     }
 
     override fun postDraw(mainRender: MainRender) {

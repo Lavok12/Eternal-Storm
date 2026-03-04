@@ -1,4 +1,4 @@
-package la.vok.Game.GameContent
+package la.vok.Game.GameContent.ContentList
 
 import la.vok.State.AppState
 

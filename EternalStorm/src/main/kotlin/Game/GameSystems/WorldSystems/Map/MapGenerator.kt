@@ -3,7 +3,8 @@ package la.vok.Game.GameSystems.WorldSystems.Map
 import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameContent.Map.MapController
 import la.vok.Game.GameContent.Map.MapSystem
-import la.vok.Game.GameContent.TilesList
+import la.vok.Game.GameContent.ContentList.TilesList
+import la.vok.Game.GameContent.ContentList.WallList
 import la.vok.State.AppState
 
 class MapGenerator(var mapController: MapController) {
@@ -40,6 +41,13 @@ class MapGenerator(var mapController: MapController) {
                 y > surfaceY - 4 -> mapApi.generateTile(TilesList.dirt_block, x, y)
 
                 else -> mapApi.generateTile(TilesList.stone_block, x, y)
+            }
+        }
+        for (y in 0 until height) {
+            when {
+                y > surfaceY -> {}
+
+                y <= surfaceY -> mapApi.generateWall(WallList.dirt_wall, x, y)
             }
         }
     }

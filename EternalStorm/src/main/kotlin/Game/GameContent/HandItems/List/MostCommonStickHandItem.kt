@@ -1,17 +1,14 @@
 package la.vok.Game.GameContent.HandItems.Weapons
 
 import la.vok.Game.GameContent.Entities.Entities.Special.ProjectileEntity
-import la.vok.Game.GameContent.EntityTags
+import la.vok.Game.GameContent.ContentList.EntityTags
 import la.vok.Game.GameContent.HandItems.AnimationType
 import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.HandItems.HandItemDescriptor
 import la.vok.Game.GameContent.HandItems.SpeedMultiplierType
 import la.vok.Game.GameContent.HandItems.UseAction
 import la.vok.Game.GameContent.Items.Other.Item
-import la.vok.Game.GameContent.VfxObjects.AxeSwingTraceVfxObject
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
-import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
-import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
 import la.vok.LavokLibrary.Vectors.v
 
 class MostCommonStickHandItem(item: Item, component: HandItemComponent) : HandItem(

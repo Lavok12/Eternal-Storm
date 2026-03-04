@@ -86,6 +86,7 @@ class CoreController : Controller {
 
     override fun renderTick() {
         if (FrameLimiter.shouldRender()) {
+            sceneController?.renderTick()
             mainRender.renderTick()
             mainRender.useLG()
         }

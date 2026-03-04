@@ -2,11 +2,11 @@ package la.vok.Game.GameContent.Entities.EntitiTypes
 
 import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.Entities.Entities.SlimeEntity
-import la.vok.Game.GameContent.EntitiesList
-import la.vok.Game.GameContent.EntityTags
+import la.vok.Game.GameContent.ContentList.EntitiesList
+import la.vok.Game.GameContent.ContentList.EntityTags
 import la.vok.Game.GameContent.Items.Other.DropEntry
 import la.vok.Game.GameContent.Items.Other.dropTable
-import la.vok.Game.GameContent.ItemsList
+import la.vok.Game.GameContent.ContentList.ItemsList
 import la.vok.Game.GameController.GameCycle
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v

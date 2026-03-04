@@ -61,8 +61,8 @@ class HighlightRender(var gameRender: GameRender) : Controller {
                 tileContext.positionY = targetMinePoint!!.y
                 tileContext.tileType = mapTile
 
-                var tilePos = gameRender.gameController.gameCycle.mapApi.getTilePos(targetMinePoint!!)
-                var tileSize = gameRender.gameController.gameCycle.mapApi.getTileSize()
+                var tilePos = gameRender.gameController.gameCycle.mapApi.getBlockPos(targetMinePoint!!)
+                var tileSize = gameRender.gameController.gameCycle.mapApi.getBlockSize()
                 mapTile.renderHighlight(
                     tileContext,
                     lg,
@@ -71,8 +71,8 @@ class HighlightRender(var gameRender: GameRender) : Controller {
                     gameRender,
                 )
             } else {
-                var tilePos = gameRender.gameController.gameCycle.mapApi.getTilePos(targetMinePoint!!)
-                var tileSize = gameRender.gameController.gameCycle.mapApi.getTileSize()
+                var tilePos = gameRender.gameController.gameCycle.mapApi.getBlockPos(targetMinePoint!!)
+                var tileSize = gameRender.gameController.gameCycle.mapApi.getBlockSize()
 
                 lg.stroke(0f)
                 lg.strokeWeight(3f)
@@ -82,8 +82,8 @@ class HighlightRender(var gameRender: GameRender) : Controller {
             }
         }
         if (targetPlacePoint != null) {
-            var tilePos = gameRender.gameController.gameCycle.mapApi.getTilePos(targetPlacePoint!!)
-            var tileSize = gameRender.gameController.gameCycle.mapApi.getTileSize()
+            var tilePos = gameRender.gameController.gameCycle.mapApi.getBlockPos(targetPlacePoint!!)
+            var tileSize = gameRender.gameController.gameCycle.mapApi.getBlockSize()
             lg.fill(255f,100f)
             lg.setBlock(camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1))
         }

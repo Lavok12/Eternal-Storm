@@ -1,6 +1,4 @@
-package la.vok.Game.GameContent
-
-import la.vok.State.AppState
+package la.vok.Game.GameContent.ContentList
 
 object EntityTags {
     const val player = "PLAYER"
