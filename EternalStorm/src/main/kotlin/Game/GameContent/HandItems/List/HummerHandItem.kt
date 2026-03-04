@@ -21,7 +21,7 @@ open class HummerHandItem(item: HummerItem, component: HandItemComponent) : Hand
     item,
     component,
     HandItemDescriptor(
-        speedType = SpeedMultiplierType.Digging,
+        speedType = SpeedMultiplierType.DiggingWall,
         spriteName = item.handItemTexture,
         spriteSize = item.handItemSize v item.handItemSize,
         useDuration = item.handItemUseDuration,

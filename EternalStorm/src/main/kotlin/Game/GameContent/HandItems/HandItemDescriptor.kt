@@ -4,7 +4,7 @@ import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
 enum class SpeedMultiplierType {
-    None, Melee, Ranged, Digging, PlacingBlock, PlacingWall,
+    None, Melee, Ranged, DiggingTile, DiggingWall, PlacingTile, PlacingWall,
 }
 
 data class HandItemDescriptor(

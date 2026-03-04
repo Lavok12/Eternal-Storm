@@ -9,14 +9,13 @@ import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
 import la.vok.LavokLibrary.Vectors.LPoint
-import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
 class TileHandItem(item: Item, component: HandItemComponent, var abstractTileType: AbstractTileType) : HandItem(
     item,
     component,
     HandItemDescriptor(
-        speedType = SpeedMultiplierType.PlacingBlock,
+        speedType = SpeedMultiplierType.PlacingTile,
         spriteName = abstractTileType.texture,
         spriteSize = 1 v 1,
         useDuration = 6f,

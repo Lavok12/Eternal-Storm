@@ -8,6 +8,7 @@ import la.vok.Game.GameContent.Items.Other.NothingDrop
 import la.vok.Game.GameContent.Map.MapController
 import la.vok.Game.GameSystems.WorldSystems.Map.IBlockType
 import la.vok.Game.GameSystems.WorldSystems.Map.MineData
+import la.vok.Game.GameSystems.WorldSystems.Map.TilePlaceType
 import la.vok.LavokLibrary.Gradient.ShadowInfo
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
@@ -21,6 +22,10 @@ abstract class AbstractTileType : IBlockType {
     override val maxHp: Int = 0
     override val texture: String = ""
     override val drop: DropEntry = NothingDrop
+
+    open val placeType: TilePlaceType = TilePlaceType.NEAR_TILE_OR_ON_WALL
+
+    open fun canPlace(context: TileContext): Boolean = true
 
     open fun render(
         tileContext: TileContext,

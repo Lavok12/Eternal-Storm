@@ -114,8 +114,9 @@ val gameRender: GameRender get() = gameController.gameRender
             val multiplier = when (descriptor.speedType) {
                 SpeedMultiplierType.Melee -> buffSystem.meleeAttackSpeedMultiplier
                 SpeedMultiplierType.Ranged -> buffSystem.rangedAttackSpeedMultiplier
-                SpeedMultiplierType.Digging -> buffSystem.diggingSpeedMultiplier
-                SpeedMultiplierType.PlacingBlock -> buffSystem.placingBlockSpeedMultiplier
+                SpeedMultiplierType.DiggingTile -> buffSystem.diggingTileSpeedMultiplier
+                SpeedMultiplierType.DiggingWall -> buffSystem.diggingWallSpeedMultiplier
+                SpeedMultiplierType.PlacingTile -> buffSystem.placingBlockSpeedMultiplier
                 SpeedMultiplierType.PlacingWall -> buffSystem.placingWallSpeedMultiplier
 
                 else -> 1.0f

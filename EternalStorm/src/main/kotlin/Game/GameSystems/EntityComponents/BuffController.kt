@@ -8,7 +8,8 @@ class BuffController(val entity: Entity) {
     var damageMultiplier = 1.0f
     var speedMultiplier = 1.0f
     var jumpPowerMultiplier = 1.0f
-    var diggingSpeedMultiplier = 1.0f
+    var diggingTileSpeedMultiplier = 1.0f
+    var diggingWallSpeedMultiplier = 1.0f
     var rangedAttackSpeedMultiplier = 1.0f
     var meleeAttackSpeedMultiplier = 1.0f
     var placingBlockSpeedMultiplier = 1.0f
@@ -25,7 +26,8 @@ class BuffController(val entity: Entity) {
         damageMultiplier = 1.0f
         speedMultiplier = 1.0f
         jumpPowerMultiplier = 1.0f
-        diggingSpeedMultiplier = 1.0f
+        diggingTileSpeedMultiplier = 1.0f
+        diggingWallSpeedMultiplier = 1.0f
         rangedAttackSpeedMultiplier = 1.0f
         meleeAttackSpeedMultiplier = 1.0f
         placingBlockSpeedMultiplier = 1.0f

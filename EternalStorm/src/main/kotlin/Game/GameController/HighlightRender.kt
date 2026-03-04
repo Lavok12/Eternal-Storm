@@ -3,6 +3,8 @@ package la.vok.Game.GameController
 import la.vok.Core.CoreContent.Camera.Camera
 import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.GameControllers.GameRender
+import la.vok.Game.GameContent.HandItems.HandItem
+import la.vok.Game.GameContent.Items.Other.UsingVariants
 import la.vok.Game.GameContent.Tiles.System.TileContext
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.LPoint
@@ -11,6 +13,7 @@ import la.vok.LavokLibrary.Vectors.v
 class HighlightRender(var gameRender: GameRender) : Controller {
     var targetMinePoint: LPoint? = null
     var targetPlacePoint: LPoint? = null
+    var targetItem: HandItem? = null
 
     init {
         create()
@@ -36,6 +39,8 @@ class HighlightRender(var gameRender: GameRender) : Controller {
             ) {
                 targetPoint
             } else null
+
+        targetItem = gameRender.gameController.playerControl.getPlayerEntity()?.handItemComponent?.currentHandItem
 
         if (!gameRender.gameController.gameCycle.mapApi.isInsideMap(targetPoint.x, targetPoint.y)) targetMinePoint = null
         if (!gameRender.gameController.gameCycle.mapApi.isInsideMap(targetPlacePoint?.x ?: 100000000, targetPlacePoint?.y ?: 10000000)) targetPlacePoint = null
@@ -84,8 +89,35 @@ class HighlightRender(var gameRender: GameRender) : Controller {
         if (targetPlacePoint != null) {
             var tilePos = gameRender.gameController.gameCycle.mapApi.getBlockPos(targetPlacePoint!!)
             var tileSize = gameRender.gameController.gameCycle.mapApi.getBlockSize()
+
+            val mapApi = gameRender.gameController.gameCycle.mapApi
+
             lg.fill(255f,100f)
-            lg.setBlock(camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1))
+            var e = targetItem?.item?.itemType?.usingVariants
+            when (e) {
+                UsingVariants.Custom -> {}
+                is UsingVariants.PlaceTile -> {
+                    if (mapApi.canPlaceTile(mapApi.getRegisteredTileType(e.tileTag), targetPlacePoint!!.x, targetPlacePoint!!.y)) {
+                        lg.fill(255f,100f)
+                        lg.setBlock(camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1))
+                    } else {
+                        lg.fill(200f, 100f, 100f,100f)
+                        lg.setBlock(camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1))
+                    }
+                }
+                is UsingVariants.PlaceWall -> {
+                    if (mapApi.canPlaceWall(mapApi.getRegisteredWallType(e.wallTag), targetPlacePoint!!.x, targetPlacePoint!!.y)) {
+                        lg.fill(255f, 100f)
+                        lg.setBlock(camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1))
+                    } else {
+                        if (!mapApi.wallIsActive(targetPlacePoint!!.x, targetPlacePoint!!.y)) {
+                            lg.fill(200f, 100f, 100f, 100f)
+                            lg.setBlock(camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1))
+                        }
+                    }
+                }
+                null -> {}
+            }
         }
     }
 }

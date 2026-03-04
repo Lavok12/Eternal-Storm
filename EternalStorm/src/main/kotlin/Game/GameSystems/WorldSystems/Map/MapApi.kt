@@ -8,7 +8,9 @@ import la.vok.Game.GameContent.Tiles.System.AbstractWallType
 import la.vok.Game.GameContent.Tiles.System.TileContext
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Map.MineData
+import la.vok.Game.GameSystems.WorldSystems.Map.TilePlaceType
 import la.vok.Game.GameSystems.WorldSystems.Map.WallContext
+import la.vok.Game.GameSystems.WorldSystems.Map.WallPlaceType
 import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
@@ -66,6 +68,7 @@ class MapApi(var mapController: MapController) {
         if (item.count < 1 && consumed) return false
         if (tileIsActive(x, y)) return false
         if (!isInsideMap(x, y)) return false
+        if (!canPlaceTile(type, x, y)) return false
         mapController.mapSystem.setTileType(x, y, type)
         mapController.mapSystem.setTileHp(x, y, type.maxHp)
         mapController.mapSystem.callPlace(x, y, item)
@@ -157,6 +160,7 @@ class MapApi(var mapController: MapController) {
         if (item.count < 1 && consumed) return false
         if (wallIsActive(x, y)) return false
         if (!isInsideMap(x, y)) return false
+        if (!canPlaceWall(type, x, y)) return false
         mapController.mapSystem.setWallType(x, y, type)
         mapController.mapSystem.setWallHp(x, y, type.maxHp)
         mapController.mapSystem.callPlaceWall(x, y, item)
@@ -223,5 +227,69 @@ class MapApi(var mapController: MapController) {
             Math.floor(pos.x + 0.5).toInt(),
             Math.floor(pos.y + 0.5).toInt()
         )
+    }
+
+    fun canPlaceTile(type: AbstractTileType, x: Int, y: Int): Boolean {
+
+        if (!isInsideMap(x, y)) return false
+        if (tileIsActive(x, y)) return false
+
+        return when (type.placeType) {
+
+            TilePlaceType.FREE -> true
+
+            TilePlaceType.ON_TILE ->
+                tileIsActive(x, y)
+
+            TilePlaceType.NEAR_TILE ->
+                hasNearTile(x, y)
+
+            TilePlaceType.NEAR_WALL ->
+                hasNearWall(x, y)
+
+            TilePlaceType.NEAR_TILE_OR_ON_WALL ->
+                hasNearTile(x, y) || wallIsActive(x, y)
+
+            TilePlaceType.CUSTOM -> {
+                val context = TileContext(x, y, getTileHp(x, y), type)
+                type.canPlace(context)
+            }
+        }
+    }
+
+    fun canPlaceWall(type: AbstractWallType, x: Int, y: Int): Boolean {
+
+        if (!isInsideMap(x, y)) return false
+        if (wallIsActive(x, y)) return false
+
+        return when (type.placeType) {
+
+            WallPlaceType.FREE -> true
+
+            WallPlaceType.ON_TILE ->
+                tileIsActive(x, y)
+
+            WallPlaceType.NEAR_WALL_OR_TILE ->
+                hasNearTile(x, y) || hasNearWall(x, y)
+
+            WallPlaceType.CUSTOM -> {
+                val context = WallContext(x, y, getWallHp(x, y), type)
+                type.canPlace(context)
+            }
+        }
+    }
+
+    private fun hasNearTile(x: Int, y: Int): Boolean {
+        return tileIsActive(x + 1, y) ||
+                tileIsActive(x - 1, y) ||
+                tileIsActive(x, y + 1) ||
+                tileIsActive(x, y - 1)
+    }
+
+    private fun hasNearWall(x: Int, y: Int): Boolean {
+        return wallIsActive(x + 1, y) ||
+                wallIsActive(x - 1, y) ||
+                wallIsActive(x, y + 1) ||
+                wallIsActive(x, y - 1)
     }
 }
