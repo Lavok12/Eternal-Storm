@@ -13,11 +13,11 @@ import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
 import processing.core.PImage
 
-open class TileParticle(gameCycle: GameCycle, var tile: AbstractTileType, pos: Vec2, speed: Vec2, size: Vec2 = 0.28 v 0.28f) : Particle(gameCycle, pos, size, speed){
+open class TileParticle(gameCycle: GameCycle, var tile: AbstractTileType, pos: Vec2, speed: Vec2, size: Vec2 = 0.3 v 0.3f) : Particle(gameCycle, pos, size, speed){
     override var rotate = AppState.main.random(3.1415927f * 2f)
     override var rotateSpeed = AppState.main.random(-0.01f, 0.01f)
 
-    override var lifetime = 45f
+    override var lifetime = 50f
     override var isDelete = false
 
     var pImage: PImage = ParticleSplitInfo(
@@ -29,8 +29,8 @@ open class TileParticle(gameCycle: GameCycle, var tile: AbstractTileType, pos: V
 
     override fun physicUpdate() {
         super.physicUpdate()
-        size.x -= 0.002f
-        size.y -= 0.002f
+        size.x -= 0.005f
+        size.y -= 0.005f
     }
 
     override fun render(lg: LGraphics, camera: Camera) {

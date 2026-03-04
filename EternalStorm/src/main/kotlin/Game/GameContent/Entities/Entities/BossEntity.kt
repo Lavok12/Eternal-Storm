@@ -97,7 +97,7 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
 
             // Если состояние изменилось (вошел или вышел) — спавним частицы
             if (isTouching != wasTouchingBlocks) {
-                spawnParticleBurst(position, 100) // используем текущую позицию для входа/выхода
+                spawnParticleBurst(position, 150) // используем текущую позицию для входа/выхода
             }
 
             wasTouchingBlocks = isTouching
@@ -106,7 +106,7 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
         }
 
         super.physicUpdate()
-        spawnSingleRandomParticle()
+        //spawnSingleRandomParticle()
     }
 
     private fun spawnParticleBurst(pos2: Vec2, count: Int) {
@@ -117,7 +117,7 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
             var pos = map.getPointFromPos(pos2 + (AppState.main.random(-1f, 1f) v  AppState.main.random(-1f, 1f)))
             val type = map.getTileType(pos.x, pos.y) ?: continue
             val context = map.getTileContext(pos.x, pos.y) ?: continue
-            type.spawnTileParticle(pos.x, pos.y, context, gameCycle.mapController, Vec2(AppState.main.random(-0.1f, 0.1f), AppState.main.random(0.05f, 0.1f)).normalize()* AppState.main.random(0.1f, 0.3f))
+            gameCycle.particlesApi.spawnTileParticleWithSpeed(type, map.getBlockPos(pos.x, pos.y) + Vec2(AppState.main.random(-0.5f, 0.5f), AppState.main.random(-0.5f, 0.5f)) , Vec2(AppState.main.random(-0.1f, 0.1f), AppState.main.random(0.05f, 0.1f)).normalize()* AppState.main.random(0.1f, 0.3f))
         }
     }
 

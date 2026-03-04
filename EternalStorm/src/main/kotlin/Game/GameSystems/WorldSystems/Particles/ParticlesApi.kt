@@ -70,6 +70,28 @@ class ParticlesApi(var particleController: ParticleController) {
         }
     }
 
+    fun spawnTileParticleWithSpeed(
+        tileType: AbstractTileType,
+        worldPos: Vec2,
+        speed: Vec2
+    ) {
+        particleController.particleSystem.addParticle(
+            TileParticle(gameCycle, tileType, worldPos, speed)
+        )
+    }
+
+    fun spawnTileParticleAtWithSpeed(
+        x: Int,
+        y: Int,
+        tileType: AbstractTileType,
+        speed: Vec2,
+        count: Int = 1
+    ) {
+        val worldPos = gameCycle.mapApi.getBlockPos(x, y)
+        repeat(count) {
+            spawnTileParticleWithSpeed(tileType, worldPos, speed)
+        }
+    }
     // ─── Wall Particles ──────────────────────────────────────────────────────
 
     fun spawnWallParticle(

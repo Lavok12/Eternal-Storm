@@ -25,6 +25,7 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationItemType(AxeItemType())
         objectRegistration.registrationItemType(SpearItemType())
         objectRegistration.registrationItemType(PickaxeItemType())
+        objectRegistration.registrationItemType(HummerItemType())
 
         // Tile items
         objectRegistration.registrationItemType(GrassTileItemType())

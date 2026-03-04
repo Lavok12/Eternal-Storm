@@ -17,7 +17,7 @@ class DirtWallType() : AbstractWallType() {
     override val blockStrength: Int = 10
     override val maxHp: Int = 10
     override val texture: String = "dirtTexture.jpg"
-    override val drop: DropEntry = SingleDrop(ItemsList.dirt_block)
+    override val drop: DropEntry = SingleDrop(ItemsList.dirt_wall)
 
     override fun render(
         wallContext: WallContext,
