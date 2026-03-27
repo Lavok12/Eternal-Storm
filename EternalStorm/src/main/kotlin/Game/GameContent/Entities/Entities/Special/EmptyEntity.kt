@@ -20,6 +20,4 @@ open class EmptyEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.EmptyEn
     override fun spawn() { size = entityType.baseSize.copy() }
     override fun physicUpdate() {}
     override fun renderUpdate() {}
-    override fun show() {}
-    override fun hide() {}
 }

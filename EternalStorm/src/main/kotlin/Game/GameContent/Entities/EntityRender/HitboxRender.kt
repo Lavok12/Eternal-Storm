@@ -43,4 +43,9 @@ class HitboxRender(var hitboxComponent: HitboxComponent, layersRenderContainer: 
         lg.setBlock(pos, size)
         lg.noStroke()
     }
+
+    override fun show() {
+        super.show()
+    }
 }
+

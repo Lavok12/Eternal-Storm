@@ -3,6 +3,7 @@ package la.vok.Game.GameSystems.EffectLayers
 import la.vok.Core.CoreContent.Camera.Camera
 import la.vok.Core.GameContent.Layers.EffectLayer
 import la.vok.Core.GameControllers.GameRender
+import la.vok.Game.GameContent.ContentList.TilesList
 import la.vok.Game.GameContent.Tiles.System.TileContext
 import la.vok.Game.GameSystems.WorldSystems.Map.WallContext
 import la.vok.LavokLibrary.KotlinPlus.forEachInArea
@@ -41,8 +42,10 @@ class AOTiles(var gameRender: GameRender, point: LPoint, mp: Float = 0.7f) : Eff
                 var tilePos = mapApi.getBlockPos(ix p iy)
                 var tileSize = mapApi.getBlockSize()
 
-                lg?.fill(0f)
-                lg?.setBlock(camera.useCamera(tilePos), camera.useCameraSize(tileSize) * 1f + (1 v 1))
+                if (mapTile != mapApi.getRegisteredTileType(TilesList.tree_part_block)) {
+                    lg?.fill(0f)
+                    lg?.setBlock(camera.useCamera(tilePos), camera.useCameraSize(tileSize) * 1f + (1 v 1))
+                }
             }
         }
 

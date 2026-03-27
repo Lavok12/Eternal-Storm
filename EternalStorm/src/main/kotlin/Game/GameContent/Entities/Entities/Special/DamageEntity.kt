@@ -8,9 +8,6 @@ import la.vok.LavokLibrary.Vectors.Vec2
 
 @Suppress("UNCHECKED_CAST")
 class DamageEntity(gameCycle: GameCycle, var d_position: Vec2, var d_size: Vec2, var damage: DamageData, var tagFilter: TagFilter = TagFilter.Any) : EmptyEntity(gameCycle) {
-    init {
-        spawn()
-    }
     override fun spawn() {
         this.position = d_position
         this.size = d_size

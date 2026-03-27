@@ -4,5 +4,7 @@ import la.vok.State.AppState
 
 object WallList {
 
-    val dirt_wall: String by lazy { AppState.addNamespace("dirt_Wall") }
+    val dirt_wall: String by lazy { AppState.addNamespace("dirt_wall") }
+    val plank_wall: String by lazy { AppState.addNamespace("plank_wall") }
+
 }

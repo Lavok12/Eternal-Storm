@@ -42,30 +42,48 @@ class EntityApi(var entityController: EntityController) {
         entity.hide()
     }
 
-    fun addInSystem(entity: Entity, pos: Vec2, spawn: Boolean = true) : Long {
+    fun addInSystem(entity: Entity, pos: Vec2) : Long {
         entityController.entitySystem.add(entity, pos)
-        if (spawn) entity.spawn()
         return entity.systemId
     }
-    fun addInSystem(entity: Entity, spawn: Boolean = true) : Long {
+    fun addInSystem(entity: Entity) : Long {
         entityController.entitySystem.add(entity)
-        if (spawn) entity.spawn()
         return entity.systemId
     }
-    fun addInSystemWithId(id: Long, entity: Entity, pos: Vec2, spawn: Boolean = true) : Long {
+    fun addInSystemWithId(id: Long, entity: Entity, pos: Vec2) : Long {
         entityController.entitySystem.add(id, entity, pos)
-        if (spawn) entity.spawn()
         return entity.systemId
     }
-    fun addInSystemWithId(id: Long, entity: Entity, spawn: Boolean = true) : Long {
+    fun addInSystemWithId(id: Long, entity: Entity) : Long {
         entityController.entitySystem.add(id, entity)
-        if (spawn) entity.spawn()
         return entity.systemId
     }
-    fun spawnEntity(type: String, pos: Vec2 = Vec2.ZERO, spawn: Boolean = true) : Entity? {
+    fun spawnEntity(type: String, pos: Vec2 = Vec2.ZERO) : Entity? {
         val entity = getRegisteredEntity(type)
-        addInSystem(entity, pos, spawn)
+        addInSystem(entity, pos)
+        initEntity(entity)
         return entity
+    }
+    fun spawnEntity(entity: Entity, pos: Vec2 = Vec2.ZERO) : Entity? {
+        addInSystem(entity, pos)
+        initEntity(entity)
+        return entity
+    }
+    fun spawnEntity(id: Long, type: String, pos: Vec2 = Vec2.ZERO) : Entity? {
+        val entity = getRegisteredEntity(type)
+        addInSystemWithId(id, entity, pos)
+        initEntity(entity)
+        return entity
+    }
+    fun spawnEntity(id: Long, entity: Entity, pos: Vec2 = Vec2.ZERO) : Entity? {
+        addInSystemWithId(id, entity, pos)
+        initEntity(entity)
+        return entity
+    }
+
+    fun initEntity(entity: Entity) {
+        entity.spawn()
+        entity.show()
     }
 
     fun deleteInSystem(entity: Entity) {
@@ -140,7 +158,7 @@ class EntityApi(var entityController: EntityController) {
     fun damageZone(pos: Vec2, size: Vec2, damage: DamageData, tagFilter: TagFilter = TagFilter.Any) : Entity {
         AppState.logger.info("Spawn Damage Zone $pos $size $damage $tagFilter")
         val entity = DamageEntity(gameCycle, pos, size, damage, tagFilter)
-        addInSystem(entity)
+        spawnEntity(entity, pos)
         entity.damage()
         return entity
     }
@@ -217,7 +235,7 @@ class EntityApi(var entityController: EntityController) {
     ): ProjectileEntity {
         projectile.targetTags = targetTags
         addInSystem(projectile, pos)
-        projectile.spawn()
+        gameCycle.entityApi.initEntity(projectile)
         showEntity(projectile)
         projectile.launch(direction, speed)
         return projectile

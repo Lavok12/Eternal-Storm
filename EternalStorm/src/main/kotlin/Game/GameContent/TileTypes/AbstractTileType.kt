@@ -6,6 +6,7 @@ import la.vok.Game.GameContent.Items.Other.DropEntry
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameContent.Items.Other.NothingDrop
 import la.vok.Game.GameContent.Map.MapController
+import la.vok.Game.GameController.CollisionType
 import la.vok.Game.GameSystems.WorldSystems.Map.IBlockType
 import la.vok.Game.GameSystems.WorldSystems.Map.MineData
 import la.vok.Game.GameSystems.WorldSystems.Map.TilePlaceType
@@ -16,7 +17,7 @@ import la.vok.LavokLibrary.Vectors.p
 import processing.core.PImage
 
 abstract class AbstractTileType : IBlockType {
-
+    open var collisionType = CollisionType.FULL
     override val tag: String = ""
     override val blockStrength: Int = 0
     override val maxHp: Int = 0

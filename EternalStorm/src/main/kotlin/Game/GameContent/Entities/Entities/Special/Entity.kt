@@ -90,13 +90,26 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
         name: String,
         type: HitboxTypes = HitboxTypes.COLLISION,
         rigidBody: RigidBody? = this.rigidBody
-    ): HitboxComponent = HitboxComponent(type, this, rigidBody).also { hitboxes[name] = it }
+    ): HitboxComponent {
+        val oldHitbox = hitboxes[name]
+        oldHitbox?.hitboxRender?.hide()
+
+        val newHitbox = HitboxComponent(type, this, rigidBody)
+        hitboxes[name] = newHitbox
+        newHitbox.initRender()
+
+        if (AppState.hitboxDebug) {
+            newHitbox.hitboxRender?.show()
+        }
+
+        return newHitbox
+    }
 
     fun isHitboxBlockCollision(name: String): Boolean =
         hitboxes[name]?.blocksCollision == true
 
-    fun isAnyPhysicBlockCollision(): Boolean =
-        hitboxes.values.any { it.hitboxType == HitboxTypes.COLLISION && it.blocksCollision }
+    open fun isAnyPhysicBlockCollision(): Boolean =
+        hitboxes.values.any { it.hitboxType == HitboxTypes.COLLISION && it.blocksCollision } || downTrigger?.blocksCollision ?: false
 
     // ─── Render ──────────────────────────────────────────────────────────────
 
@@ -124,7 +137,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
         ai?.spawn()
     }
 
-    fun createBaseHitbox() {
+    open fun createBaseHitbox() {
         addHitbox("main").size = size.copy()
         if (hasCollisionDetector) createBaseCollisionDetector()
     }
@@ -170,7 +183,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
             it.ROI_size = size.copy()
         }
         hpRender?.update()
-        updateRenderHitboxes()
+        if (AppState.hitboxDebug) updateRenderHitboxes()
     }
 
     open fun updateMoving(updateDetector: Boolean = false) {
@@ -209,12 +222,12 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
 
     open fun show() {
         visualShow()
-        if (AppState.hitboxDebug) hitboxes.values.forEach { it.hitboxRender.show() }
+        if (AppState.hitboxDebug) {hitboxes.values.forEach { it.hitboxRender?.show() }}
     }
 
     open fun hide() {
         visualHide()
-        if (AppState.hitboxDebug) hitboxes.values.forEach { it.hitboxRender.hide() }
+        if (AppState.hitboxDebug) {hitboxes.values.forEach { it.hitboxRender?.hide() }}
     }
 
     // ─── Damage / Combat ─────────────────────────────────────────────────────
@@ -262,6 +275,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     }
 
     open fun die() {
+        hide()
         spawnDieParticles()
         ai?.die()
         isDead = true

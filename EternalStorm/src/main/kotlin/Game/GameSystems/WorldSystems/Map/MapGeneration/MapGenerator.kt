@@ -1,10 +1,10 @@
-package la.vok.Game.GameSystems.WorldSystems.Map
+package la.vok.Game.GameSystems.WorldSystems.Map.MapGeneration
 
+import la.vok.Game.GameContent.ContentList.TilesList
+import la.vok.Game.GameContent.ContentList.WallList
 import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameContent.Map.MapController
 import la.vok.Game.GameContent.Map.MapSystem
-import la.vok.Game.GameContent.ContentList.TilesList
-import la.vok.Game.GameContent.ContentList.WallList
 import la.vok.State.AppState
 
 class MapGenerator(var mapController: MapController) {
@@ -34,6 +34,14 @@ class MapGenerator(var mapController: MapController) {
     private fun generateColumn(x: Int, surfaceY: Int) {
         for (y in 0 until height) {
             when {
+                y == surfaceY + 1 -> {
+                    if (AppState.main.random(-10f, 100f) < 0f) {
+                        for (i in 0..AppState.main.random(10f, 25f).toInt()) {
+                            mapApi.generateTile(TilesList.tree_part_block, x, y + i)
+                        }
+                    }
+                }
+
                 y > surfaceY -> {}
 
                 y == surfaceY -> mapApi.generateTile(TilesList.grass_block, x, y)

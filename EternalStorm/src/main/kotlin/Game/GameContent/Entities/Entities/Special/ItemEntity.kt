@@ -27,6 +27,8 @@ open class ItemEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.ItemEnti
     init {
         inventory = MobInventory(this, 1)
         hpBody = null
+        hasCollisionDetector = false
+        hasDownTrigger = false
     }
 
     val item: Item?
@@ -39,8 +41,6 @@ open class ItemEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.ItemEnti
     override fun takeDamage(damage: DamageData, hitboxComponent: HitboxComponent): Boolean {
         return false
     }
-
-    // --- Merge trigger ---
 
     private val mergeCheckInterval = 120L
     private var mergeTrigger: HitboxComponent? = null
@@ -73,7 +73,6 @@ open class ItemEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.ItemEnti
             val myCount = currentItem.count
             val otherCount = otherItem.count
 
-            // Более крупная поглощает меньшую
             val (absorber, absorbed) = if (myCount >= otherCount) {
                 this to other
             } else {
@@ -94,7 +93,6 @@ open class ItemEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.ItemEnti
                 gameCycle.entityApi.killInSystem(absorbed)
             }
 
-            // Если поглотили нас — выходим
             if (absorbed === this) return
         }
     }
@@ -118,13 +116,5 @@ open class ItemEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.ItemEnti
         super.renderUpdate()
         itemRender?.item = item
         item?.renderUpdate(this)
-    }
-
-    override fun show() {
-        super.show()
-    }
-
-    override fun hide() {
-        super.hide()
     }
 }

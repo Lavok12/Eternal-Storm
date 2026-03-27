@@ -64,19 +64,16 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
                     last = entity
                 }
 
-                entityApi.addInSystem(entity, position)
+                entityApi.spawnEntity(entity, position)
                 entity.hpBody = this.hpBody
                 entity.renderEntity?.changeLayer(RenderLayers.Main.B5, i * 2)
-                entity.hide()
-                entity.show()
                 entity.hpRender?.hpBody = entity.hpBody!!
 
-                leader = entity // Теперь этот сегмент станет лидером для следующего
+                leader = entity
             }
         }
     }
 
-    // Добавь эти переменные в начало класса BossEntity
     private var wasTouchingBlocks = false
     private var lastTouchPos = Vec2.ZERO
 
@@ -226,4 +223,6 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
             gameCycle.entityApi.deleteInSystem(first)
         }
     }
+
+    override fun isAnyPhysicBlockCollision() : Boolean = false
 }

@@ -11,6 +11,9 @@ abstract class BaseRenderObject (
 ) : RenderObjectInterface {
     val coreController: CoreController get() = layersRenderContainer.gameRender.coreController
 
-    override var isShow: Boolean = false
+    override var ROI_pos = Vec2.ZERO
+    override var ROI_size = 1 v 1
     override var ROI_delta = Vec2.ZERO
+
+    override var isShow: Boolean = false
 }

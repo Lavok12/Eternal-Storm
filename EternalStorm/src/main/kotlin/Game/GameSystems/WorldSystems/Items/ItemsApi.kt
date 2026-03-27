@@ -7,6 +7,7 @@ import la.vok.Game.GameContent.Items.Other.AbstractItemType
 import la.vok.Game.GameContent.Items.Other.DropEntry
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameController.GameCycle
+import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
@@ -36,9 +37,9 @@ class ItemsApi(var gameCycle: GameCycle) {
 
     fun spawnItemEntity(item: Item, pos: Vec2): ItemEntity {
         val entity = ItemEntity(gameCycle)
-        entity.spawn()
         entity.setItem(item)
         gameCycle.entityApi.addInSystem(entity, pos)
+        gameCycle.entityApi.initEntity(entity)
         return entity
     }
 
@@ -52,9 +53,9 @@ class ItemsApi(var gameCycle: GameCycle) {
 
     fun spawnItemEntity(item: Item, pos: Vec2, randomVelocity: Boolean = false): ItemEntity {
         val entity = ItemEntity(gameCycle)
-        entity.spawn()
         entity.setItem(item)
         gameCycle.entityApi.addInSystem(entity, pos)
+        gameCycle.entityApi.initEntity(entity)
         if (randomVelocity) {
             val angle = Math.random() * Math.PI * 2
             val speed = 0.05f + Math.random().toFloat() * 0.1f

@@ -19,7 +19,7 @@ open class EffectLayer(var point: LPoint, var mp: Float = 1f) {
     }
     fun tick() {
         if (draw) {
-            AppState.logger.info("LG ${this::class.simpleName} DRAW")
+            AppState.logger.trace("LG ${this::class.simpleName} DRAW")
             beginDraw()
             draw()
             endDraw()

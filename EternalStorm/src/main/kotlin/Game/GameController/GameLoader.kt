@@ -22,7 +22,8 @@ class GameLoader(var gameController: GameController) : Controller {
     fun load() {
         AppState.logger.info("Load Game")
         gameController.gameCycle.mapController.createMap()
-        entityApi.addInSystemWithId(-1, entityApi.getRegisteredEntity(EntitiesList.player), gameController.mainCamera.pos.copy())
+
+        entityApi.spawnEntity(-1, entityApi.getRegisteredEntity(EntitiesList.player), gameController.mainCamera.pos.copy())
         gameController.playerId = -1
 
         itemsApi.spawnItemEntity(itemsApi.getRegisteredItem(ItemsList.pickaxe, 1), 10 v 80)

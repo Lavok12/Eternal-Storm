@@ -12,6 +12,8 @@ object ItemsList {
     val grass_block: String by lazy { AppState.addNamespace("grass_block") }
     val dirt_block: String by lazy { AppState.addNamespace("dirt_block") }
     val dirt_wall: String by lazy { AppState.addNamespace("dirt_wall") }
+    val plank_block: String by lazy { AppState.addNamespace("plank_block") }
+    val plank_wall: String by lazy { AppState.addNamespace("plank_wall") }
     val stone_block: String by lazy { AppState.addNamespace("stone_block") }
     val most_common_stick: String by lazy { AppState.addNamespace("most_common_stick") }
 }

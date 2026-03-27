@@ -30,7 +30,7 @@ object AppState {
 
     val itemsMergeSize = 4 v 4
 
-    var hitboxDebug: Boolean = false
+    var hitboxDebug: Boolean = true
         private set
 
     var lang = "ru"

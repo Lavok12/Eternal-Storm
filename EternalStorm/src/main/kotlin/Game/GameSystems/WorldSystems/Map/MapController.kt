@@ -2,7 +2,7 @@ package la.vok.Game.GameContent.Map
 
 import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Game.GameController.GameCycle
-import la.vok.Game.GameSystems.WorldSystems.Map.MapGenerator
+import la.vok.Game.GameSystems.WorldSystems.Map.MapGeneration.MapGenerator
 
 class MapController(var gameCycle: GameCycle) : Controller {
     init {
