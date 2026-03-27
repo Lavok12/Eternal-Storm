@@ -17,7 +17,7 @@ open class BaseTileItemType : AbstractItemType() {
     override val maxInStack: Int = 99999
     override val worldSize: Vec2 = 0.5f v 0.5
     override val sizeInSlot: Vec2 = 0.8f v 0.8f
-    override val worldRenderDelta: Vec2 = 0 v (-0)
+    override val worldRenderDelta: Vec2 = 0 v (-0.15111f)
     override val shadowPower: Float = 0.35f
 
     override fun createItem(gameCycle: GameCycle): Item {

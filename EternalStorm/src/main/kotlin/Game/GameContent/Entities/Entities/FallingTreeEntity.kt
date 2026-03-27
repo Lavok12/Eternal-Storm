@@ -5,6 +5,7 @@ import la.vok.Core.GameContent.RenderSystem.RenderLayers.LayersRenderContainer
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.BaseRenderObject
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderLayerData
 import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
+import la.vok.Game.GameContent.ContentList.ItemsList
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
@@ -41,7 +42,6 @@ class FallingTreeSegmentEntity(
 
     private var segWorldPos = Vec2.ZERO
 
-    // Задержка перед началом проверки коллизий — чтобы не сработало сразу
     private var collisionDelay = 10
 
     init {
@@ -119,12 +119,14 @@ class FallingTreeSegmentEntity(
             val sx = segWorldPos.x
             val sy = segWorldPos.y
             if (isSolid(mapApi, floor(sx).toInt(), floor(sy - 0.6f).toInt())) {
+                gameCycle.itemsApi.spawnItemEntity(ItemsList.plank_block, sx v sy + 0.5f, 1, true)
                 die(); return
             }
         } else {
             val tipX = sharedPivot.x + sin(fallAngle) * dir * (segmentIndex + 1f)
             val tipY = sharedPivot.y + cos(fallAngle) * (segmentIndex + 1f)
             if (isSolid(mapApi, floor(tipX).toInt(), floor(tipY).toInt())) {
+                gameCycle.itemsApi.spawnItemEntity(ItemsList.plank_block, tipX v tipY + 0.5f, AppState.main.random(1f, 3f).toInt(), true)
                 die()
             }
         }

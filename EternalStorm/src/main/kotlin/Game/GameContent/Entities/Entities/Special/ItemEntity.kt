@@ -31,6 +31,11 @@ open class ItemEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.ItemEnti
         hasDownTrigger = false
     }
 
+    override fun spawn() {
+        super.spawn()
+        rigidBody?.blockFriction = 0.8f
+    }
+
     val item: Item?
         get() = inventory?.itemContainer?.getItem(0)
 
