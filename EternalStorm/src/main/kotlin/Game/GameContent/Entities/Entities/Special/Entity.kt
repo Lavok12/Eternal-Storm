@@ -92,7 +92,9 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
         rigidBody: RigidBody? = this.rigidBody
     ): HitboxComponent {
         val oldHitbox = hitboxes[name]
-        oldHitbox?.hitboxRender?.hide()
+        if (AppState.hitboxDebug) {
+            oldHitbox?.hitboxRender?.hide()
+        }
 
         val newHitbox = HitboxComponent(type, this, rigidBody)
         hitboxes[name] = newHitbox
@@ -275,7 +277,6 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     }
 
     open fun die() {
-        hide()
         spawnDieParticles()
         ai?.die()
         isDead = true

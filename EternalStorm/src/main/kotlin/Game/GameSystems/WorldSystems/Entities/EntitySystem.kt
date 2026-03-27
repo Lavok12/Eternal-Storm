@@ -27,7 +27,6 @@ class EntitySystem(var entityController: EntityController) {
         entity.position = pos.copy()
         entities.add(entity)
         idMap[entity.systemId] = entity
-        entityController.entityApi.showEntity(entity)
     }
 
     fun add(entity: Entity) {
@@ -35,7 +34,6 @@ class EntitySystem(var entityController: EntityController) {
         setId(entity)
         entities.add(entity)
         idMap[entity.systemId] = entity
-        entityController.entityApi.showEntity(entity)
     }
 
     fun add(id: Long, entity: Entity, pos: Vec2) {
@@ -44,7 +42,6 @@ class EntitySystem(var entityController: EntityController) {
         entity.position = pos.copy()
         entities.add(entity)
         idMap[entity.systemId] = entity
-        entityController.entityApi.showEntity(entity)
     }
 
     fun add(id: Long, entity: Entity) {
@@ -52,7 +49,6 @@ class EntitySystem(var entityController: EntityController) {
         entity.systemId = id
         entities.add(entity)
         idMap[entity.systemId] = entity
-        entityController.entityApi.showEntity(entity)
     }
 
     // ─── Delete / Kill (буферизованные) ──────────────────────────────────────

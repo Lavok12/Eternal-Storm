@@ -83,7 +83,7 @@ class EntityApi(var entityController: EntityController) {
 
     fun initEntity(entity: Entity) {
         entity.spawn()
-        entity.show()
+        showEntity(entity)
     }
 
     fun deleteInSystem(entity: Entity) {
@@ -234,9 +234,7 @@ class EntityApi(var entityController: EntityController) {
         targetTags: List<String> = projectile.targetTags
     ): ProjectileEntity {
         projectile.targetTags = targetTags
-        addInSystem(projectile, pos)
-        gameCycle.entityApi.initEntity(projectile)
-        showEntity(projectile)
+        spawnEntity(projectile, pos)
         projectile.launch(direction, speed)
         return projectile
     }

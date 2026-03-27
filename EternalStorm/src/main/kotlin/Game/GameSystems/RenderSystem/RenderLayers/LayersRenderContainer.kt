@@ -6,6 +6,7 @@ import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderObjectInt
 import la.vok.Core.GameControllers.GameRender
 import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
 import la.vok.LavokLibrary.LGraphics.LGraphics
+import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
 import kotlin.collections.iterator
 
@@ -65,6 +66,19 @@ class LayersRenderContainer (
         for (obj in layers[l]) {
             try {
                 obj.draw(lGraphics, camera.useCamera(obj.ROI_pos+obj.ROI_delta), camera.useCameraSize(obj.ROI_size), camera)
+                if (AppState.renderDebug) {
+                    lGraphics.fill(255f)
+                    lGraphics.setTextAlign(-1, -1)
+                    lGraphics.setText("$obj",
+                        camera.useCamera(obj.ROI_pos + obj.ROI_delta) + camera.useCameraSize(obj.ROI_size)
+                            .invertedX() / 2f + (0 v 10),
+                        15f
+                    )
+
+
+                    lGraphics.fill(0f, 200f, 0f, 100f)
+                    lGraphics.setBlock(camera.useCamera(obj.ROI_pos+obj.ROI_delta), camera.useCameraSize(obj.ROI_size))
+                }
                 count++
             } catch (t: Throwable) {
                 logger.error("Error drawing object $obj on layer=$l", t)

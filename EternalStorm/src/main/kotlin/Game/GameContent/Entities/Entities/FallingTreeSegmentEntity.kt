@@ -119,15 +119,13 @@ class FallingTreeSegmentEntity(
             val sx = segWorldPos.x
             val sy = segWorldPos.y
             if (isSolid(mapApi, floor(sx).toInt(), floor(sy - 0.6f).toInt())) {
-                gameCycle.itemsApi.spawnItemEntity(ItemsList.plank_block, sx v sy + 0.5f, 1, true)
-                die(); return
+                gameCycle.entityApi.killInSystem(this); return
             }
         } else {
             val tipX = sharedPivot.x + sin(fallAngle) * dir * (segmentIndex + 1f)
             val tipY = sharedPivot.y + cos(fallAngle) * (segmentIndex + 1f)
             if (isSolid(mapApi, floor(tipX).toInt(), floor(tipY).toInt())) {
-                gameCycle.itemsApi.spawnItemEntity(ItemsList.plank_block, tipX v tipY + 0.5f, AppState.main.random(1f, 3f).toInt(), true)
-                die()
+                gameCycle.entityApi.killInSystem(this)
             }
         }
     }
@@ -138,8 +136,10 @@ class FallingTreeSegmentEntity(
     }
 
     override fun die() {
-        if (isDead) return
+        ai?.die()
         isDead = true
+        drop()
+        gameCycle.entityApi.hideEntity(this)
 
         spawnTextureParticles(texture)
 
@@ -148,8 +148,21 @@ class FallingTreeSegmentEntity(
         }
 
         topLeafTexture?.let { spawnTextureParticles(it) }
+    }
 
-        gameCycle.entityApi.killInSystem(this)
+    override fun drop() {
+        if (isLying) {
+            val sx = segWorldPos.x
+            val sy = segWorldPos.y
+
+            gameCycle.itemsApi.spawnItemEntity(ItemsList.plank_block, sx v sy + 0.5f, AppState.main.random(1f, 3f).toInt(), true)
+        } else {
+            val tipX = sharedPivot.x + sin(fallAngle) * dir * (segmentIndex + 1f)
+            val tipY = sharedPivot.y + cos(fallAngle) * (segmentIndex + 1f)
+
+            gameCycle.itemsApi.spawnItemEntity(ItemsList.plank_block, tipX v tipY + 0.5f, AppState.main.random(1f, 3f).toInt(), true)
+        }
+
     }
 
     private fun spawnTextureParticles(tex: PImage) {

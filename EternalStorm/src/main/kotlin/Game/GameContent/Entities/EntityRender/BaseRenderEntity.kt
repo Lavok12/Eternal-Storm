@@ -22,7 +22,11 @@ open class BaseRenderEntity(layersRenderContainer: LayersRenderContainer) : Base
     override var ROI_delta = 0 v 0
 
     override fun draw(lg: LGraphics, pos: Vec2, size: Vec2, camera: Camera) {
-        lg.fill(255f, 50f, 50f)
-        lg.setBlock(pos, size)
+        lg.fill(150f, 0f, 150f)
+        lg.setBlock(pos + size/4f, size/2f)
+        lg.setBlock(pos - size/4f, size/2f)
+        lg.fill(0f, 0f, 0f)
+        lg.setBlock(pos + size.invertedY()/4f, size/2f)
+        lg.setBlock(pos - size.invertedY()/4f, size/2f)
     }
 }

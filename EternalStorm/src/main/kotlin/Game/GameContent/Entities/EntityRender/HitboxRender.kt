@@ -18,7 +18,7 @@ class HitboxRender(var hitboxComponent: HitboxComponent, layersRenderContainer: 
         1000
     )
 
-    override var ROI_pos = Vec2.ZERO
+    override var ROI_pos = 0 v 0
     override var ROI_size = 1 v 1
     override var ROI_delta = Vec2.ZERO
 
@@ -44,8 +44,5 @@ class HitboxRender(var hitboxComponent: HitboxComponent, layersRenderContainer: 
         lg.noStroke()
     }
 
-    override fun show() {
-        super.show()
-    }
 }
 

@@ -32,6 +32,8 @@ object AppState {
 
     var hitboxDebug: Boolean = false
         private set
+    var renderDebug: Boolean = false
+        private set
 
     var lang = "ru"
         set(value)
