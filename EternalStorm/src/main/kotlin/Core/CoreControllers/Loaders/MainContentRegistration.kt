@@ -15,6 +15,11 @@ import la.vok.Game.GameContent.TileTypes.StoneTileType
 import la.vok.Game.GameContent.WallTypes.*
 import la.vok.Game.GameContent.WallTypes.PlankWallType
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.MainDimensionType
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimensionType
+import la.vok.Game.GameContent.Tiles.System.BigTestBlockType
+import la.vok.Game.GameContent.Tiles.System.MultiTileDummyType
+import la.vok.Game.GameContent.ContentList.TilesList
+import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.StoneWorldDimensionType
 import la.vok.Game.GameContent.Items.ItemTypes.TeleporterItemType
 
@@ -41,6 +46,7 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationItemType(StoneTileItemType())
         objectRegistration.registrationItemType(GoldOreTileItemType())
         objectRegistration.registrationItemType(DiamondOreTileItemType())
+        objectRegistration.registrationItemType(BigTestBlockItemType())
         objectRegistration.registrationItemType(PlankTileItemType())
 
         // Wall items
@@ -59,6 +65,8 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationTileType(GoldOreTileType())
         objectRegistration.registrationTileType(DiamondOreTileType())
         objectRegistration.registrationTileType(PlankTileType())
+        objectRegistration.registrationTileType(BigTestBlockType())
+        objectRegistration.registrationTileType(MultiTileDummyType(TilesList.multi_tile_dummy, LPoint.ZERO))
         objectRegistration.registrationTileType(TreePartType())
     }
 

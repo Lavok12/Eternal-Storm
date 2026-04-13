@@ -10,4 +10,6 @@ object TilesList {
     val tree_part_block: String by lazy { AppState.addNamespace("tree_part_block") }
     val gold_ore_block: String by lazy { AppState.addNamespace("gold_ore_block") }
     val diamond_ore_block: String by lazy { AppState.addNamespace("diamond_ore_block") }
+    val big_test_block: String by lazy { AppState.addNamespace("big_test_block") }
+    val multi_tile_dummy: String by lazy { AppState.addNamespace("multi_tile_dummy") }
 }

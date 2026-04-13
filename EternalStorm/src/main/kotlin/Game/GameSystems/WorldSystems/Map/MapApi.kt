@@ -65,13 +65,17 @@ class MapApi(var gameCycle: GameCycle) {
     }
 
     fun controlPlaceTile(dimension: AbstractDimension, type: AbstractTileType, x: Int, y: Int, item: Item, consumed: Boolean = true): Boolean {
+        val px = x + type.placeOffset.x
+        val py = y + type.placeOffset.y
+
         if (item.count < 1 && consumed) return false
-        if (tileIsActive(dimension, x, y)) return false
-        if (!isInsideMap(dimension, x, y)) return false
-        if (!canPlaceTile(dimension, type, x, y)) return false
-        dimension.mapSystem.setTileType(x, y, type)
-        dimension.mapSystem.setTileHp(x, y, type.maxHp)
-        dimension.mapSystem.callPlace(x, y, item)
+        if (tileIsActive(dimension, px, py)) return false
+        if (!isInsideMap(dimension, px, py)) return false
+        if (!canPlaceTile(dimension, type, px, py)) return false
+        
+        dimension.mapSystem.setTileType(px, py, type)
+        dimension.mapSystem.setTileHp(px, py, type.maxHp)
+        dimension.mapSystem.callPlace(px, py, item)
         if (consumed) item.count--
         return true
     }
@@ -240,31 +244,45 @@ class MapApi(var gameCycle: GameCycle) {
     }
 
     fun canPlaceTile(dimension: AbstractDimension, type: AbstractTileType, x: Int, y: Int): Boolean {
-
-        if (!isInsideMap(dimension, x, y)) return false
-        if (tileIsActive(dimension, x, y)) return false
-
-        return when (type.placeType) {
-
-            TilePlaceType.FREE -> true
-
-            TilePlaceType.ON_TILE ->
-                tileIsActive(dimension, x, y)
-
-            TilePlaceType.NEAR_TILE ->
-                hasNearTile(dimension, x, y)
-
-            TilePlaceType.NEAR_WALL ->
-                hasNearWall(dimension, x, y)
-
-            TilePlaceType.NEAR_TILE_OR_ON_WALL ->
-                hasNearTile(dimension, x, y) || wallIsActive(dimension, x, y)
-
-            TilePlaceType.CUSTOM -> {
-                val context = TileContext(x, y, getTileHp(dimension, x, y), type)
-                type.canPlace(context)
+        // Enforce area-wide freedom
+        for (dx in 0 until type.width) {
+            for (dy in 0 until type.height) {
+                val nx = x + dx
+                val ny = y + dy
+                if (!isInsideMap(dimension, nx, ny)) return false
+                if (tileIsActive(dimension, nx, ny)) return false
             }
         }
+
+        // Check adjacency requirements across the whole footprint
+        if (type.placeType == TilePlaceType.FREE) return true
+
+        var satisfied = false
+        for (dx in 0 until type.width) {
+            for (dy in 0 until type.height) {
+                val nx = x + dx
+                val ny = y + dy
+
+                val matches = when (type.placeType) {
+                    TilePlaceType.FREE -> true
+                    TilePlaceType.ON_TILE -> tileIsActive(dimension, nx, ny)
+                    TilePlaceType.NEAR_TILE -> hasNearTile(dimension, nx, ny)
+                    TilePlaceType.NEAR_WALL -> hasNearWall(dimension, nx, ny)
+                    TilePlaceType.NEAR_TILE_OR_ON_WALL -> hasNearTile(dimension, nx, ny) || wallIsActive(dimension, nx, ny)
+                    TilePlaceType.CUSTOM -> {
+                        val context = TileContext(nx, ny, getTileHp(dimension, nx, ny), type)
+                        type.canPlace(context)
+                    }
+                }
+                if (matches) {
+                    satisfied = true
+                    break
+                }
+            }
+            if (satisfied) break
+        }
+
+        return satisfied
     }
 
     fun canPlaceWall(dimension: AbstractDimension, type: AbstractWallType, x: Int, y: Int): Boolean {

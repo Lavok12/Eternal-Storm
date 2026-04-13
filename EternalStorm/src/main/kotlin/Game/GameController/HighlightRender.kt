@@ -8,8 +8,7 @@ import la.vok.Game.GameContent.Items.Other.UsingVariants
 import la.vok.Game.GameContent.Tiles.System.TileContext
 import la.vok.Game.GameContent.ContentList.DimensionsList
 import la.vok.LavokLibrary.LGraphics.LGraphics
-import la.vok.LavokLibrary.Vectors.LPoint
-import la.vok.LavokLibrary.Vectors.v
+import la.vok.LavokLibrary.Vectors.*
 
 class HighlightRender(var gameRender: GameRender) : Controller {
     var targetMinePoint: LPoint? = null
@@ -35,17 +34,28 @@ class HighlightRender(var gameRender: GameRender) : Controller {
         val dim = item.entity.dimension!!
 
         targetMinePoint = if (item.descriptor.renderMineHighlight) targetPoint else null
+        
+        if (targetMinePoint != null) {
+            val tileType = mapApi.getTileType(dim, targetMinePoint!!.x, targetMinePoint!!.y)
+            if (tileType != null && tileType.isDummy) {
+                targetMinePoint = LPoint(targetPoint.x + tileType.masterOffset.x, targetPoint.y + tileType.masterOffset.y)
+            }
+        }
+
+        val handItem = gameRender.gameController.playerControl.getPlayerEntity()?.handItemComponent?.currentHandItem
+        val currentTileType = (handItem?.item?.itemType?.usingVariants as? UsingVariants.PlaceTile)?.let { mapApi.getRegisteredTileType(it.tileTag) }
 
         targetPlacePoint =
-            if (item.descriptor.renderPlaceHighlight && !mapApi.tileIsActive(dim, targetPoint.x, targetPoint.y)
-            ) {
-                targetPoint
+            if (item.descriptor.renderPlaceHighlight) {
+                val offset = currentTileType?.placeOffset ?: (0 p 0)
+                val pt = LPoint(targetPoint.x + offset.x, targetPoint.y + offset.y)
+                if (!mapApi.tileIsActive(dim, pt.x, pt.y)) pt else null
             } else null
 
-        targetItem = gameRender.gameController.playerControl.getPlayerEntity()?.handItemComponent?.currentHandItem
+        targetItem = handItem
 
-        if (!gameRender.gameController.gameCycle.mapApi.isInsideMap(dim, targetPoint.x, targetPoint.y)) targetMinePoint = null
-        if (!gameRender.gameController.gameCycle.mapApi.isInsideMap(dim, targetPlacePoint?.x ?: 100000000, targetPlacePoint?.y ?: 10000000)) targetPlacePoint = null
+        if (!mapApi.isInsideMap(dim, targetMinePoint?.x ?: 0, targetMinePoint?.y ?: 0)) targetMinePoint = null
+        if (!mapApi.isInsideMap(dim, targetPlacePoint?.x ?: 100000000, targetPlacePoint?.y ?: 10000000)) targetPlacePoint = null
 
     }
 
@@ -70,11 +80,16 @@ class HighlightRender(var gameRender: GameRender) : Controller {
                 tileContext.tileType = mapTile
 
                 var tilePos = gameRender.gameController.gameCycle.mapApi.getBlockPos(targetMinePoint!!)
-                var tileSize = gameRender.gameController.gameCycle.mapApi.getBlockSize()
+                var tileSize = gameRender.gameController.gameCycle.mapApi.getBlockSize().copy()
+                tileSize.x *= mapTile.width
+                tileSize.y *= mapTile.height
+
+                val offset = Vec2((mapTile.width / 2).toFloat(), (mapTile.height / 2).toFloat())
+                
                 mapTile.renderHighlight(
                     tileContext,
                     lg,
-                    camera.useCamera(tilePos),
+                    camera.useCamera(tilePos + offset),
                     camera.useCameraSize(tileSize) + (1 v 1),
                     gameRender,
                 )
@@ -102,21 +117,28 @@ class HighlightRender(var gameRender: GameRender) : Controller {
             when (e) {
                 UsingVariants.Custom -> {}
                 is UsingVariants.PlaceTile -> {
-                    if (mapApi.canPlaceTile(dim, mapApi.getRegisteredTileType(e.tileTag), targetPlacePoint!!.x, targetPlacePoint!!.y)) {
-                        lg.fill(255f,100f)
-                        lg.setBlock(camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1))
+                    val tileType = mapApi.getRegisteredTileType(e.tileTag)
+                    val displaySize = tileSize.copy()
+                    displaySize.x *= tileType.width
+                    displaySize.y *= tileType.height
+
+                    val offset = Vec2((tileType.width / 2).toFloat(), (tileType.height / 2).toFloat())
+
+                    if (mapApi.canPlaceTile(dim, tileType, targetPlacePoint!!.x, targetPlacePoint!!.y)) {
+                        lg.fill(255f, 150f)
+                        lg.setBlock(camera.useCamera(tilePos + offset), camera.useCameraSize(displaySize) + (1 v 1))
                     } else {
-                        lg.fill(200f, 100f, 100f,100f)
-                        lg.setBlock(camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1))
+                        lg.fill(255f, 50f, 50f, 150f)
+                        lg.setBlock(camera.useCamera(tilePos + offset), camera.useCameraSize(displaySize) + (1 v 1))
                     }
                 }
                 is UsingVariants.PlaceWall -> {
                     if (mapApi.canPlaceWall(dim, mapApi.getRegisteredWallType(e.wallTag), targetPlacePoint!!.x, targetPlacePoint!!.y)) {
-                        lg.fill(255f, 100f)
+                        lg.fill(255f, 150f)
                         lg.setBlock(camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1))
                     } else {
                         if (!mapApi.wallIsActive(dim, targetPlacePoint!!.x, targetPlacePoint!!.y)) {
-                            lg.fill(200f, 100f, 100f, 100f)
+                            lg.fill(255f, 50f, 50f, 150f)
                             lg.setBlock(camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1))
                         }
                     }

@@ -4,6 +4,7 @@ import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
 import la.vok.Game.GameContent.Tiles.System.AbstractWallType
 import la.vok.Game.GameContent.Tiles.System.TileContext
+import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.Game.GameSystems.WorldSystems.Map.MineData
 import la.vok.Game.GameSystems.WorldSystems.Map.WallContext
 
@@ -75,19 +76,29 @@ class MapSystem(
 
     fun deactivateTile(x: Int, y: Int, reason: Any? = null) {
         if (!isInside(x, y)) return
+        val tileType = getTileType(x, y) ?: return
+        
+        if (tileType.isDummy) {
+            return deactivateTile(x + tileType.masterOffset.x, y + tileType.masterOffset.y, reason)
+        }
+
         val idx = getIndex(x, y)
-        val tileType = tiles[idx] ?: return
         val context = TileContext(x, y, tilesHp[idx], tileType, mapController.dimension)
         tileType.onRemoved(x, y, context, reason)
+        removeMultiTileParts(x, y, tileType)
         tiles[idx] = null
         tilesHp[idx] = 0
     }
 
     fun damageTile(x: Int, y: Int, damage: Int) {
         if (!containsTile(x, y)) return
-        val idx = getIndex(x, y)
-        val tileType = tiles[idx] ?: return
+        val tileType = getTileType(x, y) ?: return
 
+        if (tileType.isDummy) {
+            return damageTile(x + tileType.masterOffset.x, y + tileType.masterOffset.y, damage)
+        }
+
+        val idx = getIndex(x, y)
         val contextBefore = TileContext(x, y, tilesHp[idx], tileType, mapController.dimension)
         tileType.damage(x, y, damage, contextBefore, mapController)
         tilesHp[idx] -= damage
@@ -95,6 +106,7 @@ class MapSystem(
         if (tilesHp[idx] <= 0) {
             val contextBreak = TileContext(x, y, tilesHp[idx], tileType, mapController.dimension)
             tileType.onRemoved(x, y, contextBreak, "absolute_damage")
+            removeMultiTileParts(x, y, tileType)
             tiles[idx] = null
             tilesHp[idx] = 0
         }
@@ -102,11 +114,15 @@ class MapSystem(
 
     fun mineTile(x: Int, y: Int, mineData: MineData) {
         if (!containsTile(x, y)) return
-        val idx = getIndex(x, y)
-        val tileType = tiles[idx] ?: return
+        val tileType = getTileType(x, y) ?: return
+
+        if (tileType.isDummy) {
+            return mineTile(x + tileType.masterOffset.x, y + tileType.masterOffset.y, mineData)
+        }
 
         if (mineData.power < tileType.blockStrength) return
 
+        val idx = getIndex(x, y)
         val contextBefore = TileContext(x, y, tilesHp[idx], tileType, mapController.dimension)
         tileType.damage(x, y, mineData.value, contextBefore, mapController)
         tilesHp[idx] -= mineData.value
@@ -115,8 +131,28 @@ class MapSystem(
             val contextBreak = TileContext(x, y, tilesHp[idx], tileType, mapController.dimension)
             tileType.onMined(x, y, mineData, contextBreak, mapController)
             tileType.onRemoved(x, y, contextBreak, mineData)
+            removeMultiTileParts(x, y, tileType)
             tiles[idx] = null
             tilesHp[idx] = 0
+        }
+    }
+
+    private fun removeMultiTileParts(x: Int, y: Int, tile: AbstractTileType) {
+        if (tile.width > 1 || tile.height > 1) {
+            for (dx in 0 until tile.width) {
+                for (dy in 0 until tile.height) {
+                    if (dx == 0 && dy == 0) continue
+                    val nx = x + dx
+                    val ny = y + dy
+                    if (isInside(nx, ny)) {
+                        val part = tiles[getIndex(nx, ny)]
+                        if (part != null && part.isDummy && part.masterOffset.x == -dx && part.masterOffset.y == -dy) {
+                            tiles[getIndex(nx, ny)] = null
+                            tilesHp[getIndex(nx, ny)] = 0
+                        }
+                    }
+                }
+            }
         }
     }
 

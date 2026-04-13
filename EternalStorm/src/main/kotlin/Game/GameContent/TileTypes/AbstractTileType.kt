@@ -13,6 +13,7 @@ import la.vok.Game.GameSystems.WorldSystems.Map.TilePlaceType
 import la.vok.LavokLibrary.Gradient.ShadowInfo
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
+import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.p
 import processing.core.PImage
 
@@ -23,6 +24,12 @@ abstract class AbstractTileType : IBlockType {
     override val maxHp: Int = 0
     override val texture: String = ""
     override val drop: DropEntry = NothingDrop
+
+    open val width: Int = 1
+    open val height: Int = 1
+    open val isDummy: Boolean = false
+    open val masterOffset: LPoint = 0 p 0
+    open val placeOffset: LPoint = 0 p 0
 
     open val placeType: TilePlaceType = TilePlaceType.NEAR_TILE_OR_ON_WALL
 
@@ -35,10 +42,16 @@ abstract class AbstractTileType : IBlockType {
         size: Vec2,
         gameController: GameController
     ) {
+        if (isDummy) return
+
+        val renderSize = size.copy()
+        renderSize.x *= width
+        renderSize.y *= height
+
         lg.setImage(
             gameController.coreController.spriteLoader.getValue(texture),
             position,
-            size
+            renderSize
         )
         renderBreakProgress(tileContext, lg, position, size, gameController)
     }

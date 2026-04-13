@@ -19,4 +19,5 @@ object ItemsList {
     val diamond_ore_block: String by lazy { AppState.addNamespace("diamond_ore_block") }
     val most_common_stick: String by lazy { AppState.addNamespace("most_common_stick") }
     val teleporter: String by lazy { AppState.addNamespace("teleporter") }
+    val big_test_block: String by lazy { AppState.addNamespace("big_test_block") }
 }

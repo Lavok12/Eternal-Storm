@@ -14,6 +14,8 @@ import la.vok.Game.GameContent.ContentList.DimensionsList
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.KotlinPlus.forEachInArea
 import la.vok.LavokLibrary.LGraphics.LGraphics
+import la.vok.LavokLibrary.Vectors.LPoint
+import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.p
 import la.vok.LavokLibrary.Vectors.v
 
@@ -99,7 +101,10 @@ class GameRender(val gameController: GameController) : Controller {
 
                 var tilePos = mapApi.getBlockPos(ix p iy)
                 var tileSize = mapApi.getBlockSize()
-                mapTile.render(tileContext, lg, camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1), gameController)
+                mapTile.render(tileContext, lg, camera.useCamera(tilePos + Vec2(
+                    (tileContext.tileType!!.width/2) v (tileContext.tileType!!.height/2)
+                    )
+                ), camera.useCameraSize(tileSize) + (1 v 1), gameController)
             }
         }
 
