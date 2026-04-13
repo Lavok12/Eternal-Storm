@@ -6,10 +6,10 @@ import la.vok.Game.GameContent.ContentList.ItemsList
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
 import la.vok.Game.GameContent.ContentList.TilesList
 
-class StoneTileType() : AbstractTileType() {
-    override val tag: String = TilesList.stone_block
-    override val blockStrength: Int = 60
-    override val maxHp: Int = 30
-    override val texture: String = "stone_texture.jpg"
-    override val drop: DropEntry = SingleDrop(ItemsList.stone_block)
+class GoldOreTileType() : AbstractTileType() {
+    override val tag: String = TilesList.gold_ore_block
+    override val blockStrength: Int = 80
+    override val maxHp: Int = 40
+    override val texture: String = "gold_ore_texture.jpg"
+    override val drop: DropEntry = SingleDrop(ItemsList.gold_ore_block)
 }

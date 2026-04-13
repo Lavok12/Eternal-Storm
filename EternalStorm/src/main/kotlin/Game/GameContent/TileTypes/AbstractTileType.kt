@@ -96,17 +96,17 @@ abstract class AbstractTileType : IBlockType {
     open fun place(x: Int, y: Int, item: Item, mapController: MapController) {}
 
     open fun spawnTileParticle(x: Int, y: Int, tileContext: TileContext, mapController: MapController, speed: Vec2 = Vec2.ZERO) {
-        mapController.gameCycle.particlesApi.spawnTileParticleRandom(this, mapController.gameCycle.mapApi.getBlockPos(x, y), 1f)
+        mapController.gameCycle.particlesApi.buildTile(this).atBlock(x, y).speed(speed).randomSpeed(1f).spawn()
     }
 
     open fun damage(x: Int, y: Int, damage: Int, tileContext: TileContext, mapController: MapController) {
-        mapController.gameCycle.particlesApi.spawnTileParticles(this, mapController.gameCycle.mapApi.getBlockPos(x, y), 5)
+        mapController.gameCycle.particlesApi.buildTile(this).atBlock(x, y).count(5).randomSpeed(1f).spawn()
     }
 
     open fun onMined(x: Int, y: Int, mineData: MineData, tileContext: TileContext, mapController: MapController) {
         val pos = mapController.mapApi.getBlockPos(x p y)
         mapController.gameCycle.itemsApi.spawnDropTable(drop, pos, true)
-        mapController.gameCycle.particlesApi.spawnTileParticles(this, pos, 9)
+        mapController.gameCycle.particlesApi.buildTile(this).at(pos).count(9).randomSpeed(1f).spawn()
     }
 
     open fun onRemoved(

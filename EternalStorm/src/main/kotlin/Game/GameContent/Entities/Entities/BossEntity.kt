@@ -109,12 +109,14 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
     private fun spawnParticleBurst(pos2: Vec2, count: Int) {
         val map = gameCycle.mapApi
 
-
         for(i in 0 until count) {
             var pos = map.getPointFromPos(pos2 + (AppState.main.random(-1f, 1f) v  AppState.main.random(-1f, 1f)))
             val type = map.getTileType(pos.x, pos.y) ?: continue
             val context = map.getTileContext(pos.x, pos.y) ?: continue
-            gameCycle.particlesApi.spawnTileParticleWithSpeed(type, map.getBlockPos(pos.x, pos.y) + Vec2(AppState.main.random(-0.5f, 0.5f), AppState.main.random(-0.5f, 0.5f)) , Vec2(AppState.main.random(-0.1f, 0.1f), AppState.main.random(0.05f, 0.1f)).normalize()* AppState.main.random(0.1f, 0.3f))
+            gameCycle.particlesApi.buildTile(type)
+                .at(map.getBlockPos(pos.x, pos.y) + Vec2(AppState.main.random(-0.5f, 0.5f), AppState.main.random(-0.5f, 0.5f)))
+                .speed(Vec2(AppState.main.random(-0.1f, 0.1f), AppState.main.random(0.05f, 0.1f)).normalize() * AppState.main.random(0.1f, 0.3f))
+                .spawn()
         }
     }
 

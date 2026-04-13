@@ -27,7 +27,7 @@ object AppState {
     var doublePressDelay = 300L
 
     var maxPhysicStep = 0.1f
-
+  
     val itemsMergeSize = 4 v 4
 
     var hitboxDebug: Boolean = false

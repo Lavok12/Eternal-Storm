@@ -41,7 +41,7 @@ abstract class AbstractWallType : IBlockType {
     open fun place(x: Int, y: Int, item: Item, mapController: MapController) {}
 
     open fun damage(x: Int, y: Int, damage: Int, wallContext: WallContext, mapController: MapController) {
-        mapController.gameCycle.particlesApi.spawnWallParticles(this, mapController.gameCycle.mapApi.getBlockPos(x, y), 3)
+        mapController.gameCycle.particlesApi.buildWall(this).atBlock(x, y).count(3).randomSpeed(1f).spawn()
     }
 
     open fun onMined(x: Int, y: Int, mineData: MineData, wallContext: WallContext, mapController: MapController) {

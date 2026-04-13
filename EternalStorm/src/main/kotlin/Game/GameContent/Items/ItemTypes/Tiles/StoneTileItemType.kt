@@ -6,6 +6,6 @@ import la.vok.Game.GameContent.ContentList.TilesList
 
 class StoneTileItemType : BaseTileItemType() {
     override val tag: String = ItemsList.stone_block
-    override val texture = "stoneTexture.jpg"
+    override val texture = "stone_texture.jpg"
     override val usingVariants = UsingVariants.PlaceTile(TilesList.stone_block)
 }

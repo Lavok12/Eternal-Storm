@@ -35,6 +35,8 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationItemType(GrassTileItemType())
         objectRegistration.registrationItemType(DirtTileItemType())
         objectRegistration.registrationItemType(StoneTileItemType())
+        objectRegistration.registrationItemType(GoldOreTileItemType())
+        objectRegistration.registrationItemType(DiamondOreTileItemType())
         objectRegistration.registrationItemType(PlankTileItemType())
 
         // Wall items
@@ -49,6 +51,8 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationTileType(GrassTileType())
         objectRegistration.registrationTileType(DirtTileType())
         objectRegistration.registrationTileType(StoneTileType())
+        objectRegistration.registrationTileType(GoldOreTileType())
+        objectRegistration.registrationTileType(DiamondOreTileType())
         objectRegistration.registrationTileType(PlankTileType())
         objectRegistration.registrationTileType(TreePartType())
     }
