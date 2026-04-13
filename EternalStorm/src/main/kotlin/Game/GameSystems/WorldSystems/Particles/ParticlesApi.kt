@@ -7,24 +7,29 @@ import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Particles.Particles.EntityParticle
 import la.vok.Game.GameSystems.WorldSystems.Particles.Particles.TileParticle
 import la.vok.Game.GameSystems.WorldSystems.Particles.Particles.WallParticle
+import la.vok.Game.GameSystems.WorldSystems.Particles.Particle
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
 import processing.core.PImage
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 
-class ParticlesApi(var particleController: ParticleController) {
-    val gameCycle: GameCycle = particleController.gameCycle
+class ParticlesApi(var gameCycle: GameCycle) {
     val gameController: GameController get() = gameCycle.gameController
 
-    fun buildTile(tileType: AbstractTileType) = TileParticleBuilder(this, tileType)
-    fun buildWall(wallType: AbstractWallType) = WallParticleBuilder(this, wallType)
-    fun buildEntity(image: PImage) = EntityParticleBuilder(this, image)
+    fun buildTile(dimension: AbstractDimension, tileType: AbstractTileType) = TileParticleBuilder(this, dimension, tileType)
+    fun buildWall(dimension: AbstractDimension, wallType: AbstractWallType) = WallParticleBuilder(this, dimension, wallType)
+    fun buildEntity(dimension: AbstractDimension, image: PImage) = EntityParticleBuilder(this, dimension, image)
 
-    fun tileBurst(pos: Vec2) = BurstBuilder(this, pos, isTile = true)
-    fun wallBurst(pos: Vec2) = BurstBuilder(this, pos, isTile = false)
+    fun tileBurst(dimension: AbstractDimension, pos: Vec2) = BurstBuilder(this, dimension, pos, isTile = true)
+    fun wallBurst(dimension: AbstractDimension, pos: Vec2) = BurstBuilder(this, dimension, pos, isTile = false)
+
+    fun addParticle(dimension: AbstractDimension, particle: Particle) {
+        dimension.particleSystem.addParticle(particle)
+    }
 }
 
-abstract class ParticleBuilder<T : ParticleBuilder<T>>(protected val api: ParticlesApi) {
+abstract class ParticleBuilder<T : ParticleBuilder<T>>(protected val api: ParticlesApi, protected val dimension: AbstractDimension) {
     protected var count = 1
     protected var pos = Vec2.ZERO
     protected var baseSpeed = Vec2.ZERO
@@ -35,7 +40,7 @@ abstract class ParticleBuilder<T : ParticleBuilder<T>>(protected val api: Partic
     fun at(pos: Vec2): T = apply { this.pos = pos } as T
     
     @Suppress("UNCHECKED_CAST")
-    fun atBlock(x: Int, y: Int): T = apply { this.pos = api.gameCycle.mapApi.getBlockPos(x, y) } as T
+    fun atBlock(x: Int, y: Int): T = apply { this.pos = api.gameCycle.mapApi.getBlockPos(dimension, x, y) } as T
     
     @Suppress("UNCHECKED_CAST")
     fun count(c: Int): T = apply { this.count = c } as T
@@ -63,32 +68,32 @@ abstract class ParticleBuilder<T : ParticleBuilder<T>>(protected val api: Partic
                 finalSpeed = finalSpeed + rSpeed
             }
 
-            api.particleController.particleSystem.addParticle(createParticle(finalPos, finalSpeed))
+            dimension.particleSystem.addParticle(createParticle(finalPos, finalSpeed))
         }
     }
 
     protected abstract fun createParticle(finalPos: Vec2, finalSpeed: Vec2): Particle
 }
 
-open class TileParticleBuilder(api: ParticlesApi, var tileType: AbstractTileType) : ParticleBuilder<TileParticleBuilder>(api) {
+open class TileParticleBuilder(api: ParticlesApi, dimension: AbstractDimension, var tileType: AbstractTileType) : ParticleBuilder<TileParticleBuilder>(api, dimension) {
     override fun createParticle(finalPos: Vec2, finalSpeed: Vec2): Particle {
         return TileParticle(api.gameCycle, tileType, finalPos, finalSpeed)
     }
 }
 
-open class WallParticleBuilder(api: ParticlesApi, var wallType: AbstractWallType) : ParticleBuilder<WallParticleBuilder>(api) {
+open class WallParticleBuilder(api: ParticlesApi, dimension: AbstractDimension, var wallType: AbstractWallType) : ParticleBuilder<WallParticleBuilder>(api, dimension) {
     override fun createParticle(finalPos: Vec2, finalSpeed: Vec2): Particle {
         return WallParticle(api.gameCycle, wallType, finalPos, finalSpeed)
     }
 }
 
-open class EntityParticleBuilder(api: ParticlesApi, var image: PImage) : ParticleBuilder<EntityParticleBuilder>(api) {
+open class EntityParticleBuilder(api: ParticlesApi, dimension: AbstractDimension, var image: PImage) : ParticleBuilder<EntityParticleBuilder>(api, dimension) {
     override fun createParticle(finalPos: Vec2, finalSpeed: Vec2): Particle {
         return EntityParticle(api.gameCycle, image, finalPos, finalSpeed)
     }
 }
 
-class BurstBuilder(val api: ParticlesApi, val pos: Vec2, val isTile: Boolean) {
+class BurstBuilder(val api: ParticlesApi, val dimension: AbstractDimension, val pos: Vec2, val isTile: Boolean) {
     var count = 1
     var radius = 1f
     var speedScale = 1f
@@ -104,14 +109,14 @@ class BurstBuilder(val api: ParticlesApi, val pos: Vec2, val isTile: Boolean) {
             val finalPos = pos + offset
             val point = map.getPointFromPos(finalPos)
             if (isTile) {
-                val tileType = map.getTileType(point.x, point.y) ?: return@repeat
-                api.buildTile(tileType)
+                val tileType = map.getTileType(dimension, point.x, point.y) ?: return@repeat
+                api.buildTile(dimension, tileType)
                     .at(finalPos)
                     .randomSpeed(speedScale)
                     .spawn()
             } else {
-                val wallType = map.getWallType(point.x, point.y) ?: return@repeat
-                api.buildWall(wallType)
+                val wallType = map.getWallType(dimension, point.x, point.y) ?: return@repeat
+                api.buildWall(dimension, wallType)
                     .at(finalPos)
                     .randomSpeed(speedScale)
                     .spawn()

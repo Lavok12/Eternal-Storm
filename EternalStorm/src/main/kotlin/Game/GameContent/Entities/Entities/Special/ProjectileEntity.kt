@@ -70,14 +70,14 @@ open class ProjectileEntity(
     }
 
     open fun blockCollision() {
-        gameCycle.entityApi.killInSystem(systemId)
+        gameCycle.entityApi.killInSystem(dimension!!, systemId)
     }
 
 
     override fun physicUpdate() {
         super.physicUpdate()
         if (physicTicks > maxLifeTime) {
-            gameCycle.entityApi.killInSystem(systemId)
+            gameCycle.entityApi.killInSystem(dimension!!, systemId)
         }
     }
 
@@ -91,7 +91,7 @@ open class ProjectileEntity(
                 source,
                 null
                 ), hitbox)
-            gameCycle.entityApi.killInSystem(systemId)
+            gameCycle.entityApi.killInSystem(dimension!!, systemId)
         }
     }
 

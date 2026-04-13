@@ -63,6 +63,12 @@ class EntitySystem(var entityController: EntityController) {
         idMap[id]?.let { deleteBuffer.add(it) }
     }
 
+    fun removeImmediate(entity: Entity) {
+        AppState.logger.info("Remove Immediate Entity $entity")
+        idMap.remove(entity.systemId)
+        entities.remove(entity)
+    }
+
     fun kill(entity: Entity) {
         AppState.logger.info("Kill Entity $entity")
         entity.isDead = true
@@ -83,7 +89,7 @@ class EntitySystem(var entityController: EntityController) {
 
         while (deleteBuffer.isNotEmpty()) {
             val entity = deleteBuffer.removeFirst()
-            entityController.entityApi.hideEntity(entity)
+            entity.dimension?.gameCycle?.entityApi?.hideEntity(entity.dimension!!, entity)
             idMap.remove(entity.systemId)
             entities.remove(entity)
             deleted++
@@ -91,7 +97,7 @@ class EntitySystem(var entityController: EntityController) {
 
         while (killBuffer.isNotEmpty()) {
             val entity = killBuffer.removeFirst()
-            entityController.entityApi.hideEntity(entity)
+            entity.dimension?.gameCycle?.entityApi?.hideEntity(entity.dimension!!, entity)
             idMap.remove(entity.systemId)
             entities.remove(entity)
             entity.die()

@@ -70,7 +70,7 @@ open class ItemEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.ItemEnti
         mergeDetector?.activeContacts?.toList()?.forEach { otherHitbox ->
             val other = otherHitbox.entity as? ItemEntity ?: return@forEach
             if (other === this) return@forEach
-            if (!gameCycle.entityApi.isExist(other)) return@forEach
+            if (!gameCycle.entityApi.isExist(dimension!!, other)) return@forEach
 
             val otherItem = other.item ?: return@forEach
             if (!currentItem.canStackable(otherItem)) return@forEach
@@ -95,7 +95,7 @@ open class ItemEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.ItemEnti
             absorbedItem.count -= toTransfer
 
             if (absorbedItem.count <= 0) {
-                gameCycle.entityApi.killInSystem(absorbed)
+                gameCycle.entityApi.killInSystem(dimension!!, absorbed)
             }
 
             if (absorbed === this) return

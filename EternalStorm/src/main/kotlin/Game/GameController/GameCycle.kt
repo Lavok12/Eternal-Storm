@@ -3,31 +3,25 @@ package la.vok.Game.GameController
 import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.Map.MapApi
-import la.vok.Game.GameContent.Map.MapController
 import la.vok.Game.GameSystems.WorldSystems.Crafts.CraftApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
-import la.vok.Game.GameSystems.WorldSystems.Entities.EntityController
 import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
-import la.vok.Game.GameSystems.WorldSystems.Particles.ParticleController
 import la.vok.Game.GameSystems.WorldSystems.Particles.ParticlesApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
-import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsController
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.System.DimensionsController
+import la.vok.Game.GameContent.ContentList.DimensionsList
 
 class GameCycle(var gameController: GameController) : Controller {
-    val entityApi: EntityApi get() = entityController.entityApi
-    val mapApi: MapApi get() = mapController.mapApi
-    val particlesApi: ParticlesApi get() = particleController.particlesApi
-    val vfxObjectsApi: VfxObjectsApi get() = vfxObjectsController.vfxObjectsApi
+    val entityApi: EntityApi = EntityApi(this)
+    val mapApi: MapApi = MapApi(this)
+    val particlesApi: ParticlesApi = ParticlesApi(this)
+    val vfxObjectsApi: VfxObjectsApi = VfxObjectsApi(this)
     var itemsApi = ItemsApi(this)
     var craftApi = CraftApi(this)
 
-
-    var mapController = MapController(this)
-    var entityController = EntityController(this)
-    var vfxObjectsController = VfxObjectsController(this)
-    var particleController = ParticleController(this)
-
-
+    var dimensionsController = DimensionsController(this)
+    val dimensionsApi get() = dimensionsController.dimensionsApi
 
     var collisionSystem = CollisionSystem(this)
 
@@ -36,37 +30,16 @@ class GameCycle(var gameController: GameController) : Controller {
     }
 
     override fun logicalTick() {
-        entityApi.getActiveEntities().forEach { it.logicalUpdate() }
-
         collisionSystem.logicalTick()
-        mapController.logicalTick()
-        entityController.logicalTick()
-        vfxObjectsController.logicalTick()
+        dimensionsController.logicalTick()
     }
 
     override fun physicTick() {
         collisionSystem.physicTick()
-        mapController.physicTick()
-        entityController.physicTick()
-        vfxObjectsController.physicTick()
-        particleController.physicTick()
-
-        entityApi.getActiveEntities().toList().forEach {
-            if (!it.isDead) {
-                it.physicUpdate()
-            }
-        }
+        dimensionsController.physicTick()
     }
+    
     override fun renderTick() {
-        mapController.renderTick()
-        entityController.renderTick()
-        mapController.renderTick()
-        vfxObjectsController.renderTick()
-
-        entityApi.getActiveEntities().toList().forEach {
-            if (!it.isDead) {
-                it.renderUpdate()
-            }
-        }
+        dimensionsController.renderTick()
     }
 }

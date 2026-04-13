@@ -25,7 +25,7 @@ class TileHandItem(item: Item, component: HandItemComponent, var abstractTileTyp
         leftAction = UseAction.Custom(
             onStart = {
                 var placePos = entity.ai?.targetMapPos() ?: LPoint.ZERO
-                gameCycle.mapApi.controlPlaceTile(abstractTileType, placePos.x, placePos.y, item, item.consumed)
+                gameCycle.mapApi.controlPlaceTile(entity.dimension!!, abstractTileType, placePos.x, placePos.y, item, item.consumed)
             },
         ),
     )

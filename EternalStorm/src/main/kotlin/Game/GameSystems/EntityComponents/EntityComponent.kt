@@ -5,8 +5,8 @@ import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 
 open class EntityComponent(var entity: Entity) {
-    val mapApi: MapApi get() = entity.gameCycle.mapController.mapApi
-    val entityApi: EntityApi get() = entity.gameCycle.entityController.entityApi
+    val mapApi: MapApi get() = entity.gameCycle.mapApi
+    val entityApi: EntityApi get() = entity.gameCycle.entityApi
 
 
 }

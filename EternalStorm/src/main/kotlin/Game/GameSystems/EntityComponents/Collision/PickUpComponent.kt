@@ -33,7 +33,7 @@ class PickUpComponent(
     )
 
     private fun canPickUp(itemEntity: ItemEntity): Boolean {
-        if (!entity.gameCycle.entityApi.isExist(itemEntity)) return false
+        if (!entity.gameCycle.entityApi.isExist(itemEntity.dimension!!, itemEntity)) return false
         val item = itemEntity.item ?: return false
         return container.canAddItem(item)
     }
@@ -50,7 +50,7 @@ class PickUpComponent(
         val item = itemEntity.item ?: return
         val remaining = container.addItem(item)
         if (remaining <= 0) {
-            entity.gameCycle.entityApi.killInSystem(itemEntity)
+            entity.gameCycle.entityApi.killInSystem(itemEntity.dimension!!, itemEntity)
         } else {
             item.count = remaining
         }

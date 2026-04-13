@@ -7,6 +7,7 @@ import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Items.Other.AbstractItemType
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
 import la.vok.Game.GameContent.Tiles.System.AbstractWallType
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimensionType
 import la.vok.State.AppState
 
 class ObjectRegistration(var coreController: CoreController) : Controller {
@@ -14,6 +15,7 @@ class ObjectRegistration(var coreController: CoreController) : Controller {
     var walls = HashMap<String, AbstractWallType>()
     var entities = HashMap<String, AbstractEntityType>()
     var items = HashMap<String, AbstractItemType>()
+    var dimensions = HashMap<String, AbstractDimensionType>()
     var crafts = ArrayList<CraftType>()
     val craftsByPriority = HashMap<Int, ArrayList<CraftType>>()
 
@@ -24,6 +26,7 @@ class ObjectRegistration(var coreController: CoreController) : Controller {
         walls.clear()
         entities.clear()
         items.clear()
+        dimensions.clear()
         crafts.clear()
         craftsByPriority.clear()
     }
@@ -48,6 +51,11 @@ class ObjectRegistration(var coreController: CoreController) : Controller {
         items[itemType.tag] = itemType
     }
 
+    fun registrationDimensionType(dimensionType: AbstractDimensionType) {
+        AppState.logger.debug("Registration dimension type: ${dimensionType.tag}")
+        dimensions[dimensionType.tag] = dimensionType
+    }
+
     fun registrationCraft(craftType: CraftType) {
         AppState.logger.debug("Registration craft: ${craftType.result.tag} (priority: ${craftType.priority})")
         craftType.resolve(this)
@@ -70,4 +78,7 @@ class ObjectRegistration(var coreController: CoreController) : Controller {
 
     fun getItemType(tag: String): AbstractItemType =
         items[tag] ?: error("ItemType not found: $tag")
+
+    fun getDimensionType(tag: String): AbstractDimensionType =
+        dimensions[tag] ?: error("DimensionType not found: $tag")
 }

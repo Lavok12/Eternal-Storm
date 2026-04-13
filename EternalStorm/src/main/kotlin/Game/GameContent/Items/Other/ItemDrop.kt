@@ -1,6 +1,7 @@
 package la.vok.Game.GameContent.Items.Other
 
 import la.vok.Game.GameController.GameCycle
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.Vectors.Vec2
 import kotlin.random.Random
 
@@ -46,10 +47,10 @@ class DropTable(val entries: List<DropEntry>) : DropEntry() {
         return result
     }
 
-    fun spawn(gameCycle: GameCycle, pos: Vec2) {
+    fun spawn(dimension: AbstractDimension, pos: Vec2) {
         resolve().forEach { (tag, count) ->
-            val item = gameCycle.itemsApi.getRegisteredItem(tag, count)
-            gameCycle.itemsApi.spawnItemEntity(item, pos, randomVelocity = true)
+            val item = dimension.gameCycle.itemsApi.getRegisteredItem(tag, count)
+            dimension.gameCycle.itemsApi.spawnItemEntity(dimension, item, pos, randomVelocity = true)
         }
     }
 }

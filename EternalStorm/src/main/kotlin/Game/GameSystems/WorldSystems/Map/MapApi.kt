@@ -15,9 +15,9 @@ import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
-class MapApi(var mapController: MapController) {
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 
-    val gameCycle: GameCycle = mapController.gameCycle
+class MapApi(var gameCycle: GameCycle) {
     val gameController: GameController get() = gameCycle.gameController
     val objectRegistration: ObjectRegistration get() = gameController.coreController.objectRegistration
 
@@ -25,92 +25,92 @@ class MapApi(var mapController: MapController) {
     // TILES
     // --------------------------------------------------------
 
-    fun isInsideMap(x: Int, y: Int): Boolean =
-        mapController.mapSystem.isInside(x, y)
+    fun isInsideMap(dimension: AbstractDimension, x: Int, y: Int): Boolean =
+        dimension.mapSystem.isInside(x, y)
 
-    fun tileIsActive(x: Int, y: Int): Boolean =
-        mapController.mapSystem.containsTile(x, y)
+    fun tileIsActive(dimension: AbstractDimension, x: Int, y: Int): Boolean =
+        dimension.mapSystem.containsTile(x, y)
 
-    fun getTileContext(x: Int, y: Int): TileContext? =
-        mapController.mapSystem.getTileContext(x, y)
+    fun getTileContext(dimension: AbstractDimension, x: Int, y: Int): TileContext? =
+        dimension.mapSystem.getTileContext(x, y)
 
-    fun getTileType(x: Int, y: Int): AbstractTileType? =
-        mapController.mapSystem.getTileType(x, y)
+    fun getTileType(dimension: AbstractDimension, x: Int, y: Int): AbstractTileType? =
+        dimension.mapSystem.getTileType(x, y)
 
-    fun getTileHp(x: Int, y: Int): Int =
-        mapController.mapSystem.getTileHp(x, y)
+    fun getTileHp(dimension: AbstractDimension, x: Int, y: Int): Int =
+        dimension.mapSystem.getTileHp(x, y)
 
-    fun setTileHp(x: Int, y: Int, hp: Int) {
-        if (isInsideMap(x, y)) {
-            mapController.mapSystem.setTileHp(x, y, hp)
+    fun setTileHp(dimension: AbstractDimension, x: Int, y: Int, hp: Int) {
+        if (isInsideMap(dimension, x, y)) {
+            dimension.mapSystem.setTileHp(x, y, hp)
         }
     }
 
-    fun damageTile(x: Int, y: Int, damage: Int) {
-        if (!isInsideMap(x, y)) return
-        mapController.mapSystem.damageTile(x, y, damage)
+    fun damageTile(dimension: AbstractDimension, x: Int, y: Int, damage: Int) {
+        if (!isInsideMap(dimension, x, y)) return
+        dimension.mapSystem.damageTile(x, y, damage)
     }
 
-    fun mineTile(x: Int, y: Int, mineData: MineData) {
-        if (!tileIsActive(x, y)) return
-        val tileType = getTileType(x, y) ?: return
+    fun mineTile(dimension: AbstractDimension, x: Int, y: Int, mineData: MineData) {
+        if (!tileIsActive(dimension, x, y)) return
+        val tileType = getTileType(dimension, x, y) ?: return
         if (mineData.power < tileType.blockStrength) return
-        mapController.mapSystem.mineTile(x, y, mineData)
+        dimension.mapSystem.mineTile(x, y, mineData)
     }
 
-    fun repairTile(x: Int, y: Int, amount: Int) {
-        val type = getTileType(x, y) ?: return
-        val newHp = (getTileHp(x, y) + amount).coerceAtMost(type.maxHp)
-        setTileHp(x, y, newHp)
+    fun repairTile(dimension: AbstractDimension, x: Int, y: Int, amount: Int) {
+        val type = getTileType(dimension, x, y) ?: return
+        val newHp = (getTileHp(dimension, x, y) + amount).coerceAtMost(type.maxHp)
+        setTileHp(dimension, x, y, newHp)
     }
 
-    fun controlPlaceTile(type: AbstractTileType, x: Int, y: Int, item: Item, consumed: Boolean = true): Boolean {
+    fun controlPlaceTile(dimension: AbstractDimension, type: AbstractTileType, x: Int, y: Int, item: Item, consumed: Boolean = true): Boolean {
         if (item.count < 1 && consumed) return false
-        if (tileIsActive(x, y)) return false
-        if (!isInsideMap(x, y)) return false
-        if (!canPlaceTile(type, x, y)) return false
-        mapController.mapSystem.setTileType(x, y, type)
-        mapController.mapSystem.setTileHp(x, y, type.maxHp)
-        mapController.mapSystem.callPlace(x, y, item)
+        if (tileIsActive(dimension, x, y)) return false
+        if (!isInsideMap(dimension, x, y)) return false
+        if (!canPlaceTile(dimension, type, x, y)) return false
+        dimension.mapSystem.setTileType(x, y, type)
+        dimension.mapSystem.setTileHp(x, y, type.maxHp)
+        dimension.mapSystem.callPlace(x, y, item)
         if (consumed) item.count--
         return true
     }
 
-    fun setTile(context: TileContext) =
-        mapController.mapSystem.setTile(context)
+    fun setTile(dimension: AbstractDimension, context: TileContext) =
+        dimension.mapSystem.setTile(context)
 
-    fun generateTile(type: AbstractTileType?, x: Int, y: Int) {
-        setTileType(type, x, y)
-        maxHp(x, y)
+    fun generateTile(dimension: AbstractDimension, type: AbstractTileType?, x: Int, y: Int) {
+        setTileType(dimension, type, x, y)
+        maxHp(dimension, x, y)
     }
 
-    fun generateTile(type: String, x: Int, y: Int) {
-        setTileType(type, x, y)
-        maxHp(x, y)
+    fun generateTile(dimension: AbstractDimension, type: String, x: Int, y: Int) {
+        setTileType(dimension, type, x, y)
+        maxHp(dimension, x, y)
     }
 
-    fun setTileType(type: AbstractTileType?, x: Int, y: Int) =
-        mapController.mapSystem.setTileType(x, y, type)
+    fun setTileType(dimension: AbstractDimension, type: AbstractTileType?, x: Int, y: Int) =
+        dimension.mapSystem.setTileType(x, y, type)
 
-    fun setTileType(type: String, x: Int, y: Int) =
-        mapController.mapSystem.setTileType(x, y, getRegisteredTileType(type))
+    fun setTileType(dimension: AbstractDimension, type: String, x: Int, y: Int) =
+        dimension.mapSystem.setTileType(x, y, getRegisteredTileType(type))
 
-    fun maxHp(x: Int, y: Int) =
-        mapController.mapSystem.maxHp(x, y)
+    fun maxHp(dimension: AbstractDimension, x: Int, y: Int) =
+        dimension.mapSystem.maxHp(x, y)
 
-    fun deleteTile(x: Int, y: Int) =
-        mapController.mapSystem.deactivateTile(x, y)
+    fun deleteTile(dimension: AbstractDimension, x: Int, y: Int) =
+        dimension.mapSystem.deactivateTile(x, y)
 
-    fun fillTileRegion(type: AbstractTileType, startX: Int, startY: Int, endX: Int, endY: Int) {
+    fun fillTileRegion(dimension: AbstractDimension, type: AbstractTileType, startX: Int, startY: Int, endX: Int, endY: Int) {
         for (x in startX..endX)
             for (y in startY..endY)
-                setTileType(type, x, y)
+                setTileType(dimension, type, x, y)
     }
 
-    fun clearAllTiles() {
-        for (x in 0 until mapController.mapSystem.width)
-            for (y in 0 until mapController.mapSystem.height)
-                deleteTile(x, y)
+    fun clearAllTiles(dimension: AbstractDimension) {
+        for (x in 0 until dimension.mapSystem.width)
+            for (y in 0 until dimension.mapSystem.height)
+                deleteTile(dimension, x, y)
     }
 
     fun getRegisteredTileType(tag: String): AbstractTileType =
@@ -120,89 +120,89 @@ class MapApi(var mapController: MapController) {
     // WALLS
     // --------------------------------------------------------
 
-    fun wallIsActive(x: Int, y: Int): Boolean =
-        mapController.mapSystem.containsWall(x, y)
+    fun wallIsActive(dimension: AbstractDimension, x: Int, y: Int): Boolean =
+        dimension.mapSystem.containsWall(x, y)
 
-    fun getWallContext(x: Int, y: Int): WallContext? =
-        mapController.mapSystem.getWallContext(x, y)
+    fun getWallContext(dimension: AbstractDimension, x: Int, y: Int): WallContext? =
+        dimension.mapSystem.getWallContext(x, y)
 
-    fun getWallType(x: Int, y: Int): AbstractWallType? =
-        mapController.mapSystem.getWallType(x, y)
+    fun getWallType(dimension: AbstractDimension, x: Int, y: Int): AbstractWallType? =
+        dimension.mapSystem.getWallType(x, y)
 
-    fun getWallHp(x: Int, y: Int): Int =
-        mapController.mapSystem.getWallHp(x, y)
+    fun getWallHp(dimension: AbstractDimension, x: Int, y: Int): Int =
+        dimension.mapSystem.getWallHp(x, y)
 
-    fun setWallHp(x: Int, y: Int, hp: Int) {
-        if (isInsideMap(x, y))
-            mapController.mapSystem.setWallHp(x, y, hp)
+    fun setWallHp(dimension: AbstractDimension, x: Int, y: Int, hp: Int) {
+        if (isInsideMap(dimension, x, y))
+            dimension.mapSystem.setWallHp(x, y, hp)
     }
 
-    fun damageWall(x: Int, y: Int, damage: Int) {
-        if (!isInsideMap(x, y)) return
-        mapController.mapSystem.damageWall(x, y, damage)
+    fun damageWall(dimension: AbstractDimension, x: Int, y: Int, damage: Int) {
+        if (!isInsideMap(dimension, x, y)) return
+        dimension.mapSystem.damageWall(x, y, damage)
     }
 
-    fun mineWall(x: Int, y: Int, mineData: MineData) {
-        if (!wallIsActive(x, y)) return
-        val wallType = getWallType(x, y) ?: return
+    fun mineWall(dimension: AbstractDimension, x: Int, y: Int, mineData: MineData) {
+        if (!wallIsActive(dimension, x, y)) return
+        val wallType = getWallType(dimension, x, y) ?: return
         if (mineData.power < wallType.blockStrength) return
-        mapController.mapSystem.mineWall(x, y, mineData)
+        dimension.mapSystem.mineWall(x, y, mineData)
     }
 
-    fun repairWall(x: Int, y: Int, amount: Int) {
-        val type = getWallType(x, y) ?: return
-        val newHp = (getWallHp(x, y) + amount).coerceAtMost(type.maxHp)
-        setWallHp(x, y, newHp)
+    fun repairWall(dimension: AbstractDimension, x: Int, y: Int, amount: Int) {
+        val type = getWallType(dimension, x, y) ?: return
+        val newHp = (getWallHp(dimension, x, y) + amount).coerceAtMost(type.maxHp)
+        setWallHp(dimension, x, y, newHp)
     }
 
-    fun controlPlaceWall(type: AbstractWallType, x: Int, y: Int, item: Item, consumed: Boolean = true): Boolean {
+    fun controlPlaceWall(dimension: AbstractDimension, type: AbstractWallType, x: Int, y: Int, item: Item, consumed: Boolean = true): Boolean {
         print(2234342345)
         if (item.count < 1 && consumed) return false
-        if (wallIsActive(x, y)) return false
-        if (!isInsideMap(x, y)) return false
-        if (!canPlaceWall(type, x, y)) return false
-        mapController.mapSystem.setWallType(x, y, type)
-        mapController.mapSystem.setWallHp(x, y, type.maxHp)
-        mapController.mapSystem.callPlaceWall(x, y, item)
+        if (wallIsActive(dimension, x, y)) return false
+        if (!isInsideMap(dimension, x, y)) return false
+        if (!canPlaceWall(dimension, type, x, y)) return false
+        dimension.mapSystem.setWallType(x, y, type)
+        dimension.mapSystem.setWallHp(x, y, type.maxHp)
+        dimension.mapSystem.callPlaceWall(x, y, item)
         if (consumed) item.count--
         return true
     }
 
-    fun setWall(context: WallContext) =
-        mapController.mapSystem.setWall(context)
+    fun setWall(dimension: AbstractDimension, context: WallContext) =
+        dimension.mapSystem.setWall(context)
 
-    fun generateWall(type: AbstractWallType?, x: Int, y: Int) {
-        setWallType(type, x, y)
-        maxHpWall(x, y)
+    fun generateWall(dimension: AbstractDimension, type: AbstractWallType?, x: Int, y: Int) {
+        setWallType(dimension, type, x, y)
+        maxHpWall(dimension, x, y)
     }
 
-    fun generateWall(type: String, x: Int, y: Int) {
-        setWallType(type, x, y)
-        maxHpWall(x, y)
+    fun generateWall(dimension: AbstractDimension, type: String, x: Int, y: Int) {
+        setWallType(dimension, type, x, y)
+        maxHpWall(dimension, x, y)
     }
 
-    fun setWallType(type: AbstractWallType?, x: Int, y: Int) =
-        mapController.mapSystem.setWallType(x, y, type)
+    fun setWallType(dimension: AbstractDimension, type: AbstractWallType?, x: Int, y: Int) =
+        dimension.mapSystem.setWallType(x, y, type)
 
-    fun setWallType(type: String, x: Int, y: Int) =
-        mapController.mapSystem.setWallType(x, y, getRegisteredWallType(type))
+    fun setWallType(dimension: AbstractDimension, type: String, x: Int, y: Int) =
+        dimension.mapSystem.setWallType(x, y, getRegisteredWallType(type))
 
-    fun maxHpWall(x: Int, y: Int) =
-        mapController.mapSystem.maxHpWall(x, y)
+    fun maxHpWall(dimension: AbstractDimension, x: Int, y: Int) =
+        dimension.mapSystem.maxHpWall(x, y)
 
-    fun deleteWall(x: Int, y: Int) =
-        mapController.mapSystem.deactivateWall(x, y)
+    fun deleteWall(dimension: AbstractDimension, x: Int, y: Int) =
+        dimension.mapSystem.deactivateWall(x, y)
 
-    fun fillWallRegion(type: AbstractWallType, startX: Int, startY: Int, endX: Int, endY: Int) {
+    fun fillWallRegion(dimension: AbstractDimension, type: AbstractWallType, startX: Int, startY: Int, endX: Int, endY: Int) {
         for (x in startX..endX)
             for (y in startY..endY)
-                setWallType(type, x, y)
+                setWallType(dimension, type, x, y)
     }
 
-    fun clearAllWalls() {
-        for (x in 0 until mapController.mapSystem.width)
-            for (y in 0 until mapController.mapSystem.height)
-                deleteWall(x, y)
+    fun clearAllWalls(dimension: AbstractDimension) {
+        for (x in 0 until dimension.mapSystem.width)
+            for (y in 0 until dimension.mapSystem.height)
+                deleteWall(dimension, x, y)
     }
 
     fun getRegisteredWallType(tag: String): AbstractWallType =
@@ -218,6 +218,16 @@ class MapApi(var mapController: MapController) {
     fun getBlockPos(x: Int, y: Int): Vec2 =
         x v y
 
+    fun getBlockPos(dimension: AbstractDimension, point: LPoint): Vec2 =
+        getBlockPos(point)
+
+    fun getBlockPos(dimension: AbstractDimension, x: Int, y: Int): Vec2 =
+        getBlockPos(x, y)
+
+    fun generateMap(dimension: AbstractDimension) {
+        dimension.generateMap()
+    }
+
     fun getBlockSize(): Vec2 =
         1f v 1f
 
@@ -229,67 +239,67 @@ class MapApi(var mapController: MapController) {
         )
     }
 
-    fun canPlaceTile(type: AbstractTileType, x: Int, y: Int): Boolean {
+    fun canPlaceTile(dimension: AbstractDimension, type: AbstractTileType, x: Int, y: Int): Boolean {
 
-        if (!isInsideMap(x, y)) return false
-        if (tileIsActive(x, y)) return false
+        if (!isInsideMap(dimension, x, y)) return false
+        if (tileIsActive(dimension, x, y)) return false
 
         return when (type.placeType) {
 
             TilePlaceType.FREE -> true
 
             TilePlaceType.ON_TILE ->
-                tileIsActive(x, y)
+                tileIsActive(dimension, x, y)
 
             TilePlaceType.NEAR_TILE ->
-                hasNearTile(x, y)
+                hasNearTile(dimension, x, y)
 
             TilePlaceType.NEAR_WALL ->
-                hasNearWall(x, y)
+                hasNearWall(dimension, x, y)
 
             TilePlaceType.NEAR_TILE_OR_ON_WALL ->
-                hasNearTile(x, y) || wallIsActive(x, y)
+                hasNearTile(dimension, x, y) || wallIsActive(dimension, x, y)
 
             TilePlaceType.CUSTOM -> {
-                val context = TileContext(x, y, getTileHp(x, y), type)
+                val context = TileContext(x, y, getTileHp(dimension, x, y), type)
                 type.canPlace(context)
             }
         }
     }
 
-    fun canPlaceWall(type: AbstractWallType, x: Int, y: Int): Boolean {
+    fun canPlaceWall(dimension: AbstractDimension, type: AbstractWallType, x: Int, y: Int): Boolean {
 
-        if (!isInsideMap(x, y)) return false
-        if (wallIsActive(x, y)) return false
+        if (!isInsideMap(dimension, x, y)) return false
+        if (wallIsActive(dimension, x, y)) return false
 
         return when (type.placeType) {
 
             WallPlaceType.FREE -> true
 
             WallPlaceType.ON_TILE ->
-                tileIsActive(x, y)
+                tileIsActive(dimension, x, y)
 
             WallPlaceType.NEAR_WALL_OR_TILE ->
-                hasNearTile(x, y) || hasNearWall(x, y)
+                hasNearTile(dimension, x, y) || hasNearWall(dimension, x, y)
 
             WallPlaceType.CUSTOM -> {
-                val context = WallContext(x, y, getWallHp(x, y), type)
+                val context = WallContext(x, y, getWallHp(dimension, x, y), type)
                 type.canPlace(context)
             }
         }
     }
 
-    private fun hasNearTile(x: Int, y: Int): Boolean {
-        return tileIsActive(x + 1, y) ||
-                tileIsActive(x - 1, y) ||
-                tileIsActive(x, y + 1) ||
-                tileIsActive(x, y - 1)
+    private fun hasNearTile(dimension: AbstractDimension, x: Int, y: Int): Boolean {
+        return tileIsActive(dimension, x + 1, y) ||
+                tileIsActive(dimension, x - 1, y) ||
+                tileIsActive(dimension, x, y + 1) ||
+                tileIsActive(dimension, x, y - 1)
     }
 
-    private fun hasNearWall(x: Int, y: Int): Boolean {
-        return wallIsActive(x + 1, y) ||
-                wallIsActive(x - 1, y) ||
-                wallIsActive(x, y + 1) ||
-                wallIsActive(x, y - 1)
+    private fun hasNearWall(dimension: AbstractDimension, x: Int, y: Int): Boolean {
+        return wallIsActive(dimension, x + 1, y) ||
+                wallIsActive(dimension, x - 1, y) ||
+                wallIsActive(dimension, x, y + 1) ||
+                wallIsActive(dimension, x, y - 1)
     }
 }

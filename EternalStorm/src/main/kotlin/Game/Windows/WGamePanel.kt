@@ -8,6 +8,7 @@ import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameController.PlayerControl
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
+import la.vok.Game.GameContent.ContentList.DimensionsList
 import la.vok.State.AppState
 
 class WGamePanel(windowsManager: WindowsManager, var gameController: GameController) : WStandartPanel(windowsManager) {
@@ -74,8 +75,10 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
         super.leftReleased(position)
         if (inventory.draggedCell != null) {
             inventory.endDrag(position) { item ->
-                val player = gameController.gameCycle.entityApi.getById(playerControl.playerId) ?: return@endDrag
+                val mainDim = gameController.gameCycle.dimensionsController.dimensions[DimensionsList.main] ?: return@endDrag
+                val player = gameController.gameCycle.entityApi.getById(mainDim, playerControl.playerId) ?: return@endDrag
                 gameController.gameCycle.itemsApi.spawnItemEntity(
+                    mainDim,
                     item.copy().apply { count = item.count },
                     player.position,
                     randomVelocity = true

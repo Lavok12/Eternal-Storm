@@ -12,10 +12,14 @@ import la.vok.Game.GameContent.Tiles.System.AbstractTileType
 import la.vok.Game.GameContent.Tiles.System.TileContext
 import la.vok.Game.GameController.CollisionType
 import la.vok.Game.GameSystems.WorldSystems.Map.MineData
+import la.vok.Game.GameContent.Map.MapApi
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameSystems.WorldSystems.Particles.Particle
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
+import la.vok.State.AppState
 import processing.core.PImage
-import kotlin.math.absoluteValue
+import kotlin.math.*
 
 class TreePartType() : AbstractTileType() {
     override var collisionType: CollisionType = CollisionType.NONE
@@ -36,10 +40,10 @@ class TreePartType() : AbstractTileType() {
         val tagType = mapApi.getRegisteredTileType(tag)
 
         when {
-            mapApi.getTileType(tileContext.positionX, tileContext.positionY - 1) != tagType ->
+            mapApi.getTileType(tileContext.dimension!!, tileContext.positionX, tileContext.positionY - 1) != tagType ->
                 renderBottom(tileContext, lg, position, size, gameController)
 
-            mapApi.getTileType(tileContext.positionX, tileContext.positionY + 1) != tagType ->
+            mapApi.getTileType(tileContext.dimension!!, tileContext.positionX, tileContext.positionY + 1) != tagType ->
                 renderTop(tileContext, lg, position, size, gameController)
 
             else ->
@@ -107,12 +111,12 @@ class TreePartType() : AbstractTileType() {
     }
 
     override fun onMined(x: Int, y: Int, mineData: MineData, tileContext: TileContext, mapController: MapController) {
-        val mapApi = mapController.mapApi
-        val spriteLoader = mapController.gameCycle.gameController.coreController.spriteLoader
+        val mapApi = mapController.dimension.gameCycle.mapApi
+        val spriteLoader = mapController.dimension.gameCycle.gameController.coreController.spriteLoader
 
         val tileYList = mutableListOf<Int>()
         var checkY = y
-        while (mapApi.getTileType(x, checkY)?.tag == tag) {
+        while (mapApi.getTileType(mapController.dimension, x, checkY)?.tag == tag) {
             tileYList.add(checkY)
             checkY++
         }
@@ -126,8 +130,8 @@ class TreePartType() : AbstractTileType() {
         )
 
         val segmentTextures = tileYList.mapIndexed { index, ty ->
-            val isBottom = mapApi.getTileType(x, ty - 1)?.tag != tag
-            val isTop    = mapApi.getTileType(x, ty + 1)?.tag != tag
+            val isBottom = mapApi.getTileType(mapController.dimension, x, ty - 1)?.tag != tag
+            val isTop    = mapApi.getTileType(mapController.dimension, x, ty + 1)?.tag != tag
 
             val mainTex = when {
                 isBottom -> spriteLoader.getValue("tree_part_block_1.png")
@@ -152,7 +156,7 @@ class TreePartType() : AbstractTileType() {
             SegmentTextures(mainTex, bgList, topLeaf)
         }
 
-        tileYList.forEach { ty -> mapApi.deleteTile(x, ty) }
+        tileYList.forEach { ty -> mapApi.deleteTile(mapController.dimension, x, ty) }
 
         val fallRight = x % 2 == 0
         val sharedPivot = Vec2(x.toFloat(), y.toFloat() - mapApi.getBlockSize().y * 0.5f)
@@ -160,7 +164,7 @@ class TreePartType() : AbstractTileType() {
 
         segmentTextures.forEachIndexed { index, texData ->
             val entity = FallingTreeSegmentEntity(
-                gameCycle = mapController.gameCycle,
+                gameCycle = mapController.dimension.gameCycle,
                 texture = texData.main,
                 bgTextures = texData.bg,
                 topLeafTexture = texData.topLeaf,
@@ -174,7 +178,7 @@ class TreePartType() : AbstractTileType() {
         }
 
         siblings.forEach { entity ->
-            mapController.gameCycle.entityApi.spawnEntity(entity, sharedPivot.copy())
+            mapController.dimension.gameCycle.entityApi.spawnEntity(mapController.dimension, entity, sharedPivot.copy())
         }
     }
 

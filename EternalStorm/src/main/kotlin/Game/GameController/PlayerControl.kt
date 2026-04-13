@@ -7,6 +7,7 @@ import la.vok.Game.GameContent.Entities.Entities.PlayerEntity
 import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
+import la.vok.Game.GameContent.ContentList.DimensionsList
 import la.vok.LavokLibrary.Vectors.Vec2
 
 class PlayerControl(var gameController: GameController) : Controller {
@@ -35,14 +36,14 @@ class PlayerControl(var gameController: GameController) : Controller {
     }
     override fun physicTick() {
         super.physicTick()
-        if (!entityApi.containsEntityById(playerId)) return
-        if (entityApi.getById(playerId) !is PlayerEntity) return
-        gameController.mainCamera.setCameraPos(getPlayerEntity()!!.position)
+        if (!isControl()) return
+        val player = getPlayerEntity() ?: return
+        gameController.mainCamera.setCameraPos(player.position)
     }
     fun getPlayerEntity() : PlayerEntity? {
-        if (!entityApi.containsEntityById(playerId)) return null
-        if (entityApi.getById(playerId) !is PlayerEntity) return null
-        return entityApi.getById(playerId) as PlayerEntity
+        if (!entityApi.containsEntityByIdAcrossDimensions(playerId)) return null
+        if (entityApi.getByIdAcrossDimensions(playerId) !is PlayerEntity) return null
+        return entityApi.getByIdAcrossDimensions(playerId) as PlayerEntity
     }
     fun isControl() : Boolean {
         return getPlayerEntity() != null

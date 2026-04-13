@@ -29,6 +29,6 @@ class DamageEntity(gameCycle: GameCycle, var d_position: Vec2, var d_size: Vec2,
         }
         collisionDetector!!.update()
 
-        gameCycle.entityApi.killInSystem(this)
+        gameCycle.entityApi.killInSystem(dimension!!, this)
     }
 }

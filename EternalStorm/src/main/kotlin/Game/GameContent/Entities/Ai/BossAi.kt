@@ -170,7 +170,7 @@ open class BossAi(entity: Entity, gameCycle: GameCycle) : AbstractAI(entity, gam
     // =====================================================================
 
      fun getTarget(): Entity? {
-        return gameCycle.entityApi.getNearestEntity(entity.position, 500f, EntitiesList.player)
+        return gameCycle.entityApi.getNearestEntity(entity.dimension!!, entity.position, 500f, EntitiesList.player)
     }
 
     override fun physicUpdate() {

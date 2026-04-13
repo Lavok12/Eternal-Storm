@@ -7,6 +7,7 @@ import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderLayerData
 import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
 import la.vok.Game.GameContent.ContentList.ItemsList
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
+import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
@@ -16,6 +17,7 @@ import la.vok.LavokLibrary.Vectors.v
 import processing.core.PImage
 import kotlin.math.*
 import la.vok.Game.GameSystems.WorldSystems.Particles.Particles.EntityParticle
+import la.vok.Game.GameSystems.WorldSystems.Particles.Particle
 import la.vok.State.AppState
 
 class FallingTreeSegmentEntity(
@@ -119,19 +121,19 @@ class FallingTreeSegmentEntity(
             val sx = segWorldPos.x
             val sy = segWorldPos.y
             if (isSolid(mapApi, floor(sx).toInt(), floor(sy - 0.6f).toInt())) {
-                gameCycle.entityApi.killInSystem(this); return
+                gameCycle.entityApi.killInSystem(dimension!!, this); return
             }
         } else {
             val tipX = sharedPivot.x + sin(fallAngle) * dir * (segmentIndex + 1f)
             val tipY = sharedPivot.y + cos(fallAngle) * (segmentIndex + 1f)
             if (isSolid(mapApi, floor(tipX).toInt(), floor(tipY).toInt())) {
-                gameCycle.entityApi.killInSystem(this)
+                gameCycle.entityApi.killInSystem(dimension!!, this)
             }
         }
     }
 
-    private fun isSolid(mapApi: la.vok.Game.GameContent.Map.MapApi, x: Int, y: Int): Boolean {
-        val tile = mapApi.getTileType(x, y) ?: return false
+    private fun isSolid(mapApi: MapApi, x: Int, y: Int): Boolean {
+        val tile = mapApi.getTileType(dimension!!, x, y) ?: return false
         return tile.collisionType == la.vok.Game.GameController.CollisionType.FULL
     }
 
@@ -139,7 +141,7 @@ class FallingTreeSegmentEntity(
         ai?.die()
         isDead = true
         drop()
-        gameCycle.entityApi.hideEntity(this)
+        gameCycle.entityApi.hideEntity(dimension!!, this)
 
         spawnTextureParticles(texture)
 
@@ -155,14 +157,13 @@ class FallingTreeSegmentEntity(
             val sx = segWorldPos.x
             val sy = segWorldPos.y
 
-            gameCycle.itemsApi.spawnItemEntity(ItemsList.plank_block, sx v sy + 0.5f, AppState.main.random(1f, 3f).toInt(), true)
+            gameCycle.itemsApi.spawnItemEntity(dimension!!, ItemsList.plank_block, sx v sy + 0.5f, AppState.main.random(1f, 3f).toInt(), true)
         } else {
             val tipX = sharedPivot.x + sin(fallAngle) * dir * (segmentIndex + 1f)
             val tipY = sharedPivot.y + cos(fallAngle) * (segmentIndex + 1f)
 
-            gameCycle.itemsApi.spawnItemEntity(ItemsList.plank_block, tipX v tipY + 0.5f, AppState.main.random(1f, 3f).toInt(), true)
+            gameCycle.itemsApi.spawnItemEntity(dimension!!, ItemsList.plank_block, tipX v tipY + 0.5f, AppState.main.random(1f, 3f).toInt(), true)
         }
-
     }
 
     private fun spawnTextureParticles(tex: PImage) {
@@ -173,7 +174,8 @@ class FallingTreeSegmentEntity(
             ).normalize()
             val speed = randomDir * AppState.main.random(0.02f, 0.06f)
 
-            gameCycle.particleController.particleSystem.addParticle(
+            gameCycle.particlesApi.addParticle(
+                dimension!!,
                 EntityParticle(
                     gameCycle,
                     tex,
@@ -200,7 +202,7 @@ class FallingTreeSegmentEntity(
         siblings.forEach { seg ->
             if (!seg.isDead) {
                 seg.isDead = true
-                gameCycle.entityApi.killInSystem(seg)
+                gameCycle.entityApi.killInSystem(dimension!!, seg)
             }
         }
     }

@@ -14,6 +14,9 @@ import la.vok.Game.GameContent.TileTypes.*
 import la.vok.Game.GameContent.TileTypes.StoneTileType
 import la.vok.Game.GameContent.WallTypes.*
 import la.vok.Game.GameContent.WallTypes.PlankWallType
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.MainDimensionType
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.StoneWorldDimensionType
+import la.vok.Game.GameContent.Items.ItemTypes.TeleporterItemType
 
 class MainContentRegistration(var coreController: CoreController) {
     fun regObjects(objectRegistration: ObjectRegistration) {
@@ -21,6 +24,7 @@ class MainContentRegistration(var coreController: CoreController) {
         registerTiles(objectRegistration)
         registerWalls(objectRegistration)
         registerEntities(objectRegistration)
+        registerDimensions(objectRegistration)
         registerCrafts(objectRegistration)
     }
 
@@ -45,6 +49,7 @@ class MainContentRegistration(var coreController: CoreController) {
 
         // Other
         objectRegistration.registrationItemType(MostCommonStickItemType())
+        objectRegistration.registrationItemType(TeleporterItemType())
     }
 
     private fun registerTiles(objectRegistration: ObjectRegistration) {
@@ -66,6 +71,11 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationEntityType(PlayerEntityType())
         objectRegistration.registrationEntityType(SlimeEntityType())
         objectRegistration.registrationEntityType(BossEntityType())
+    }
+
+    private fun registerDimensions(objectRegistration: ObjectRegistration) {
+        objectRegistration.registrationDimensionType(MainDimensionType())
+        objectRegistration.registrationDimensionType(StoneWorldDimensionType())
     }
 
     private fun registerCrafts(objectRegistration: ObjectRegistration) {

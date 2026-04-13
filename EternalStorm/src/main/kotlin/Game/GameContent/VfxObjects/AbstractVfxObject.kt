@@ -11,11 +11,13 @@ import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsSystem
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
 abstract class AbstractVfxObject(var gameCycle: GameCycle) {
     lateinit var vfxObjectsSystem: VfxObjectsSystem
+    var dimension: AbstractDimension? = null
 
     val gameController: GameController get() = gameCycle.gameController
     val coreController: CoreController get() = gameController.coreController
@@ -47,7 +49,7 @@ abstract class AbstractVfxObject(var gameCycle: GameCycle) {
         if (lifetime != -1L) {
             progress = physicTicks / lifetime.toFloat()
             if (physicTicks > lifetime) {
-                vfxObjectsApi.killInSystem(this)
+                vfxObjectsApi.killInSystem(dimension!!, this)
             }
         }
     }

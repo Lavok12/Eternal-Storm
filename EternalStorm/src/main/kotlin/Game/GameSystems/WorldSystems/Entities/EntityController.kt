@@ -1,18 +1,29 @@
 package la.vok.Game.GameSystems.WorldSystems.Entities
 
 import la.vok.Core.CoreControllers.Intergaces.Controller
-import la.vok.Game.GameController.GameCycle
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 
-class EntityController(var gameCycle: GameCycle) : Controller {
+class EntityController(var dimension: AbstractDimension) : Controller {
     init {
         create()
     }
-    var entityApi: EntityApi = EntityApi(this)
     var entitySystem = EntitySystem(this)
 
 
     override fun logicalTick() {
         entitySystem.entities.forEach { it.logicalUpdate() }
         entitySystem.flushBuffers()
+    }
+
+    override fun physicTick() {
+        entitySystem.entities.toList().forEach {
+            if (!it.isDead) it.physicUpdate()
+        }
+    }
+
+    override fun renderTick() {
+        entitySystem.entities.toList().forEach {
+            if (!it.isDead) it.renderUpdate()
+        }
     }
 }

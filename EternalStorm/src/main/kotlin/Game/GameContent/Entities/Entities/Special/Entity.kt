@@ -19,12 +19,16 @@ import la.vok.Game.GameSystems.EntityComponents.MobInventory
 import la.vok.Game.GameSystems.EntityComponents.HpBody
 import la.vok.Game.GameSystems.EntityComponents.RigidBody
 import la.vok.Game.GameSystems.WorldSystems.Particles.Particles.EntityParticle
+import la.vok.Game.GameSystems.WorldSystems.Particles.Particle
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.System.DimensionsApi
 
 @Suppress("UNCHECKED_CAST")
 open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) {
+    var dimension: AbstractDimension = gameCycle.dimensionsApi.getMainDimension()
 
     // ─── References ──────────────────────────────────────────────────────────
 
@@ -246,7 +250,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     open fun takeDamage(damage: DamageData, hitboxComponent: HitboxComponent): Boolean {
         if (isDead) return false
         if (invulnerabilityTicks > 0) return false
-        gameCycle.entityApi.absoluteDamage(this, damage)
+        gameCycle.entityApi.absoluteDamage(dimension!!, this, damage)
         return true
     }
 
@@ -264,7 +268,8 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
         if (entityType.imgPreview == "") return
         repeat(3) {
             var randomDir = Vec2(AppState.main.random(-1f, 1f), AppState.main.random(-1f, 1f)).normalize()
-            gameCycle.particleController.particleSystem.addParticle(
+            gameCycle.particlesApi.addParticle(
+                dimension!!,
                 EntityParticle(
                     gameCycle,
                     coreController.spriteLoader.getValue(entityType.imgPreview),
@@ -281,10 +286,10 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
         ai?.die()
         isDead = true
         drop()
-        gameCycle.entityApi.hideEntity(this)
+        gameCycle.entityApi.hideEntity(dimension!!, this)
     }
 
     open fun drop() {
-        gameCycle.itemsApi.spawnDropTable(entityType.drop, position, true)
+        gameCycle.itemsApi.spawnDropTable(dimension!!, entityType.drop, position, true)
     }
 }

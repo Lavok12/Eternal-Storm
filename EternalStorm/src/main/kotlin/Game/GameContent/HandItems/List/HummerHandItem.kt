@@ -31,6 +31,7 @@ open class HummerHandItem(item: HummerItem, component: HandItemComponent) : Hand
         leftAction = UseAction.Custom(
             onStart = {
                 gameCycle.entityApi.damageZone(
+                    entity.dimension!!,
                     entity.position + (component.entity.facing * 2f v 0),
                     (1.1 v 1.5) * item.handItemSize,
                     DamageData(
@@ -45,6 +46,7 @@ open class HummerHandItem(item: HummerItem, component: HandItemComponent) : Hand
                 )
 
                 gameController.gameCycle.vfxObjectsApi.addInSystem(
+                    entity.dimension!!,
                     AxeSwingTraceVfxObject(gameCycle, entity.facing),
                     entity.position + ((0.5f + descriptor.spriteSize.x / 2f) * entity.facing v 0.2f),
                     descriptor.spriteSize * 1.4f,
@@ -60,6 +62,6 @@ open class HummerHandItem(item: HummerItem, component: HandItemComponent) : Hand
         var placePos = entity.ai?.targetMapPos() ?: LPoint.Companion.ZERO
         var mineData =
             MineData((item as HummerItem).mineDamage, (item as HummerItem).minePower, entity.systemId, this)
-        gameCycle.mapApi.mineWall(placePos.x, placePos.y, mineData)
+        gameCycle.mapApi.mineWall(entity.dimension!!, placePos.x, placePos.y, mineData)
     }
 }

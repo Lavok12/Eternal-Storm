@@ -15,7 +15,7 @@ open class SlimeAI(entity: Entity, gameCycle: GameCycle) : AbstractAI(entity, ga
     var lastJump = jumpTimer
 
     fun getTargetDirection() {
-        val target = gameCycle.entityApi.getNearestEntity(entity.position, 50f, EntitiesList.player)
+        val target = gameCycle.entityApi.getNearestEntity(entity.dimension!!, entity.position, 50f, EntitiesList.player)
         if (target == null) return
         if (target.position.x > entity.position.x) {
             direction = 1
@@ -39,7 +39,7 @@ open class SlimeAI(entity: Entity, gameCycle: GameCycle) : AbstractAI(entity, ga
     }
 
     override fun targetWorldPos(): Vec2 {
-        val target = gameCycle.entityApi.getNearestEntity(entity.position, 50f, EntitiesList.player)
+        val target = gameCycle.entityApi.getNearestEntity(entity.dimension!!, entity.position, 50f, EntitiesList.player)
         return target?.position ?: (Vec2.ZERO)
     }
 

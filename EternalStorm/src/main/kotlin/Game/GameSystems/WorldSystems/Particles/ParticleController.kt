@@ -1,11 +1,10 @@
 package la.vok.Game.GameSystems.WorldSystems.Particles
 
 import la.vok.Core.CoreControllers.Intergaces.Controller
-import la.vok.Game.GameController.GameCycle
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 
-class ParticleController(var gameCycle: GameCycle) : Controller {
+class ParticleController(var dimension: AbstractDimension) : Controller {
     var particleSystem = ParticleSystem(this)
-    var particlesApi = ParticlesApi(this)
 
     init {
         create()

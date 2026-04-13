@@ -14,6 +14,7 @@ import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
 import la.vok.Game.GameSystems.WorldSystems.Particles.Particles.EntityParticle
+import la.vok.Game.GameSystems.WorldSystems.Particles.Particle
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
@@ -64,7 +65,7 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
                     last = entity
                 }
 
-                entityApi.spawnEntity(entity, position)
+                entityApi.spawnEntity(dimension!!, entity, position)
                 entity.hpBody = this.hpBody
                 entity.renderEntity?.changeLayer(RenderLayers.Main.B5, i * 2)
                 entity.hpRender?.hpBody = entity.hpBody!!
@@ -80,7 +81,7 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
     override fun physicUpdate() {
         if (bossPart == 1) {
             val point = gameCycle.mapApi.getPointFromPos(position)
-            val isTouching = gameCycle.mapApi.tileIsActive(point.x, point.y)
+            val isTouching = gameCycle.mapApi.tileIsActive(dimension!!, point.x, point.y)
 
             if (last?.mainHitbox?.blocksCollision == false) {
                 rigidBody?.addForce(0f v -0.02f)
@@ -111,9 +112,9 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
 
         for(i in 0 until count) {
             var pos = map.getPointFromPos(pos2 + (AppState.main.random(-1f, 1f) v  AppState.main.random(-1f, 1f)))
-            val type = map.getTileType(pos.x, pos.y) ?: continue
-            val context = map.getTileContext(pos.x, pos.y) ?: continue
-            gameCycle.particlesApi.buildTile(type)
+            val type = map.getTileType(dimension!!, pos.x, pos.y) ?: continue
+            val context = map.getTileContext(dimension!!, pos.x, pos.y) ?: continue
+            gameCycle.particlesApi.buildTile(dimension!!, type)
                 .at(map.getBlockPos(pos.x, pos.y) + Vec2(AppState.main.random(-0.5f, 0.5f), AppState.main.random(-0.5f, 0.5f)))
                 .speed(Vec2(AppState.main.random(-0.1f, 0.1f), AppState.main.random(0.05f, 0.1f)).normalize() * AppState.main.random(0.1f, 0.3f))
                 .spawn()
@@ -126,9 +127,9 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
 
         var pos = map.getPointFromPos(randPos)
 
-        map.getTileType(pos.x, pos.y)?.let { type ->
-            val context = map.getTileContext(pos.x, pos.y) ?: return@let
-            type.spawnTileParticle(pos.x, pos.y, context, gameCycle.mapController)
+        map.getTileType(dimension!!, pos.x, pos.y)?.let { type ->
+            val context = map.getTileContext(dimension!!, pos.x, pos.y) ?: return@let
+            type.spawnTileParticle(pos.x, pos.y, context, dimension!!.mapController)
         }
     }
 
@@ -178,7 +179,8 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
     override fun spawnDieParticles() {
         repeat(1) {
             var randomDir = Vec2(AppState.main.random(-1f, 1f), AppState.main.random(-1f, 1f)).normalize()
-            gameCycle.particleController.particleSystem.addParticle(
+            gameCycle.particlesApi.addParticle(
+                dimension!!,
                 EntityParticle(
                     gameCycle,
                     coreController.spriteLoader.getValue(
@@ -200,7 +202,7 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
     override fun takeDamage(damage: DamageData, hitboxComponent: HitboxComponent): Boolean {
         if (isDead) return false
         if (invulnerabilityTicks > 0) return false
-        gameCycle.entityApi.absoluteDamage(first!!, damage)
+        gameCycle.entityApi.absoluteDamage(dimension!!, first!!, damage)
         return true
     }
     override fun die() {
@@ -212,8 +214,8 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
             val nextSeg = current.prev
             current.isDead = true
             current?.spawnDieParticles()
-            gameCycle.entityApi.hideEntity(current)
-            gameCycle.entityApi.deleteInSystem(current)
+            gameCycle.entityApi.hideEntity(dimension!!, current)
+            gameCycle.entityApi.deleteInSystem(dimension!!, current)
             current = nextSeg
         }
 
@@ -221,8 +223,8 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
         if (first !== this && !first.isDead) {
             first.isDead = true
             current?.spawnDieParticles()
-            gameCycle.entityApi.hideEntity(first)
-            gameCycle.entityApi.deleteInSystem(first)
+            gameCycle.entityApi.hideEntity(dimension!!, first)
+            gameCycle.entityApi.deleteInSystem(dimension!!, first)
         }
     }
 

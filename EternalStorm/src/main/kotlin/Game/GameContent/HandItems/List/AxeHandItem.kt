@@ -26,7 +26,7 @@ class AxeHandItem(item: Item, component: HandItemComponent) : HandItem(
         animationType = AnimationType.Swing(),
         leftAction = UseAction.Custom(
             onStart = {
-                gameCycle.entityApi.damageZone(entity.position + (component.entity.facing*2.2f v 0),
+                gameCycle.entityApi.damageZone(entity.dimension!!, entity.position + (component.entity.facing*2.2f v 0),
                 4.4f v 5,
                 DamageData(
                     40,
@@ -38,6 +38,7 @@ class AxeHandItem(item: Item, component: HandItemComponent) : HandItem(
                 ))
 
                 gameController.gameCycle.vfxObjectsApi.addInSystem(
+                    entity.dimension!!,
                     AxeSwingTraceVfxObject(gameCycle, entity.facing), entity.position + (2f * entity.facing v 0.2f), descriptor.spriteSize * 1.4f,
                     (entity.rigidBody?.speed ?: (Vec2.ZERO)) * (1f v 0.3f)
                 )

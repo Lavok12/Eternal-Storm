@@ -12,6 +12,7 @@ import la.vok.LLibs.AnimationType
 import la.vok.LLibs.FloatAnimation
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
+import la.vok.Game.GameContent.ContentList.DimensionsList
 import processing.event.MouseEvent
 
 class WDevPanel(windowsManager: WindowsManager, val gameController: GameController) : WStandartPanel(windowsManager) {
@@ -381,18 +382,21 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
     // =====================================================================
 
     private fun spawnEntity(entityType: AbstractEntityType) {
-        val player = gameController.gameCycle.entityApi.getById(gameController.playerControl.playerId) ?: return
+        val player = gameController.playerControl.getPlayerEntity() ?: return
+        val mainDim = player.dimension
         val facing = player.facing.toFloat()
         val spawnPos = player.position + (facing * 20f v 0f)
-        gameController.gameCycle.entityApi.spawnEntity(entityType.tag, spawnPos)
+        gameController.gameCycle.entityApi.spawnEntity(mainDim, entityType.tag, spawnPos)
     }
 
     private fun giveItem(itemType: AbstractItemType) {
-        val player = gameController.gameCycle.entityApi.getById(gameController.playerControl.playerId) ?: return
+        val mainDim = gameController.gameCycle.dimensionsController.dimensions[DimensionsList.main] ?: return
+        val player = gameController.gameCycle.entityApi.getById(mainDim, gameController.playerControl.playerId) ?: return
         val item   = gameController.gameCycle.itemsApi.getRegisteredItem(itemType, 1)
         val remaining = player.inventory?.itemContainer?.addItem(item) ?: 1
         if (remaining > 0) {
             gameController.gameCycle.itemsApi.spawnItemEntity(
+                mainDim,
                 gameController.gameCycle.itemsApi.getRegisteredItem(itemType, remaining),
                 player.position,
                 randomVelocity = true

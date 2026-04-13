@@ -1,10 +1,10 @@
 package la.vok.Game.GameSystems.WorldSystems.VfxObjects
 
 import la.vok.Core.CoreControllers.Intergaces.Controller
-import la.vok.Game.GameController.GameCycle
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 
-class VfxObjectsController(var gameCycle: GameCycle) : Controller {
-    var vfxObjectsApi: VfxObjectsApi = VfxObjectsApi(this)
+
+class VfxObjectsController(var dimension: AbstractDimension) : Controller {
     var vfxObjectsSystem = VfxObjectsSystem(this)
 
     init {

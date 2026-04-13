@@ -10,9 +10,10 @@ class CollisionSystem(var gameCycle: GameCycle) : Controller {
     override fun logicalTick() {}
 
     fun updateDetector(detector: CollisionDetector) {
-        val entityApi = gameCycle.entityController.entityApi
+        val entityApi = gameCycle.entityApi
+        val dim = detector.entity.dimension!!
 
-        val candidates = entityApi.getActiveEntities().filter { entity ->
+        val candidates = entityApi.getActiveEntities(dim).filter { entity ->
             detector.tagFilter.matches(entity.entityType.tags.toList())
         }
 

@@ -26,18 +26,18 @@ class VfxObjectsSystem(var vfxObjectsController: VfxObjectsController) {
         while (addBuffer.isNotEmpty()) {
             val vfx = addBuffer.removeFirst()
             vfxObjects.add(vfx)
-            vfxObjectsController.vfxObjectsApi.showVfx(vfx)
+            vfxObjectsController.dimension.gameCycle.vfxObjectsApi.showVfx(vfxObjectsController.dimension, vfx)
         }
 
         while (deleteBuffer.isNotEmpty()) {
             val vfx = deleteBuffer.removeFirst()
-            vfxObjectsController.vfxObjectsApi.hideVfx(vfx)
+            vfxObjectsController.dimension.gameCycle.vfxObjectsApi.hideVfx(vfxObjectsController.dimension, vfx)
             vfxObjects.remove(vfx)
         }
 
         while (killBuffer.isNotEmpty()) {
             val vfx = killBuffer.removeFirst()
-            vfxObjectsController.vfxObjectsApi.hideVfx(vfx)
+            vfxObjectsController.dimension.gameCycle.vfxObjectsApi.hideVfx(vfxObjectsController.dimension, vfx)
             vfxObjects.remove(vfx)
             vfx.kill()
         }

@@ -25,6 +25,7 @@ class MostCommonStickHandItem(item: Item, component: HandItemComponent) : HandIt
         leftAction = UseAction.Custom(
             onStart = {
                 gameCycle.entityApi.spawnProjectile(
+                    entity.dimension!!,
                     ProjectileEntity(
                         gameCycle,
                         10,

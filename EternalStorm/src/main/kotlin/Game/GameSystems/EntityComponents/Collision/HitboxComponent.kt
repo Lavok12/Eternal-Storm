@@ -46,7 +46,7 @@ class HitboxComponent(var hitboxType: HitboxTypes, entity: Entity, var rigidBody
     }
 
     private fun isSolid(x: Int, y: Int): Boolean {
-        val tile = mapApi.getTileType(x, y) ?: return false
+        val tile = mapApi.getTileType(entity.dimension!!, x, y) ?: return false
         return tile.collisionType == CollisionType.FULL
     }
 

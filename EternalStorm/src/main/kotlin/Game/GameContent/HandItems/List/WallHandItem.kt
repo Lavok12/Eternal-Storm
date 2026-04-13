@@ -26,7 +26,7 @@ class WallHandItem(item: Item, component: HandItemComponent, var abstractWallTyp
         leftAction = UseAction.Custom(
             onStart = {
                 var placePos = entity.ai?.targetMapPos() ?: LPoint.Companion.ZERO
-                gameCycle.mapApi.controlPlaceWall(abstractWallType, placePos.x, placePos.y, item, item.consumed)
+                gameCycle.mapApi.controlPlaceWall(entity.dimension!!, abstractWallType, placePos.x, placePos.y, item, item.consumed)
             },
         ),
     )

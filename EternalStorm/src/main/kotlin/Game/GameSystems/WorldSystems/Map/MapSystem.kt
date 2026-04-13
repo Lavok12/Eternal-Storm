@@ -10,8 +10,8 @@ import la.vok.Game.GameSystems.WorldSystems.Map.WallContext
 class MapSystem(
     var mapController: MapController,
 ) {
-    val width: Int = 300
-    val height: Int = 100
+    val width: Int = mapController.dimension.width
+    val height: Int = mapController.dimension.height
     private val size = width * height
 
     private var tiles: Array<AbstractTileType?> = arrayOfNulls(size)
@@ -38,7 +38,7 @@ class MapSystem(
     fun getTileContext(x: Int, y: Int): TileContext? {
         if (!isInside(x, y)) return null
         val idx = getIndex(x, y)
-        return TileContext(x, y, tilesHp[idx], tiles[idx])
+        return TileContext(x, y, tilesHp[idx], tiles[idx], mapController.dimension)
     }
 
     fun containsTile(x: Int, y: Int): Boolean =
@@ -77,7 +77,7 @@ class MapSystem(
         if (!isInside(x, y)) return
         val idx = getIndex(x, y)
         val tileType = tiles[idx] ?: return
-        val context = TileContext(x, y, tilesHp[idx], tileType)
+        val context = TileContext(x, y, tilesHp[idx], tileType, mapController.dimension)
         tileType.onRemoved(x, y, context, reason)
         tiles[idx] = null
         tilesHp[idx] = 0
@@ -88,12 +88,12 @@ class MapSystem(
         val idx = getIndex(x, y)
         val tileType = tiles[idx] ?: return
 
-        val contextBefore = TileContext(x, y, tilesHp[idx], tileType)
+        val contextBefore = TileContext(x, y, tilesHp[idx], tileType, mapController.dimension)
         tileType.damage(x, y, damage, contextBefore, mapController)
         tilesHp[idx] -= damage
 
         if (tilesHp[idx] <= 0) {
-            val contextBreak = TileContext(x, y, tilesHp[idx], tileType)
+            val contextBreak = TileContext(x, y, tilesHp[idx], tileType, mapController.dimension)
             tileType.onRemoved(x, y, contextBreak, "absolute_damage")
             tiles[idx] = null
             tilesHp[idx] = 0
@@ -107,12 +107,12 @@ class MapSystem(
 
         if (mineData.power < tileType.blockStrength) return
 
-        val contextBefore = TileContext(x, y, tilesHp[idx], tileType)
+        val contextBefore = TileContext(x, y, tilesHp[idx], tileType, mapController.dimension)
         tileType.damage(x, y, mineData.value, contextBefore, mapController)
         tilesHp[idx] -= mineData.value
 
         if (tilesHp[idx] <= 0) {
-            val contextBreak = TileContext(x, y, tilesHp[idx], tileType)
+            val contextBreak = TileContext(x, y, tilesHp[idx], tileType, mapController.dimension)
             tileType.onMined(x, y, mineData, contextBreak, mapController)
             tileType.onRemoved(x, y, contextBreak, mineData)
             tiles[idx] = null
@@ -133,7 +133,7 @@ class MapSystem(
     fun getWallContext(x: Int, y: Int): WallContext? {
         if (!isInside(x, y)) return null
         val idx = getIndex(x, y)
-        return WallContext(x, y, wallsHp[idx], walls[idx])
+        return WallContext(x, y, wallsHp[idx], walls[idx], mapController.dimension)
     }
 
     fun containsWall(x: Int, y: Int): Boolean =
@@ -172,7 +172,7 @@ class MapSystem(
         if (!isInside(x, y)) return
         val idx = getIndex(x, y)
         val wallType = walls[idx] ?: return
-        val context = WallContext(x, y, wallsHp[idx], wallType)
+        val context = WallContext(x, y, wallsHp[idx], wallType, mapController.dimension)
         wallType.onRemoved(x, y, context, reason)
         walls[idx] = null
         wallsHp[idx] = 0
@@ -183,12 +183,12 @@ class MapSystem(
         val idx = getIndex(x, y)
         val wallType = walls[idx] ?: return
 
-        val contextBefore = WallContext(x, y, wallsHp[idx], wallType)
+        val contextBefore = WallContext(x, y, wallsHp[idx], wallType, mapController.dimension)
         wallType.damage(x, y, damage, contextBefore, mapController)
         wallsHp[idx] -= damage
 
         if (wallsHp[idx] <= 0) {
-            val contextBreak = WallContext(x, y, wallsHp[idx], wallType)
+            val contextBreak = WallContext(x, y, wallsHp[idx], wallType, mapController.dimension)
             wallType.onRemoved(x, y, contextBreak, "absolute_damage")
             walls[idx] = null
             wallsHp[idx] = 0
@@ -202,12 +202,12 @@ class MapSystem(
 
         if (mineData.power < wallType.blockStrength) return
 
-        val contextBefore = WallContext(x, y, wallsHp[idx], wallType)
+        val contextBefore = WallContext(x, y, wallsHp[idx], wallType, mapController.dimension)
         wallType.damage(x, y, mineData.value, contextBefore, mapController)
         wallsHp[idx] -= mineData.value
 
         if (wallsHp[idx] <= 0) {
-            val contextBreak = WallContext(x, y, wallsHp[idx], wallType)
+            val contextBreak = WallContext(x, y, wallsHp[idx], wallType, mapController.dimension)
             wallType.onMined(x, y, mineData, contextBreak, mapController)
             wallType.onRemoved(x, y, contextBreak, mineData)
             walls[idx] = null

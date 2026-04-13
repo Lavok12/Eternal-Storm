@@ -10,6 +10,8 @@ import la.vok.Game.GameContent.Tiles.System.TileContext
 import la.vok.Game.GameController.HighlightRender
 import la.vok.Game.GameSystems.EffectLayers.AOTiles
 import la.vok.Game.GameSystems.WorldSystems.Map.WallContext
+import la.vok.Game.GameContent.ContentList.DimensionsList
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.KotlinPlus.forEachInArea
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.p
@@ -49,21 +51,22 @@ class GameRender(val gameController: GameController) : Controller {
     }
 
     fun render(lg: LGraphics, camera: Camera) {
-        lg.bg(100f,150f,200f)
-
-        val mapApi = gameController.gameCycle.mapController.mapApi
-        val mapSystem = gameController.gameCycle.mapController.mapSystem
+        if (gameController.playerControl.getPlayerEntity() == null) return
+        val mainDim = gameController.playerControl.getPlayerEntity()!!.dimension
+        lg.bg(mainDim.skyColor)
+        val mapApi = gameController.gameCycle.mapApi
+        val mapSystem = mainDim.mapController.mapSystem
 
         var p1 = mapApi.getPointFromPos(camera.toWorldPos(gameController.wGamePanel!!.frameLeftBottom))
         var p2 = mapApi.getPointFromPos(camera.toWorldPos(gameController.wGamePanel!!.frameRightTop))
 
-        var wallContext = WallContext()
+        var wallContext = WallContext(dimension = mainDim)
         forEachInArea(p1, p2, 1) { ix, iy ->
             if (mapSystem.containsTile(ix, iy)) return@forEachInArea
             val mapTile = mapSystem.getWallType(ix, iy) ?: return@forEachInArea
 
             if (mapSystem.containsWall(ix, iy)) {
-                wallContext.hp = mapApi.getWallHp(ix, iy)
+                wallContext.hp = mapApi.getWallHp(mainDim, ix, iy)
                 wallContext.positionX = ix
                 wallContext.positionY = iy
                 wallContext.wallType = mapTile
@@ -84,12 +87,12 @@ class GameRender(val gameController: GameController) : Controller {
             lg.setImage(aOTiles!!.getImage(), 0 v 0, lg.windowWidth v lg.windowHeight)
         }
 
-        var tileContext = TileContext()
+        var tileContext = TileContext(dimension = mainDim)
         forEachInArea(p1, p2, 1) { ix, iy ->
             val mapTile = mapSystem.getTileType(ix, iy) ?: return@forEachInArea
 
             if (mapSystem.containsTile(ix, iy)) {
-                tileContext.hp = mapApi.getTileHp(ix, iy)
+                tileContext.hp = mapApi.getTileHp(mainDim, ix, iy)
                 tileContext.positionX = ix
                 tileContext.positionY = iy
                 tileContext.tileType = mapTile
@@ -100,7 +103,7 @@ class GameRender(val gameController: GameController) : Controller {
             }
         }
 
-        gameController.gameCycle.particleController.particleSystem.render(lg, camera)
+        mainDim.particleSystem.render(lg, camera)
         highlightRender.render(lg, camera)
 
         renderLayer.drawLayer(RenderLayers.Main.A1, lg, camera)
@@ -115,7 +118,7 @@ class GameRender(val gameController: GameController) : Controller {
         renderLayer.drawLayer(RenderLayers.Main.C4, lg, camera)
         renderLayer.drawLayer(RenderLayers.Main.C5, lg, camera)
 
-        if (!gameController.gameCycle.entityApi.containsEntityById(gameController.playerControl.playerId)) {
+        if (!gameController.gameCycle.entityApi.containsEntityById(mainDim, gameController.playerControl.playerId)) {
             lg.fill(250f, 50f, 50f)
             for (i in 0..255) {
                 lg.setText("АХАХХАХАХА УМЕР", 0f, 0f, 100f)

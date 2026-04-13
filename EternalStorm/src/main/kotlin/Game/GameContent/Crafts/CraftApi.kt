@@ -218,6 +218,7 @@ class CraftApi(val gameCycle: GameCycle) {
             val remaining = container.addItem(item)
             if (remaining > 0 && entity != null) {
                 gameCycle.itemsApi.spawnItemEntity(
+                    entity.dimension!!,
                     gameCycle.itemsApi.getRegisteredItem(type, remaining),
                     entity.position, randomVelocity = true
                 )
