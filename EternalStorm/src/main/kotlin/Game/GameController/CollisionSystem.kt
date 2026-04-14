@@ -7,27 +7,42 @@ import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimens
 import kotlin.math.floor
 
 class CollisionSystem(var gameCycle: GameCycle) : Controller {
-    val spatialGrid = HashMap<Long, MutableList<HitboxComponent>>()
+    
+    // Internal structure to isolate grid data per dimension
+    private class DimensionGrid {
+        val spatialGrid = HashMap<Long, MutableList<HitboxComponent>>()
+        val listPool = mutableListOf<MutableList<HitboxComponent>>()
+        var poolIndex = 0
+
+        fun prepareRebuild() {
+            spatialGrid.clear()
+            poolIndex = 0
+        }
+
+        fun getListFromPool(): MutableList<HitboxComponent> {
+            if (poolIndex >= listPool.size) listPool.add(mutableListOf())
+            return listPool[poolIndex++].apply { clear() }
+        }
+    }
+
+    private val grids = HashMap<AbstractDimension, DimensionGrid>()
     val GRID_SIZE = 32f
 
     private val uniqueCandidates = HashSet<HitboxComponent>()
     private val current = HashSet<HitboxComponent>()
     
-    private val listPool = mutableListOf<MutableList<HitboxComponent>>()
-    private var poolIndex = 0
-
-    private fun getListFromPool(): MutableList<HitboxComponent> {
-        if (poolIndex >= listPool.size) listPool.add(mutableListOf())
-        return listPool[poolIndex++].apply { clear() }
-    }
-
     init { create() }
 
     override fun logicalTick() {}
 
+    private fun getGridFor(dimension: AbstractDimension): DimensionGrid {
+        return grids.getOrPut(dimension) { DimensionGrid() }
+    }
+
     fun rebuildGrid(dimension: AbstractDimension) {
-        spatialGrid.clear()
-        poolIndex = 0
+        val grid = getGridFor(dimension)
+        grid.prepareRebuild()
+        
         val entities = gameCycle.entityApi.getActiveEntities(dimension)
         
         entities.forEach { entity ->
@@ -40,7 +55,7 @@ class CollisionSystem(var gameCycle: GameCycle) : Controller {
                 for (x in minX..maxX) {
                     for (y in minY..maxY) {
                         val key = (x.toLong() shl 32) or (y.toLong() and 0xFFFFFFFFL)
-                        spatialGrid.getOrPut(key) { getListFromPool() }.add(hitbox)
+                        grid.spatialGrid.getOrPut(key) { grid.getListFromPool() }.add(hitbox)
                     }
                 }
             }
@@ -48,7 +63,9 @@ class CollisionSystem(var gameCycle: GameCycle) : Controller {
     }
 
     fun updateDetector(detector: CollisionDetector) {
+        val grid = getGridFor(detector.entity.dimension)
         val hitbox = detector.hitboxComponent
+        
         val minX = floor(hitbox.frameLeftTop.x / GRID_SIZE).toInt()
         val maxX = floor(hitbox.frameRightBottom.x / GRID_SIZE).toInt()
         val minY = floor(hitbox.frameLeftTop.y / GRID_SIZE).toInt()
@@ -58,7 +75,7 @@ class CollisionSystem(var gameCycle: GameCycle) : Controller {
         for (x in minX..maxX) {
             for (y in minY..maxY) {
                 val key = (x.toLong() shl 32) or (y.toLong() and 0xFFFFFFFFL)
-                spatialGrid[key]?.let { uniqueCandidates.addAll(it) }
+                grid.spatialGrid[key]?.let { uniqueCandidates.addAll(it) }
             }
         }
 
