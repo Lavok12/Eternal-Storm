@@ -25,6 +25,9 @@ abstract class AbstractTileType : IBlockType {
     override val maxHp: Int = 0
     override val texture: String = ""
     override val drop: DropEntry = NothingDrop
+    override val tags: Set<String> = emptySet()
+
+    open fun hasTag(tag: String): Boolean = tag in tags
 
     open val width: Int = 1
     open val height: Int = 1

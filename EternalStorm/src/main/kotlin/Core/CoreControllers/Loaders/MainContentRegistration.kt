@@ -6,7 +6,6 @@ import la.vok.Core.CoreControllers.CoreController
 import la.vok.Game.GameContent.Crafts.CraftRegistrator
 import la.vok.Game.GameContent.Entities.EntitiTypes.*
 import la.vok.Game.GameContent.Items.ItemTypes.Blocks.*
-import la.vok.Game.GameContent.Items.ItemTypes.*
 import la.vok.Game.GameContent.Items.ItemTypes.Tiles.PlankTileItemType
 import la.vok.Game.GameContent.Items.ItemTypes.Walls.PlankWallItemType
 import la.vok.Game.GameContent.TileTypes.DirtTileType
@@ -15,13 +14,17 @@ import la.vok.Game.GameContent.TileTypes.StoneTileType
 import la.vok.Game.GameContent.WallTypes.*
 import la.vok.Game.GameContent.WallTypes.PlankWallType
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.MainDimensionType
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimensionType
 import la.vok.Game.GameContent.Tiles.System.BigTestBlockType
 import la.vok.Game.GameContent.Tiles.System.MultiTileDummyType
 import la.vok.Game.GameContent.ContentList.TilesList
+import la.vok.Game.GameContent.Items.ItemTypes.Other.AxeItemType
+import la.vok.Game.GameContent.Items.ItemTypes.Other.HummerItemType
+import la.vok.Game.GameContent.Items.ItemTypes.Other.MostCommonStickItemType
+import la.vok.Game.GameContent.Items.ItemTypes.Other.PickaxeItemType
+import la.vok.Game.GameContent.Items.ItemTypes.Other.SpearItemType
 import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.StoneWorldDimensionType
-import la.vok.Game.GameContent.Items.ItemTypes.TeleporterItemType
+import la.vok.Game.GameContent.Items.ItemTypes.Other.TeleporterItemType
 
 class MainContentRegistration(var coreController: CoreController) {
     fun regObjects(objectRegistration: ObjectRegistration) {

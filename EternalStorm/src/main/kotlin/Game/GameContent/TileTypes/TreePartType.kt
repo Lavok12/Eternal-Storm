@@ -1,6 +1,7 @@
 package la.vok.Game.GameContent.TileTypes
 
 import la.vok.Core.GameControllers.GameController
+import la.vok.Game.GameContent.ContentList.BlockTags
 import la.vok.Game.GameContent.ContentList.TilesList
 import la.vok.Game.GameContent.Entities.Entities.Special.FallingTreeSegmentEntity
 import la.vok.Game.GameContent.Items.Other.DropEntry
@@ -23,6 +24,7 @@ class TreePartType() : AbstractTileType() {
     override val maxHp: Int = 10
     override val texture: String = "tree_part_block_1.png"
     override val drop: DropEntry = NothingDrop
+    override val tags = setOf(BlockTags.WOOD, BlockTags.SOLID)
 
     override fun render(
         pointX: Int,

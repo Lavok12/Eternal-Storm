@@ -1,5 +1,6 @@
 package la.vok.Game.GameContent.TileTypes
 
+import la.vok.Game.GameContent.ContentList.BlockTags
 import la.vok.Game.GameContent.ContentList.ItemsList
 import la.vok.Game.GameContent.ContentList.TilesList
 import la.vok.Game.GameContent.Items.Other.DropEntry
@@ -12,4 +13,5 @@ class PlankTileType() : AbstractTileType() {
     override val maxHp: Int = 10
     override val texture: String = "plankTexture.jpg"
     override val drop: DropEntry = SingleDrop(ItemsList.plank_block)
+    override val tags: Set<String> = setOf(BlockTags.PLANK)
 }

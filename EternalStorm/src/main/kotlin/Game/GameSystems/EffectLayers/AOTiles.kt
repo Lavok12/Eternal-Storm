@@ -4,6 +4,7 @@ import la.vok.Core.CoreContent.Camera.Camera
 import la.vok.Core.GameContent.Layers.EffectLayer
 import la.vok.Core.GameControllers.GameRender
 import la.vok.Game.GameContent.ContentList.TilesList
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.KotlinPlus.forEachInArea
 import la.vok.LavokLibrary.Vectors.LPoint
 
@@ -11,16 +12,20 @@ class AOTiles(var gameRender: GameRender, point: LPoint, mp: Float = 0.7f) : Eff
 
     lateinit var camera: Camera
 
+    lateinit var dim: AbstractDimension
+
     override fun draw() {
         val lg = this.lg ?: return
         val gameController = gameRender.gameController
-        val playerDim = gameController.playerDimension ?: return
-        
+
+        if (gameController.playerControl.getPlayerEntity() != null) {
+            dim = gameController.playerDimension!!
+        }
         lg.noStroke()
         lg.pg.clear()
         
         val mapApi = gameController.gameCycle.mapApi
-        val mapSystem = playerDim.mapSystem
+        val mapSystem = dim.mapSystem
 
         val p1 = mapApi.getPointFromPos(camera.toWorldPos(gameController.wGamePanel!!.frameLeftBottom))
         val p2 = mapApi.getPointFromPos(camera.toWorldPos(gameController.wGamePanel!!.frameRightTop))

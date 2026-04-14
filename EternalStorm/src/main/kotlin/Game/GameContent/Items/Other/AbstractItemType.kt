@@ -15,6 +15,9 @@ abstract class AbstractItemType {
     open val texture = ""
     open val usingVariants: UsingVariants = UsingVariants.Custom
     open val maxInStack = 1
+    open val tags: Set<String> = emptySet()
+
+    fun hasTag(tag: String): Boolean = tag in tags
 
     open fun createItem(gameCycle: GameCycle) : Item {
         return Item(this, gameCycle)

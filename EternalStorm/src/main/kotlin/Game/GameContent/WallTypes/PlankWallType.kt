@@ -1,6 +1,7 @@
 package la.vok.Game.GameContent.WallTypes
 
 import la.vok.Core.GameControllers.GameController
+import la.vok.Game.GameContent.ContentList.BlockTags
 import la.vok.Game.GameContent.ContentList.ItemsList
 import la.vok.Game.GameContent.ContentList.WallList
 import la.vok.Game.GameContent.Items.Other.DropEntry
@@ -15,6 +16,7 @@ class PlankWallType() : AbstractWallType() {
     override val maxHp: Int = 10
     override val texture: String = "plankTexture.jpg"
     override val drop: DropEntry = SingleDrop(ItemsList.plank_wall)
+    override val tags: Set<String> = setOf(BlockTags.PLANK)
 
     override fun render(
         pointX: Int,

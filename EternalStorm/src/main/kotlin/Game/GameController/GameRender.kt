@@ -1,5 +1,6 @@
 package la.vok.Core.GameControllers
 
+import com.jogamp.nativewindow.util.Dimension
 import la.vok.Core.CoreContent.Camera.Camera
 import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.CoreControllers.CoreController
@@ -8,6 +9,7 @@ import la.vok.Core.GameContent.RenderSystem.RenderLayers.LayersRenderContainer
 import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
 import la.vok.Game.GameController.HighlightRender
 import la.vok.Game.GameSystems.EffectLayers.AOTiles
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.KotlinPlus.forEachInArea
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
@@ -42,9 +44,13 @@ class GameRender(val gameController: GameController) : Controller {
         highlightRender.logicalTick()
     }
 
+    lateinit var dim: AbstractDimension
+
     fun render(lg: LGraphics, camera: Camera) {
-        if (gameController.playerControl.getPlayerEntity() == null) return
-        val dim = gameController.playerDimension!!
+        if (gameController.playerControl.getPlayerEntity() != null) {
+            dim = gameController.playerDimension!!
+        }
+
         lg.bg(dim.skyColor)
         val mapApi = gameController.gameCycle.mapApi
         val mapSystem = dim.mapController.mapSystem

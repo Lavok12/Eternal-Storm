@@ -17,8 +17,10 @@ abstract class AbstractWallType : IBlockType {
     override val tag: String = ""
     override val blockStrength: Int = 0
     override val maxHp: Int = 0
-    override val texture: String = ""
     override val drop: DropEntry = NothingDrop
+    override val tags: Set<String> = emptySet()
+
+    open fun hasTag(tag: String): Boolean = tag in tags
 
     open val placeType: WallPlaceType = WallPlaceType.NEAR_WALL_OR_TILE
 
