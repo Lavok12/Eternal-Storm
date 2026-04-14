@@ -18,8 +18,8 @@ interface Camera {
     fun useCameraSize(size: Float): Float =
         size * this.size
 
-    fun toWorldPos(screenPos: Vec2): Vec2 =
-        (screenPos / size) + pos
+    fun toWorldPos(logicalPos: Vec2): Vec2 =
+        (logicalPos / size) + pos
 
     fun toWorldSize(size: Vec2): Vec2 =
         size / this.size

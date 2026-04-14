@@ -32,6 +32,7 @@ class TeleporterHandItem(item: TeleporterItem, component: HandItemComponent) : H
                 // Teleportation logic
                 val oldDim = entity.dimension
                 gameCycle.entityApi.teleport(entity, targetDim, entity.position)
+                gameCycle.entityApi.teleport(entity, targetDim.width/2f v targetDim.height)
                 gameCycle.dimensionsApi.changeRenderDimension(oldDim!!, targetDim)
                 // Particles in target dimension
                 val stoneType = gameController.coreController.objectRegistration.getTileType(TilesList.stone_block)

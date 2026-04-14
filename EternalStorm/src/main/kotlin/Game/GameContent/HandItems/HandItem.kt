@@ -48,10 +48,10 @@ val gameRender: GameRender get() = gameController.gameRender
     open fun rightUpdate(pos: Vec2, oldPosition: Vec2) {}
 
     private fun startUse(action: UseAction) {
-        if ((entity.ai?.targetScreenPos()?.x ?: 0f) < entity.position.x) {
+        if ((entity.ai?.targetWorldPos()?.x ?: 0f) < entity.position.x) {
             entity.changeFacing(-1)
         }
-        if ((entity.ai?.targetScreenPos()?.x ?: 0f) > entity.position.x) {
+        if ((entity.ai?.targetWorldPos()?.x ?: 0f) > entity.position.x) {
             entity.changeFacing(1)
         }
         if (action is UseAction.None) return

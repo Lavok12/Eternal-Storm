@@ -94,8 +94,8 @@ class LGraphics() : FrameRect {
 
 
     fun checkResolution() {
-        if (windowWidth.toFloat() != AppState.main.width * AppState.pixelDensityFactor ||
-            windowHeight.toFloat() != AppState.main.height * AppState.pixelDensityFactor) {
+        if (windowWidth != AppState.main.width ||
+            windowHeight != AppState.main.height) {
             updateResolution()
         }
     }

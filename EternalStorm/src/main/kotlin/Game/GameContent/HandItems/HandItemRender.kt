@@ -125,7 +125,7 @@ open class HandItemRender(
     }
 
     private fun drawSpear(lg: LGraphics, anim: AnimationType.Spear, camera: Camera) {
-        val cursorX = handItem.entity.ai?.targetScreenPos()?.x ?: 0f
+        val cursorX = handItem.entity.ai?.targetWorldPos()?.x ?: 0f
         val entityX = handItem.entity.position.x
         val flipped = cursorX < entityX
 
@@ -205,7 +205,7 @@ open class HandItemRender(
     }
 
     private fun drawDirectionalIdle(lg: LGraphics, anim: AnimationType.DirectionalThrust, camera: Camera) {
-        val cursorX = handItem.entity.ai?.targetScreenPos()?.x ?: 0f
+        val cursorX = handItem.entity.ai?.targetWorldPos()?.x ?: 0f
         val entityX = handItem.entity.position.x
         val flipped = cursorX < entityX
 
