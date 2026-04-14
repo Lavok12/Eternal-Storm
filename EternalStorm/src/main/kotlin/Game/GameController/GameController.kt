@@ -16,7 +16,7 @@ import la.vok.Menu.MenuController.MenuController
 import la.vok.State.AppState
 
 class GameController(var coreController: CoreController) : SceneController {
-    var mainCamera = SoftCamera(50 v 73, 25f, 0.995f)
+    var mainCamera = SoftCamera(750 v 1003, 25f, 0.995f)
 
     var effectLayersController = EffectLayersController(this)
     var gameLoader = GameLoader(this)
