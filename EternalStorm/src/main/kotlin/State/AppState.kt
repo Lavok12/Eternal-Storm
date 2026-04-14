@@ -5,6 +5,7 @@ import la.vok.LLibs.Logger.LogLevel
 import la.vok.Core.CoreControllers.CoreController
 import la.vok.Core.CoreControllers.Loaders.Content
 import la.vok.Core.CoreControllers.Loaders.LanguageLoader
+import la.vok.Core.GameControllers.GameController
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.Sketch.ProcessingSketch
@@ -31,9 +32,17 @@ object AppState {
     val itemsMergeSize = 4 v 4
 
     var hitboxDebug: Boolean = false
-        private set
+        set(value)
+        {
+            var gameController = coreController.sceneController as GameController
+            field = value
+            for (i in (gameController.gameCycle.entityApi.getActiveEntities(gameController.playerDimension!!))) {
+                gameController.gameCycle.entityApi.hideEntity(gameController.playerDimension!!, i)
+                gameController.gameCycle.entityApi.showEntity(gameController.playerDimension!!, i)
+            }
+        }
     var renderDebug: Boolean = false
-        private set
+
 
     var lang = "ru"
         set(value)

@@ -12,7 +12,7 @@ class BigTestBlockType : AbstractTileType() {
     override val maxHp: Int = 100
     override val blockStrength: Int = 1
     
-    override val width: Int = 3
+    override val width: Int = 3 
     override val height: Int = 3
     override val placeOffset: LPoint = -1 p -1
 

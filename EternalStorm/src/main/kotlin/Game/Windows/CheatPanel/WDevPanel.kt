@@ -1,19 +1,23 @@
 package la.vok.Game.ClientContent.Windows
 
 import la.vok.Core.CoreContent.Input.KeyCode
-import la.vok.Core.CoreContent.Windows.WindowsStorage.Templates.WStandartPanel
 import la.vok.Core.CoreControllers.MainRender
 import la.vok.Core.CoreControllers.WindowsManager
 import la.vok.Core.FrameLimiter
 import la.vok.Core.GameControllers.GameController
+import la.vok.Core.CoreContent.Windows.WindowsStorage.Templates.WStandartPanel
+import la.vok.Game.GameContent.Crafts.CraftType
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Items.Other.AbstractItemType
 import la.vok.LLibs.AnimationType
 import la.vok.LLibs.FloatAnimation
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
-import la.vok.Game.GameContent.ContentList.DimensionsList
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.System.DimensionsApi
+import la.vok.State.AppState
 import processing.event.MouseEvent
+import kotlin.math.abs
 
 class WDevPanel(windowsManager: WindowsManager, val gameController: GameController) : WStandartPanel(windowsManager) {
 
@@ -21,406 +25,533 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
     override var padding: Vec2 get() = 20 v 20; set(value) {}
 
     // =====================================================================
-    // НАСТРОЙКИ
+    // UI CONSTANTS & DESIGN TOKENS
     // =====================================================================
 
-    private val tabAnim        = FloatAnimation(0f, 1f, AnimationType.EaseInOut(3f))
-    private val openAnim       = FloatAnimation(0f, 1f, AnimationType.EaseOut(3f))
-    private val hoverAnim      = FloatAnimation(0f, 1f, AnimationType.EaseOut(4f))
-    private val listScrollAnim = FloatAnimation(0f, 1f, AnimationType.EaseInOut(3f))
-
-    private val cellW       = 260f
-    private val cellH       = 44f
-    private val cellGap     = 6f
-    private val tabH        = 38f
-    private val tabW        = 160f
-    private val panelW      = 580f
-    private val panelH      = 680f
-    private val scrollSpeed = 5f
-    private val animSpeed   = 5f
+    private val panelW      = 780f
+    private val panelH      = 760f
+    private val cornerR     = 18f
+    
+    private val tabW        = 140f
+    private val tabH        = 40f
+    private val tabGap      = 12f
+    
+    private val cellW       = 560f
+    private val cellH       = 58f
+    private val cellGap     = 10f
 
     // =====================================================================
-    // СОСТОЯНИЕ
+    // STATE & ANIMATION
     // =====================================================================
 
-    private enum class Tab { ENTITIES, ITEMS }
+    private enum class Tab { ENTITIES, ITEMS, CRAFTS, DIMENSIONS, TECH }
     private var activeTab    = Tab.ENTITIES
     private var targetTab    = Tab.ENTITIES
-    private var tabProgress  = 1f   // 0 → старая вкладка, 1 → новая
-    private var openProgress = 0f
-    private var isOpen       = true
+    
+    private val openAnim      = FloatAnimation(0f, 1f, AnimationType.EaseOut(3.5f))
+    private var openProgress  = 0f
+    private val openSpeed     = 4.0f
+    
+    private var scroll        = 0f
+    private var targetScroll  = 0f
+    private val scrollSmooth  = 12f
 
-    private var entityScroll  = 0f
-    private var itemScroll    = 0f
-    private var targetEntityScroll = 0f
-    private var targetItemScroll   = 0f
-
-    private var hoveredEntity: AbstractEntityType? = null
-    private var hoveredItem:   AbstractItemType?   = null
-    private var hoverAlpha = 0f
-
-    private val allEntities: List<AbstractEntityType>
-        get() = gameController.coreController.objectRegistration.entities.values
-            .filter { it.tag.isNotEmpty() }
-            .toList()
-
-    private val allItems: List<AbstractItemType>
-        get() = gameController.coreController.objectRegistration.items.values.toList()
+    private var hoveredIndex: Int = -1
+    private var hoveredBtn: Int = -1 // 0 = main cell, 1 = action button, 2 = action button 2, 3 = tab
+    
+    private var isOpen = true
 
     // =====================================================================
-    // LIFECYCLE
+    // DATA PROVIDERS
     // =====================================================================
 
-    private fun drawTabs(cx: Float, cy: Float, w: Float, h: Float, alpha: Float, scale: Float) {
-        val tabY = cy + h / 2f - tabH * scale / 2f - 12f * scale
-        val tabs = Tab.values()
-
-        tabs.forEachIndexed { i, tab ->
-            val tx = cx - w / 2f + 24f * scale + i * (tabW * scale + 8f * scale) + tabW * scale / 2f
-            val isActive = tab == (if (tabProgress >= 0.5f) targetTab else activeTab)
-
-            // Фон таба
-            if (isActive) {
-                lg.fill(60f, 100f, 220f, 180f * alpha)
-            } else {
-                lg.fill(30f, 35f, 50f, 160f * alpha)
-            }
-            lg.setBlock(tx, tabY, tabW * scale, tabH * scale, 10f)
-
-            // Подчёркивание активного таба
-            if (isActive) {
-                lg.fill(120f, 180f, 255f, 200f * alpha)
-                lg.setBlock(tx, tabY - tabH * scale / 2f + 3f, tabW * scale * 0.6f, 2f, 1f)
-            }
-
-            val label = when (tab) {
-                Tab.ENTITIES -> "ENTITIES"
-                Tab.ITEMS    -> "ITEMS"
-            }
-            lg.fill(if (isActive) 240f else 160f, 200f * alpha)
-            lg.setText(label, tx, tabY + 6f, 18f)
-        }
+    private fun getList(): List<Any> = when (activeTab) {
+        Tab.ENTITIES   -> gameController.coreController.objectRegistration.entities.values.filter { it.tag.isNotEmpty() }.toList()
+        Tab.ITEMS      -> gameController.coreController.objectRegistration.items.values.toList()
+        Tab.CRAFTS     -> gameController.gameCycle.craftApi.allCrafts
+        Tab.DIMENSIONS -> gameController.gameCycle.dimensionsController.dimensions.values.sortedBy { it.dimensionTag }.toList()
+        Tab.TECH       -> emptyList()
     }
+
+    private fun getMaxScroll(): Float {
+        val listSize = getList().size
+        val effectiveCellH = if (activeTab == Tab.CRAFTS) cellH * 1.5f else cellH
+        val totalHeight = listSize * (effectiveCellH + cellGap)
+        val viewportH = panelH - 220f
+        return (totalHeight - viewportH).coerceAtLeast(0f)
+    }
+
+    // =====================================================================
+    // CORE DRAWING
+    // =====================================================================
 
     override fun draw(mainRender: MainRender) {
-        super.draw(mainRender)
-        lg.fill(0f)
-        lg.pg.clear()
         val dt = FrameLimiter.renderDeltaTime
-
-        // Анимация открытия
-        val targetOpen = if (isOpen) 1f else 0f
-        openProgress += (targetOpen - openProgress) * (dt * animSpeed).coerceIn(0f, 1f)
-
-        // Плавный скролл
-        entityScroll += (targetEntityScroll - entityScroll) * (dt * scrollSpeed * 2).coerceIn(0f, 1f)
-        itemScroll   += (targetItemScroll   - itemScroll)   * (dt * scrollSpeed * 2).coerceIn(0f, 1f)
-
-        // Анимация смены вкладки
-        if (tabProgress < 1f) {
-            tabProgress = (tabProgress + dt * animSpeed).coerceIn(0f, 1f)
-            if (tabProgress >= 1f) activeTab = targetTab
+        lg.pg.clear()
+        
+        if (isOpen) {
+            openProgress = (openProgress + dt * openSpeed).coerceIn(0f, 1f)
+        } else {
+            openProgress = (openProgress - dt * openSpeed).coerceIn(0f, 1f)
+        }
+        
+        if (openProgress <= 0f && !isOpen) {
+            windowsManager.destroyWindow(this)
+            return
         }
 
-        if (openProgress < 0.01f) return
+        scroll += (targetScroll - scroll) * (dt * scrollSmooth).coerceIn(0f, 1f)
 
-        val alpha = openProgress
-        val scale = 0.85f + 0.15f * openProgress
-        val cx = 0f
-        val cy = 0f
-
-        drawPanel(cx, cy, alpha, scale)
+        val alpha = openAnim.evaluate(openProgress)
+        val scale = 0.85f + 0.15f * alpha
+        
+        drawPanelLayout(alpha, scale)
     }
 
-    private fun drawPanel(cx: Float, cy: Float, alpha: Float, scale: Float) {
+    private fun drawPanelLayout(alpha: Float, scale: Float) {
+        val cx = 0f
+        val cy = 0f
         val w = panelW * scale
         val h = panelH * scale
 
-        // Тень панели
-        for (i in 1..6) {
-            lg.noStroke()
-            lg.fill(0f, 15f * alpha)
-            lg.setBlock(cx, cy, w + i * 8f, h + i * 8f, 22f)
+        lg.noStroke()
+        for (i in 1..4) {
+            lg.fill(20f, 30f, 80f, (8f - i * 1.5f) * alpha)
+            lg.setBlock(cx, cy, w + i * 12f, h + i * 12f, cornerR + i * 5f)
         }
 
-        // Фон панели
-        lg.fill(18f, 20f, 28f, 230f * alpha)
-        lg.setBlock(cx, cy, w, h, 18f)
+        lg.fill(16f, 18f, 26f, 240f * alpha)
+        lg.setBlock(cx, cy, w, h, cornerR)
 
-        // Акцентная линия сверху
-        lg.fill(80f, 140f, 255f, 180f * alpha)
-        lg.setBlock(cx, cy + h / 2f - 2f, w * 0.7f, 3f, 2f)
+        lg.fill(80f, 140f, 255f, 60f * alpha)
+        lg.setBlock(cx, cy + h / 2f - 2f, w * 0.9f, 2f, 1f)
 
-        // Заголовок
-        lg.fill(220f, 230f, 255f, 200f * alpha)
-        lg.setText("DEV PANEL", cx - w / 2f + 40f, -cy - h / 2f + 22f, 14f)
+        lg.setTextAlign(0, 0)
+        lg.fill(180f, 210f, 255f, 230f * alpha)
+        lg.setText("DEVELOPER COMMAND CENTER", cx, cy + h / 2f - 35f * scale, 18f * scale)
 
         drawTabs(cx, cy, w, h, alpha, scale)
 
-        val contentY = cy + h / 2f - tabH * scale - 60f * scale
-        val contentH = h - tabH * scale - 80f * scale
-
-        when (if (tabProgress < 0.5f) activeTab else targetTab) {
-            Tab.ENTITIES -> drawEntityList(cx, contentY, w, contentH, alpha, scale)
-            Tab.ITEMS    -> drawItemList(cx, contentY, w, contentH, alpha, scale)
+        val contentTopY = cy + h / 2f - 160f * scale
+        val viewportH = h - 220f * scale
+        
+        when (activeTab) {
+            Tab.ENTITIES   -> drawEntities(cx, contentTopY, viewportH, alpha, scale)
+            Tab.ITEMS      -> drawItems(cx, contentTopY, viewportH, alpha, scale)
+            Tab.CRAFTS     -> drawCrafts(cx, contentTopY - 20f * scale, viewportH, alpha, scale)
+            Tab.DIMENSIONS -> drawDimensions(cx, contentTopY, viewportH, alpha, scale)
+            Tab.TECH       -> drawTech(cx, contentTopY, viewportH, alpha, scale)
         }
-
-        // Превью при ховере
-        drawPreview(cx, cy, w, h, alpha, scale)
     }
 
-    private fun drawEntityList(cx: Float, topY: Float, w: Float, h: Float, alpha: Float, scale: Float) {
-        val list   = allEntities
-        val cellHs = cellH * scale
-        val cellWs = cellW * scale
-        val gapS   = cellGap * scale
+    private fun drawTabs(cx: Float, cy: Float, w: Float, h: Float, alpha: Float, scale: Float) {
+        val tabs = Tab.values()
+        val totalTabsW = tabs.size * tabW + (tabs.size - 1) * tabGap
+        val startX = cx - (totalTabsW * scale) / 2f + (tabW * scale) / 2f
+        val tabY = cy + h / 2f - 95f * scale
 
+        tabs.forEachIndexed { i, tab ->
+            val tx = startX + i * (tabW + tabGap) * scale
+            val isActive = (tab == activeTab)
+            val isHover = (hoveredIndex == i && hoveredBtn == 3)
+            
+            val bgAlpha = if (isActive) 180f else if (isHover) 120f else 60f
+            lg.fill(40f, 60f, 120f, bgAlpha * alpha)
+            lg.setBlock(tx, tabY, tabW * scale, tabH * scale, 12f)
+            
+            if (isActive) {
+                lg.fill(100f, 180f, 255f, 255f * alpha)
+                lg.setBlock(tx, tabY - tabH * scale / 2f + 2f, tabW * 0.6f * scale, 3f, 1f)
+            }
+
+            lg.fill(if (isActive) 255f else 180f, 240f * alpha)
+            lg.setText(tab.name, tx, tabY + 4f, 13f * scale)
+        }
+    }
+
+    private fun drawEntities(cx: Float, topY: Float, viewH: Float, alpha: Float, scale: Float) {
+        val list = getList() as List<AbstractEntityType>
+        val ch = cellH * scale
+        val cw = cellW * scale
+        val gap = cellGap * scale
+        
         list.forEachIndexed { i, entity ->
-            val y = topY - i * (cellHs + gapS) - entityScroll * scale
-            if (y < topY - h - cellHs || y > topY + cellHs) return@forEachIndexed
-
-            val isHover = hoveredEntity === entity
-
-            // Фон ячейки на всю ширину
-            lg.fill(if (isHover) 50f else 25f, if (isHover) 80f else 35f, if (isHover) 160f else 55f,
-                if (isHover) 200f * alpha else 120f * alpha)
-            lg.setBlock(cx, y, cellWs, cellHs, 10f)
-
-            // Левый акцент
-            lg.fill(80f, 140f, 255f, if (isHover) 255f * alpha else 80f * alpha)
-            lg.setBlock(cx - cellWs / 2f + 3f, y, 3f, cellHs * 0.6f, 2f)
-
-            // Тег — слева, чуть ниже центра
+            val posY = topY - i * (ch + gap) + scroll * scale
+            if (posY > topY + ch || posY < topY - viewH - ch) return@forEachIndexed
+            
+            val isHover = hoveredIndex == i
+            
+            lg.fill(30f, 35f, 55f, 160f * alpha)
+            if (isHover && hoveredBtn == 0) lg.fill(45f, 60f, 110f, 180f * alpha)
+            lg.setBlock(cx, posY, cw, ch, 14f)
+            
             lg.setTextAlign(-1, 0)
-            lg.fill(200f, 220f, 255f, 210f * alpha)
-            lg.setText(entity.tag, cx - cellWs / 2f + 18f, y - cellHs * 0.1f + 5f, 14f)
-
-            // Кнопка SPAWN — правая часть, на всю высоту ячейки
-            val btnW = cellWs * 0.28f
-            val btnX = cx + cellWs / 2f - btnW / 2f - 6f * scale
-            lg.fill(40f, 180f, 100f, if (isHover) 220f * alpha else 140f * alpha)
-            lg.setBlock(btnX, y, btnW, cellHs * 0.75f, 8f)
+            lg.fill(220f, 235f, 255f, 240f * alpha)
+            lg.setText(entity.tag, cx - cw / 2f + 25f * scale, posY + 4f, 15f * scale)
+            
+            val btnW = 110f * scale
+            val btnX = cx + cw / 2f - btnW / 2f - 15f * scale
+            val btnHover = (isHover && hoveredBtn == 1)
+            
+            lg.fill(60f, 180f, 120f, if (btnHover) 240f * alpha else 140f * alpha)
+            lg.setBlock(btnX, posY, btnW, ch * 0.7f, 10f)
+            
             lg.setTextAlign(0, 0)
-            lg.fill(220f, 255f, 230f, 220f * alpha)
-            lg.setText("SPAWN", btnX, y - cellHs * 0.1f + 5f, 12f)
-
-            lg.setTextAlign(0, 0) // сброс
+            lg.fill(255f, 255f * alpha)
+            lg.setText("SPAWN", btnX, posY + 4f, 12f * scale)
         }
     }
 
-    private fun drawItemList(cx: Float, topY: Float, w: Float, h: Float, alpha: Float, scale: Float) {
-        val list   = allItems
-        val cellHs = cellH * scale
-        val cellWs = cellW * scale
-        val gapS   = cellGap * scale
-
+    private fun drawItems(cx: Float, topY: Float, viewH: Float, alpha: Float, scale: Float) {
+        val list = getList() as List<AbstractItemType>
+        val ch = cellH * scale
+        val cw = cellW * scale
+        val gap = cellGap * scale
+        
         list.forEachIndexed { i, item ->
-            val y = topY - i * (cellHs + gapS) - itemScroll * scale
-            if (y < topY - h - cellHs || y > topY + cellHs) return@forEachIndexed
-
-            val isHover = hoveredItem === item
-
-            lg.fill(if (isHover) 50f else 25f, if (isHover) 60f else 35f, if (isHover) 80f else 55f,
-                if (isHover) 200f * alpha else 120f * alpha)
-            lg.setBlock(cx, y, cellWs, cellHs, 10f)
-
-            // Левый акцент
-            lg.fill(200f, 160f, 80f, if (isHover) 255f * alpha else 80f * alpha)
-            lg.setBlock(cx - cellWs / 2f + 3f, y, 3f, cellHs * 0.6f, 2f)
-
-            // Иконка
+            val posY = topY - i * (ch + gap) + scroll * scale
+            if (posY > topY + ch || posY < topY - viewH - ch) return@forEachIndexed
+            
+            val isHover = hoveredIndex == i
+            
+            lg.fill(32f, 32f, 48f, 160f * alpha)
+            if (isHover && hoveredBtn == 0) lg.fill(50f, 50f, 85f, 180f * alpha)
+            lg.setBlock(cx, posY, cw, ch, 14f)
+            
             try {
                 val sprite = gameController.coreController.spriteLoader.getValue(item.texture)
-                lg.setImage(sprite, cx - cellWs / 2f + 24f, y, cellHs * 0.7f, cellHs * 0.7f)
+                lg.setImage(sprite, cx - cw / 2f + 30f * scale, posY, ch * 0.7f, ch * 0.7f)
             } catch (_: Exception) {}
-
-            // Тег — слева после иконки
+            
             lg.setTextAlign(-1, 0)
-            lg.fill(220f, 200f, 160f, 210f * alpha)
-            lg.setText(item.tag, cx - cellWs / 2f + 48f, y - cellHs * 0.1f + 5f, 11f)
-
-            // Кнопка GIVE
-            val btnW = cellWs * 0.22f
-            val btnX = cx + cellWs / 2f - btnW / 2f - 6f * scale
-            lg.fill(180f, 120f, 40f, if (isHover) 220f * alpha else 140f * alpha)
-            lg.setBlock(btnX, y, btnW, cellHs * 0.75f, 8f)
+            lg.fill(255f, 235f, 180f, 240f * alpha)
+            lg.setText(item.tag, cx - cw / 2f + 70f * scale, posY + 4f, 14f * scale)
+            
+            val btnW = 90f * scale
+            val btnX = cx + cw / 2f - btnW / 2f - 15f * scale
+            val btnHover = (isHover && hoveredBtn == 1)
+            
+            lg.fill(200f, 130f, 60f, if (btnHover) 240f * alpha else 150f * alpha)
+            lg.setBlock(btnX, posY, btnW, ch * 0.7f, 10f)
+            
             lg.setTextAlign(0, 0)
-            lg.fill(255f, 230f, 180f, 220f * alpha)
-            lg.setText("GIVE", btnX, y - cellHs * 0.1f + 4f, 11f)
-
-            lg.setTextAlign(0, 0)
-        }
-    }
-    private fun drawPreview(cx: Float, cy: Float, w: Float, h: Float, alpha: Float, scale: Float) {
-        val entity = hoveredEntity
-        val item   = hoveredItem
-        if (entity == null && item == null) return
-
-        val previewX = cx + w / 2f + 20f
-        val previewY = cy
-        val previewW = 180f * scale
-        val previewH = 180f * scale
-
-        lg.fill(18f, 20f, 28f, 200f * alpha)
-        lg.setBlock(previewX + previewW / 2f, previewY, previewW, previewH, 14f)
-
-        if (item != null) {
-            try {
-                val sprite = gameController.coreController.spriteLoader.getValue(item.texture)
-                lg.setImage(sprite, previewX + previewW / 2f, previewY, previewW * 0.7f, previewH * 0.7f)
-            } catch (_: Exception) {}
-            lg.fill(200f, 180f, 130f, 200f * alpha)
-            lg.setText(item.tag, previewX + previewW / 2f, previewY - previewH / 2f + 14f + 4f, 12f)
-        } else if (entity != null && entity.imgPreview.isNotEmpty()) {
-            try {
-                val sprite = gameController.coreController.spriteLoader.getValue(entity.imgPreview)
-                lg.setImage(sprite, previewX + previewW / 2f, previewY, previewW * 0.7f, previewH * 0.7f)
-            } catch (_: Exception) {}
-            lg.fill(180f, 210f, 255f, 200f * alpha)
-            lg.setText(entity.tag, previewX + previewW / 2f, previewY - previewH / 2f + 14f + 4f, 12f)
+            lg.fill(255f, 255f * alpha)
+            lg.setText("GIVE", btnX, posY + 4f, 12f * scale)
         }
     }
 
-    // =====================================================================
-    // ВВОД — мышь
-    // =====================================================================
+    private fun drawCrafts(cx: Float, topY: Float, viewH: Float, alpha: Float, scale: Float) {
+        val list = getList() as List<CraftType>
+        val ch = cellH * 1.6f * scale
+        val cw = cellW * scale
+        val gap = cellGap * scale
+        
+        list.forEachIndexed { i, craft ->
+            val posY = topY - i * (ch + gap) + scroll * scale
+            if (posY > topY + ch || posY < topY - viewH - ch) return@forEachIndexed
+            
+            lg.fill(38f, 35f, 45f, 140f * alpha)
+            lg.setBlock(cx, posY, cw, ch, 16f)
+            
+            val resType = craft.resultType
+            if (resType != null) {
+                try {
+                    val sprite = gameController.coreController.spriteLoader.getValue(resType.texture)
+                    lg.setImage(sprite, cx - cw / 2f + 40f * scale, posY, ch * 0.5f, ch * 0.5f)
+                } catch (_: Exception) {}
+                lg.setTextAlign(0, 0)
+                lg.fill(200f, 220f, 255f, 200f * alpha)
+                lg.setText("${craft.result.count}x", cx - cw / 2f + 40f * scale, posY - ch * 0.35f, 11f * scale)
+            }
+            
+            lg.fill(160f, 180f, 220f, 180f * alpha)
+            lg.setText("←", cx - cw / 2f + 90f * scale, posY + 6f, 22f * scale)
+            
+            var xOff = cx - cw / 2f + 145f * scale
+            craft.ingredientTypes.forEach { (type, count) ->
+                try {
+                    val sprite = gameController.coreController.spriteLoader.getValue(type.texture)
+                    lg.setImage(sprite, xOff, posY, ch * 0.45f, ch * 0.45f)
+                } catch (_: Exception) {}
+                lg.fill(255f, 180f, 120f, 220f * alpha)
+                lg.setText("${count}x", xOff, posY - ch * 0.35f, 10f * scale)
+                xOff += 48f * scale
+            }
+        }
+    }
+
+    private fun drawDimensions(cx: Float, topY: Float, viewH: Float, alpha: Float, scale: Float) {
+        val list = getList() as List<AbstractDimension>
+        val ch = cellH * scale
+        val cw = cellW * scale
+        val gap = cellGap * scale
+        
+        list.forEachIndexed { i, dim ->
+            val posY = topY - i * (ch + gap) + scroll * scale
+            if (posY > topY + ch || posY < topY - viewH - ch) return@forEachIndexed
+            
+            val isHover = hoveredIndex == i
+            
+            lg.fill(30f, 45f, 50f, 160f * alpha)
+            if (isHover && hoveredBtn == 0) lg.fill(50f, 70f, 85f, 180f * alpha)
+            lg.setBlock(cx, posY, cw, ch, 14f)
+            
+            lg.setTextAlign(-1, 0)
+            lg.fill(150f, 255f, 200f, 240f * alpha)
+            lg.setText(dim.dimensionTag, cx - cw / 2f + 25f * scale, posY + 4f, 16f * scale)
+            
+            lg.fill(180f, 200f, 220f, 220f * alpha)
+            lg.setText("Entities: ${dim.entitySystem.entities.size}", cx - cw / 2f + 180f * scale, posY + 4f, 12f * scale)
+            
+            val btnW = 110f * scale
+            val btnX = cx + cw / 2f - btnW / 2f - 15f * scale
+            val btnHover = (isHover && hoveredBtn == 1)
+            
+            lg.fill(80f, 140f, 255f, if (btnHover) 240f * alpha else 150f * alpha)
+            lg.setBlock(btnX, posY, btnW, ch * 0.7f, 10f)
+            
+            lg.setTextAlign(0, 0)
+            lg.fill(255f, 255f * alpha)
+            lg.setText("TELEPORT", btnX, posY + 4f, 11f * scale)
+        }
+    }
+
+    private fun drawTech(cx: Float, topY: Float, viewH: Float, alpha: Float, scale: Float) {
+        val tw = panelW * 0.82f * scale
+        var yOff = topY - 30f * scale + scroll * scale
+        
+        val rt = Runtime.getRuntime()
+        val mb = 1024 * 1024
+        val used = (rt.totalMemory() - rt.freeMemory()) / mb
+        val max = rt.maxMemory() / mb
+        val pct = (used.toFloat() / max).coerceIn(0f, 1f)
+        
+        lg.setTextAlign(-1, 0)
+        lg.fill(140f, 200f, 255f, 220f * alpha)
+        lg.setText("MEMORY ALLOCATION", cx - tw / 2f + 10f * scale, yOff, 15f * scale)
+        yOff -= 32f * scale
+        
+        lg.fill(25f, 30f, 45f, 200f * alpha)
+        lg.setBlock(cx, yOff, tw, 28f * scale, 8f)
+        lg.fill(80f, 160f, 255f, 180f * alpha)
+        val barW = tw * pct
+        lg.setBlock(cx - tw / 2f + barW / 2f, yOff, barW, 28f * scale, 8f)
+        
+        lg.fill(255f, 240f * alpha)
+        lg.setText("Used: $used MB / Max: $max MB", cx - tw / 2f + 15f * scale, yOff + 4f, 11f * scale)
+        
+        yOff -= 65f * scale
+        
+        lg.fill(140f, 200f, 255f, 220f * alpha)
+        lg.setText("SYSTEM TELEMETRY", cx - tw / 2f + 10f * scale, yOff, 15f * scale)
+        yOff -= 32f * scale
+        
+        val stats = listOf(
+            "Frame Rate" to "${FrameLimiter.currentRenderFPS} FPS",
+            "Tick Time"  to "${"%.3f".format(FrameLimiter.renderDeltaTime * 1000)} ms",
+            "Avg Entities" to "${gameController.gameCycle.entityApi.getAllAcrossDimensions().size}",
+            "Uptime"     to "${(FrameLimiter.uptimeMs / 1000) / 60}m ${ (FrameLimiter.uptimeMs / 1000) % 60}s"
+        )
+        
+        stats.forEach { (k, v) ->
+            lg.fill(160f, 170f, 185f, 200f * alpha)
+            lg.setText(k, cx - tw / 2f + 20f * scale, yOff, 13f * scale)
+            lg.fill(210f, 230f, 255f, 255f * alpha)
+            lg.setText(v, cx + 50f * scale, yOff, 13f * scale)
+            yOff -= 26f * scale
+        }
+
+        yOff -= 40f * scale
+
+        lg.fill(140f, 200f, 255f, 220f * alpha)
+        lg.setText("DEBUG OVERLAYS", cx - tw / 2f + 10f * scale, yOff, 15f * scale)
+        yOff -= 45f * scale
+        
+        val btnW = 240f * scale
+        val btnH = 45f * scale
+        
+        val hActive = AppState.hitboxDebug
+        val hHover = hoveredIndex == 10 && hoveredBtn == 1
+        lg.fill(if (hActive) 60f else 30f, if (hActive) 180f else 40f, if (hActive) 100f else 55f, if (hHover) 255f * alpha else 180f * alpha)
+        lg.setBlock(cx - btnW / 2f - 10f * scale, yOff, btnW, btnH, 12f)
+        lg.setTextAlign(0, 0)
+        lg.fill(255f, 255f * alpha)
+        lg.setText("HITBOXES: ${if (hActive) "ACTIVE" else "DISABLED"}", cx - btnW / 2f - 10f * scale, yOff + 4f, 12f * scale)
+        
+        val rActive = AppState.renderDebug
+        val rHover = hoveredIndex == 11 && hoveredBtn == 1
+        lg.fill(if (rActive) 100f else 30f, if (rActive) 140f else 40f, if (rActive) 255f else 55f, if (rHover) 255f * alpha else 180f * alpha)
+        lg.setBlock(cx + btnW / 2f + 10f * scale, yOff, btnW, btnH, 12f)
+        lg.fill(255f, 255f * alpha)
+        lg.setText("METADATA: ${if (rActive) "VISIBLE" else "HIDDEN"}", cx + btnW / 2f + 10f * scale, yOff + 4f, 12f * scale)
+
+        yOff -= 75f * scale
+
+        lg.setTextAlign(-1, 0)
+        lg.fill(140f, 200f, 255f, 220f * alpha)
+        lg.setText("CAMERA ZOOM: ${"%.1f".format(gameController.mainCamera.size)}", cx - tw / 2f + 10f * scale, yOff, 15f * scale)
+        yOff -= 32f * scale
+        
+        lg.fill(30f, 40f, 60f, 150f * alpha)
+        lg.setBlock(cx, yOff, tw, 20f * scale, 10f)
+        
+        val zNorm = ((gameController.mainCamera.size - 2f) / 198f).coerceIn(0f, 1f)
+        val hx = cx - tw / 2f + tw * zNorm
+        lg.fill(120f, 180f, 255f, 230f * alpha)
+        lg.setBlock(hx, yOff, 30f * scale, 30f * scale, 8f)
+    }
 
     override fun mouseWheel(position: Vec2, event: MouseEvent) {
-        if (!isOpen) return
-        val delta = event.count.toFloat() * 60f
-        when (activeTab) {
-            Tab.ENTITIES -> {
-                val maxScroll = ((allEntities.size * (cellH + cellGap)) - panelH * 0.6f).coerceAtLeast(0f)
-                targetEntityScroll = (targetEntityScroll + delta).coerceIn(0f, maxScroll)
-            }
-            Tab.ITEMS -> {
-                val maxScroll = ((allItems.size * (cellH + cellGap)) - panelH * 0.6f).coerceAtLeast(0f)
-                targetItemScroll = (targetItemScroll + delta).coerceIn(0f, maxScroll)
-            }
-        }
+        val delta = event.count.toFloat() * 85f
+        targetScroll = (targetScroll + delta).coerceIn(0f, getMaxScroll())
     }
 
     override fun mouseUpdate(position: Vec2, oldPosition: Vec2) {
-        super.mouseUpdate(position, oldPosition)
         if (!isOpen) return
-
-        hoveredEntity = null
-        hoveredItem   = null
-
-        val scale   = 0.85f + 0.15f * openProgress
-        val cellHs  = cellH * scale
-        val cellWs  = cellW * scale
-        val gapS    = cellGap * scale
-        val h       = panelH * scale
-        val startX  = -cellWs / 2f
-
-        val topY   = panelH * scale / 2f - tabH * scale - 60f * scale
-        val startY = topY
-
-        when (activeTab) {
-            Tab.ENTITIES -> allEntities.forEachIndexed { i, entity ->
-                val y = startY - i * (cellHs + gapS) - entityScroll * scale
-                if (absInside(0f v y, cellWs v cellHs, position)) hoveredEntity = entity
-            }
-            Tab.ITEMS -> allItems.forEachIndexed { i, item ->
-                val y = startY - i * (cellHs + gapS) - itemScroll * scale
-                if (absInside(0f v y, cellWs v cellHs, position)) hoveredItem = item
+        
+        hoveredIndex = -1
+        hoveredBtn = -1
+        
+        val alpha = openAnim.evaluate(openProgress)
+        val scale = 0.85f + 0.15f * alpha
+        val cx = 0f
+        val cy = 0f
+        val w = panelW * scale
+        val h = panelH * scale
+        
+        val tabs = Tab.values()
+        val totalTabsW = tabs.size * tabW + (tabs.size - 1) * tabGap
+        val startX = cx - (totalTabsW * scale) / 2f + (tabW * scale) / 2f
+        val tabY = cy + h / 2f - 95f * scale
+        
+        tabs.forEachIndexed { i, _ ->
+            val tx = startX + i * (tabW + tabGap) * scale
+            if (absInside(tx v tabY, tabW * scale v tabH * scale, position)) {
+                hoveredIndex = i
+                hoveredBtn = 3
+                return
             }
         }
-    }
+        
+        val topY = cy + h / 2f - 160f * scale
+        val viewH = h - 220f * scale
+        val cw = cellW * scale
+        val gap = cellGap * scale
 
-    private fun absInside(pos: Vec2, size: Vec2, tap: Vec2): Boolean {
-        return tap.x >= pos.x - size.x / 2f && tap.x <= pos.x + size.x / 2f &&
-                tap.y >= pos.y - size.y / 2f && tap.y <= pos.y + size.y / 2f
-    }
-
-    override fun leftPressed(position: Vec2) {
-        super.leftPressed(position)
-        if (!isOpen) return
-
-        // Клик по табам
-        val scale  = 0.85f + 0.15f * openProgress
-        val h      = panelH * scale
-        val tabY   = h / 2f - tabH * scale / 2f - 12f * scale
-        Tab.values().forEachIndexed { i, tab ->
-            val tx = -panelW * scale / 2f + 24f * scale + i * (tabW * scale + 8f * scale) + tabW * scale / 2f
-            if (absInside(tx v tabY, tabW * scale v tabH * scale, position)) {
-                if (tab != targetTab) {
-                    targetTab   = tab
-                    tabProgress = 0f
+        if (activeTab == Tab.TECH) {
+            val tw = panelW * 0.82f * scale
+            val btnW = 240f * scale
+            val btnH = 45f * scale
+            var yOff = (topY - (30 + 32 + 65 + 32 + 4 * 26 + 40 + 45) * scale) + scroll * scale
+            
+            if (absInside(cx - btnW / 2f - 10f * scale v yOff, btnW v btnH, position)) { hoveredIndex = 10; hoveredBtn = 1; return }
+            if (absInside(cx + btnW / 2f + 10f * scale v yOff, btnW v btnH, position)) { hoveredIndex = 11; hoveredBtn = 1; return }
+            
+            yOff -= (75 + 32) * scale
+            if (absInside(cx v yOff, tw v 40f * scale, position)) { hoveredIndex = 20; hoveredBtn = 1; return }
+            return
+        }
+        
+        val list = getList()
+        val ch = (if (activeTab == Tab.CRAFTS) cellH * 1.6f else cellH) * scale
+        val topYAdj = if (activeTab == Tab.CRAFTS) topY - 20f * scale else topY
+        
+        list.forEachIndexed { i, _ ->
+            val posY = topYAdj - i * (ch + gap) + scroll * scale
+            if (posY > topYAdj + ch || posY < topYAdj - viewH - ch) return@forEachIndexed
+            
+            if (absInside(cx v posY, cw v ch, position)) {
+                hoveredIndex = i
+                hoveredBtn = 0
+                
+                val btnW = (if (activeTab == Tab.ITEMS) 90f else 110f) * scale
+                val btnX = cx + cw / 2f - btnW / 2f - 15f * scale
+                if (absInside(btnX v posY, btnW v ch * 0.7f, position)) {
+                    hoveredBtn = 1
                 }
                 return
             }
         }
+    }
 
-        // Клик по кнопкам
-        val cellHs = cellH * scale
-        val cellWs = cellW * scale
-        val gapS   = cellGap * scale
-        val topY   = h / 2f - tabH * scale - 60f * scale
-        val startY = topY - gapS
-        val btnX   = cellWs / 2f - 40f * scale
-
-        when (activeTab) {
-            Tab.ENTITIES -> allEntities.forEachIndexed { i, entity ->
-                val y = startY - i * (cellHs + gapS) + entityScroll * scale
-                if (absInside(btnX v y, 56f * scale v cellHs * 0.65f, position)) {
-                    spawnEntity(entity)
+    override fun leftPressed(position: Vec2) {
+        if (!isOpen) return
+        
+        if (hoveredBtn == 3) {
+            activeTab = Tab.values()[hoveredIndex]
+            targetScroll = 0f
+            scroll = 0f
+            return
+        }
+        
+        if (hoveredIndex != -1) {
+            when (activeTab) {
+                Tab.ENTITIES -> if (hoveredBtn == 1) spawnEntity(getList()[hoveredIndex] as AbstractEntityType)
+                Tab.ITEMS    -> if (hoveredBtn == 1) giveItem(getList()[hoveredIndex] as AbstractItemType)
+                Tab.DIMENSIONS -> if (hoveredBtn == 1) teleportToDim(getList()[hoveredIndex] as AbstractDimension)
+                Tab.TECH -> {
+                    if (hoveredIndex == 10) AppState.hitboxDebug = !AppState.hitboxDebug
+                    if (hoveredIndex == 11) AppState.renderDebug = !AppState.renderDebug
+                    if (hoveredIndex == 20) {
+                        val scale = 0.85f + 0.15f * openAnim.evaluate(openProgress)
+                        val tw = panelW * 0.82f * scale
+                        val cx = 0f
+                        val zNorm = ((position.x - (cx - tw / 2f)) / (tw.coerceAtLeast(1f))).coerceIn(0f, 1f)
+                        gameController.mainCamera.setCameraZoom((2f + zNorm * 198f), minZoom = 2f, maxZoom = 200f)
+                    }
                 }
-            }
-            Tab.ITEMS -> allItems.forEachIndexed { i, item ->
-                val y = startY - i * (cellHs + gapS) + itemScroll * scale
-                if (absInside(btnX v y, 56f * scale v cellHs * 0.65f, position)) {
-                    giveItem(item)
-                }
+                else -> {}
             }
         }
     }
 
-    // =====================================================================
-    // ДЕЙСТВИЯ
-    // =====================================================================
-
-    private fun spawnEntity(entityType: AbstractEntityType) {
-        val player = gameController.playerControl.getPlayerEntity() ?: return
-        val mainDim = player.dimension
-        val facing = player.facing.toFloat()
-        val spawnPos = player.position + (facing * 20f v 0f)
-        gameController.gameCycle.entityApi.spawnEntity(mainDim, entityType.tag, spawnPos)
+    override fun leftUpdate(position: Vec2, oldPosition: Vec2) {
+        if (activeTab == Tab.TECH && hoveredIndex == 20) {
+            val scale = 0.85f + 0.15f * openAnim.evaluate(openProgress)
+            val tw = panelW * 0.82f * scale
+            val zNorm = ((position.x - (0f - tw/2f)) / (tw.coerceAtLeast(1f))).coerceIn(0f, 1f)
+            gameController.mainCamera.setCameraZoom((2f + zNorm * 198f), minZoom = 2f, maxZoom = 200f)
+        }
+    }
+    private fun absInside(pos: Vec2, size: Vec2, tap: Vec2): Boolean {
+        return tap.x >= pos.x - size.x / 2f && tap.x <= pos.x + size.x / 2f &&
+               tap.y >= pos.y - size.y / 2f && tap.y <= pos.y + size.y / 2f
     }
 
-    private fun giveItem(itemType: AbstractItemType) {
-        val mainDim = gameController.gameCycle.dimensionsController.dimensions[DimensionsList.main] ?: return
-        val player = gameController.gameCycle.entityApi.getById(mainDim, gameController.playerControl.playerId) ?: return
-        val item   = gameController.gameCycle.itemsApi.getRegisteredItem(itemType, 1)
+    private fun spawnEntity(type: AbstractEntityType) {
+        val player = gameController.playerControl.getPlayerEntity() ?: return
+        val dim = player.dimension ?: return
+        val forward = player.facing.toFloat()
+        val spawnPos = player.position + (forward * 30f v 0f)
+        gameController.gameCycle.entityApi.spawnEntity(dim, type.tag, spawnPos)
+    }
+
+    private fun giveItem(type: AbstractItemType) {
+        val player = gameController.playerControl.getPlayerEntity() ?: return
+        val dim = player.dimension ?: return
+        val item = gameController.gameCycle.itemsApi.getRegisteredItem(type, 1)
         val remaining = player.inventory?.itemContainer?.addItem(item) ?: 1
         if (remaining > 0) {
-            gameController.gameCycle.itemsApi.spawnItemEntity(
-                mainDim,
-                gameController.gameCycle.itemsApi.getRegisteredItem(itemType, remaining),
-                player.position,
-                randomVelocity = true
-            )
+            gameController.gameCycle.itemsApi.spawnItemEntity(dim, item.copy().apply { count = remaining }, player.position, true)
         }
     }
 
-    // =====================================================================
-    // ОТКРЫТИЕ / ЗАКРЫТИЕ
-    // =====================================================================
+    private fun teleportToDim(target: AbstractDimension) {
+        val player = gameController.playerControl.getPlayerEntity() ?: return
+        val currentDim = player.dimension ?: return
+        gameController.gameCycle.entityApi.teleport(player, target, player.position)
+        gameController.gameCycle.dimensionsApi.changeRenderDimension(currentDim, target)
+    }
 
     fun toggle() {
         isOpen = !isOpen
         if (isOpen) {
-            entityScroll       = 0f
-            itemScroll         = 0f
-            targetEntityScroll = 0f
-            targetItemScroll   = 0f
+            targetScroll = 0f
+            scroll = 0f
         }
-        gameController.coreController.windowsManager.destroyWindow(this)
     }
 
     override fun keyPressed(key: Int) {
-        // Ctrl + D
-        if (key == KeyCode.F1) toggle()
+        if (key == KeyCode.F1 || key == 27) toggle() // F1 or ESC
     }
 }

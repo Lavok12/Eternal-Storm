@@ -233,7 +233,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
 
     open fun hide() {
         visualHide()
-        if (AppState.hitboxDebug) {hitboxes.values.forEach { it.hitboxRender?.hide() }}
+        hitboxes.values.forEach { it.hitboxRender?.hide() }
     }
 
     // ─── Damage / Combat ─────────────────────────────────────────────────────

@@ -24,10 +24,12 @@ class GameController(var coreController: CoreController) : SceneController {
     var gameCycle = GameCycle(this)
 
     val playerControl = PlayerControl(this)
+    val playerDimension get() = playerControl.getPlayerEntity()?.dimension
 
     init {
         create()
     }
+
 
     var wGamePanel: WGamePanel? = null
     var wDevPanel: WDevPanel? = null

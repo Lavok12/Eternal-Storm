@@ -23,9 +23,10 @@ class AOTiles(var gameRender: GameRender, point: LPoint, mp: Float = 0.7f) : Eff
     var dimension: AbstractDimension? = null
 
     override fun draw() {
+        if (gameRender.gameController.playerDimension == null) return
         lg?.noStroke()
         lg?.pg?.clear()
-        val dim = gameRender.gameController.playerControl.getPlayerEntity()!!.dimension!!
+        val dim = gameRender.gameController.playerDimension!!
         val mapApi = gameRender.gameController.gameCycle.mapApi
         val mapSystem = dim.mapSystem
 
