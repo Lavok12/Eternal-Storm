@@ -6,27 +6,19 @@ import la.vok.Core.CoreControllers.CoreController
 import la.vok.Core.FrameLimiter
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.LayersRenderContainer
 import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
-import la.vok.Game.GameContent.Tiles.System.TileContext
 import la.vok.Game.GameController.HighlightRender
 import la.vok.Game.GameSystems.EffectLayers.AOTiles
-import la.vok.Game.GameSystems.WorldSystems.Map.WallContext
-import la.vok.Game.GameContent.ContentList.DimensionsList
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.KotlinPlus.forEachInArea
 import la.vok.LavokLibrary.LGraphics.LGraphics
-import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.Vec2
-import la.vok.LavokLibrary.Vectors.p
-import la.vok.LavokLibrary.Vectors.v
 
 class GameRender(val gameController: GameController) : Controller {
     var highlightRender = HighlightRender(this)
 
     var aOTiles: AOTiles? = null
 
-
     val coreController: CoreController
-        get() {return gameController.coreController}
+        get() = gameController.coreController
 
     init {
         create()
@@ -35,8 +27,6 @@ class GameRender(val gameController: GameController) : Controller {
     val renderLayer = LayersRenderContainer(this)
 
     override fun renderTick() {
-        super.renderTick()
-
         if (aOTiles == null) {
             aOTiles = AOTiles(this, gameController.wGamePanel!!.logicalSize.toLPoint())
         }
@@ -47,8 +37,8 @@ class GameRender(val gameController: GameController) : Controller {
         }
         aOTiles!!.tick()
     }
+
     override fun logicalTick() {
-        super.logicalTick()
         highlightRender.logicalTick()
     }
 
@@ -59,26 +49,33 @@ class GameRender(val gameController: GameController) : Controller {
         val mapApi = gameController.gameCycle.mapApi
         val mapSystem = dim.mapController.mapSystem
 
-        var p1 = mapApi.getPointFromPos(camera.toWorldPos(gameController.wGamePanel!!.frameLeftBottom))
-        var p2 = mapApi.getPointFromPos(camera.toWorldPos(gameController.wGamePanel!!.frameRightTop))
+        // Pre-calculate visible area in world coordinates
+        val p1 = mapApi.getPointFromPos(camera.toWorldPos(gameController.wGamePanel!!.frameLeftBottom))
+        val p2 = mapApi.getPointFromPos(camera.toWorldPos(gameController.wGamePanel!!.frameRightTop))
 
-        var wallContext = WallContext(dimension = dim)
+        // Pre-calculate block scale once per frame
+        val blockSizeX = camera.useCameraSizeX(1f)
+        val blockSizeY = camera.useCameraSizeY(1f)
+
+        // 1. Render Walls
         forEachInArea(p1, p2, 1) { ix, iy ->
             if (mapSystem.containsTile(ix, iy)) return@forEachInArea
-            val mapTile = mapSystem.getWallType(ix, iy) ?: return@forEachInArea
+            val wallType = mapSystem.getWallType(ix, iy) ?: return@forEachInArea
 
             if (mapSystem.containsWall(ix, iy)) {
-                wallContext.hp = mapApi.getWallHp(dim, ix, iy)
-                wallContext.positionX = ix
-                wallContext.positionY = iy
-                wallContext.wallType = mapTile
-
-                var tilePos = mapApi.getBlockPos(ix p iy)
-                var tileSize = mapApi.getBlockSize()
-                mapTile.render(wallContext, lg, camera.useCamera(tilePos), camera.useCameraSize(tileSize) + (1 v 1), gameController)
+                val cx = camera.useCameraPosX(ix.toFloat())
+                val cy = camera.useCameraPosY(iy.toFloat())
+                
+                wallType.render(
+                    ix, iy, lg,
+                    cx, cy,
+                    blockSizeX, blockSizeY,
+                    dim, gameController
+                )
             }
         }
 
+        // Draw background layers
         renderLayer.drawLayer(RenderLayers.Main.B1, lg, camera)
         renderLayer.drawLayer(RenderLayers.Main.B2, lg, camera)
         renderLayer.drawLayer(RenderLayers.Main.B3, lg, camera)
@@ -86,31 +83,31 @@ class GameRender(val gameController: GameController) : Controller {
         renderLayer.drawLayer(RenderLayers.Main.B5, lg, camera)
 
         if (aOTiles!!.containsImage()) {
-            lg.setImage(aOTiles!!.getImage(), 0 v 0, lg.windowWidth v lg.windowHeight)
+            lg.setImage(aOTiles!!.getImage(), 0f, 0f, lg.windowWidth.toFloat(), lg.windowHeight.toFloat())
         }
 
-        var tileContext = TileContext(dimension = dim)
+        // 2. Render Tiles
         forEachInArea(p1, p2, 1) { ix, iy ->
-            val mapTile = mapSystem.getTileType(ix, iy) ?: return@forEachInArea
+            val tileType = mapSystem.getTileType(ix, iy) ?: return@forEachInArea
 
             if (mapSystem.containsTile(ix, iy)) {
-                tileContext.hp = mapApi.getTileHp(dim, ix, iy)
-                tileContext.positionX = ix
-                tileContext.positionY = iy
-                tileContext.tileType = mapTile
+                // Offset calculation for centered tiles (handling multi-tiles if needed)
+                val cx = camera.useCameraPosX(ix.toFloat() + (tileType.width - 1) / 2f)
+                val cy = camera.useCameraPosY(iy.toFloat() + (tileType.height - 1) / 2f)
 
-                var tilePos = mapApi.getBlockPos(ix p iy)
-                var tileSize = mapApi.getBlockSize()
-                mapTile.render(tileContext, lg, camera.useCamera(tilePos + Vec2(
-                    (tileContext.tileType!!.width/2) v (tileContext.tileType!!.height/2)
-                    )
-                ), camera.useCameraSize(tileSize) + (1 v 1), gameController)
+                tileType.render(
+                    ix, iy, lg,
+                    cx, cy,
+                    blockSizeX, blockSizeY,
+                    dim, gameController
+                )
             }
         }
 
         dim.particleSystem.render(lg, camera)
         highlightRender.render(lg, camera)
 
+        // Draw foreground layers
         renderLayer.drawLayer(RenderLayers.Main.A1, lg, camera)
         renderLayer.drawLayer(RenderLayers.Main.A2, lg, camera)
         renderLayer.drawLayer(RenderLayers.Main.A3, lg, camera)
@@ -125,9 +122,8 @@ class GameRender(val gameController: GameController) : Controller {
 
         if (!gameController.gameCycle.entityApi.containsEntityById(dim, gameController.playerControl.playerId)) {
             lg.fill(250f, 50f, 50f)
-            for (i in 0..255) {
-                lg.setText("АХАХХАХАХА УМЕР", 0f, 0f, 100f)
-            }
+            lg.setTextAlign(0, 0)
+            lg.setText("GAME OVER - YOU DIED", 0f, 0f, 100f)
         }
     }
 }

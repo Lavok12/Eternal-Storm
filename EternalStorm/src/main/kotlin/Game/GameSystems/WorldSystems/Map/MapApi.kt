@@ -5,11 +5,9 @@ import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
 import la.vok.Game.GameContent.Tiles.System.AbstractWallType
-import la.vok.Game.GameContent.Tiles.System.TileContext
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Map.MineData
 import la.vok.Game.GameSystems.WorldSystems.Map.TilePlaceType
-import la.vok.Game.GameSystems.WorldSystems.Map.WallContext
 import la.vok.Game.GameSystems.WorldSystems.Map.WallPlaceType
 import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.Vec2
@@ -30,9 +28,6 @@ class MapApi(var gameCycle: GameCycle) {
 
     fun tileIsActive(dimension: AbstractDimension, x: Int, y: Int): Boolean =
         dimension.mapSystem.containsTile(x, y)
-
-    fun getTileContext(dimension: AbstractDimension, x: Int, y: Int): TileContext? =
-        dimension.mapSystem.getTileContext(x, y)
 
     fun getTileType(dimension: AbstractDimension, x: Int, y: Int): AbstractTileType? =
         dimension.mapSystem.getTileType(x, y)
@@ -80,9 +75,6 @@ class MapApi(var gameCycle: GameCycle) {
         return true
     }
 
-    fun setTile(dimension: AbstractDimension, context: TileContext) =
-        dimension.mapSystem.setTile(context)
-
     fun generateTile(dimension: AbstractDimension, type: AbstractTileType?, x: Int, y: Int) {
         setTileType(dimension, type, x, y)
         maxHp(dimension, x, y)
@@ -127,9 +119,6 @@ class MapApi(var gameCycle: GameCycle) {
     fun wallIsActive(dimension: AbstractDimension, x: Int, y: Int): Boolean =
         dimension.mapSystem.containsWall(x, y)
 
-    fun getWallContext(dimension: AbstractDimension, x: Int, y: Int): WallContext? =
-        dimension.mapSystem.getWallContext(x, y)
-
     fun getWallType(dimension: AbstractDimension, x: Int, y: Int): AbstractWallType? =
         dimension.mapSystem.getWallType(x, y)
 
@@ -160,7 +149,6 @@ class MapApi(var gameCycle: GameCycle) {
     }
 
     fun controlPlaceWall(dimension: AbstractDimension, type: AbstractWallType, x: Int, y: Int, item: Item, consumed: Boolean = true): Boolean {
-        print(2234342345)
         if (item.count < 1 && consumed) return false
         if (wallIsActive(dimension, x, y)) return false
         if (!isInsideMap(dimension, x, y)) return false
@@ -171,9 +159,6 @@ class MapApi(var gameCycle: GameCycle) {
         if (consumed) item.count--
         return true
     }
-
-    fun setWall(dimension: AbstractDimension, context: WallContext) =
-        dimension.mapSystem.setWall(context)
 
     fun generateWall(dimension: AbstractDimension, type: AbstractWallType?, x: Int, y: Int) {
         setWallType(dimension, type, x, y)
@@ -270,8 +255,7 @@ class MapApi(var gameCycle: GameCycle) {
                     TilePlaceType.NEAR_WALL -> hasNearWall(dimension, nx, ny)
                     TilePlaceType.NEAR_TILE_OR_ON_WALL -> hasNearTile(dimension, nx, ny) || wallIsActive(dimension, nx, ny)
                     TilePlaceType.CUSTOM -> {
-                        val context = TileContext(nx, ny, getTileHp(dimension, nx, ny), type)
-                        type.canPlace(context)
+                        type.canPlace(nx, ny, dimension, dimension.mapController)
                     }
                 }
                 if (matches) {
@@ -301,8 +285,7 @@ class MapApi(var gameCycle: GameCycle) {
                 hasNearTile(dimension, x, y) || hasNearWall(dimension, x, y)
 
             WallPlaceType.CUSTOM -> {
-                val context = WallContext(x, y, getWallHp(dimension, x, y), type)
-                type.canPlace(context)
+                type.canPlace(x, y, dimension, dimension.mapController)
             }
         }
     }

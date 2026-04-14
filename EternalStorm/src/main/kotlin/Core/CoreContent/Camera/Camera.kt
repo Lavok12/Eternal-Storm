@@ -1,4 +1,4 @@
-package la.vok.Core.CoreContent.Camera
+ package la.vok.Core.CoreContent.Camera
 
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.State.AppState
@@ -31,14 +31,14 @@ interface Camera {
     // AXIS HELPERS
     // =========================
 
-    fun useCameraPosX(x: Float): Float = x * size - pos.x
-    fun useCameraPosY(y: Float): Float = y * size - pos.y
+    fun useCameraPosX(x: Float): Float = (x - pos.x) * size
+    fun useCameraPosY(y: Float): Float = (y - pos.y) * size
 
     fun useCameraSizeX(x: Float): Float = x * size
     fun useCameraSizeY(y: Float): Float = y * size
 
-    fun toWorldPosX(x: Float): Float = (x + pos.x) / size
-    fun toWorldPosY(y: Float): Float = (y + pos.y) / size
+    fun toWorldPosX(x: Float): Float = (x / size) + pos.x
+    fun toWorldPosY(y: Float): Float = (y / size) + pos.y
 
     fun toWorldSizeX(x: Float): Float = x / size
     fun toWorldSizeY(y: Float): Float = y / size

@@ -6,9 +6,8 @@ import la.vok.Game.GameContent.ContentList.WallList
 import la.vok.Game.GameContent.Items.Other.DropEntry
 import la.vok.Game.GameContent.Items.Other.SingleDrop
 import la.vok.Game.GameContent.Tiles.System.AbstractWallType
-import la.vok.Game.GameSystems.WorldSystems.Map.WallContext
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.LGraphics.LGraphics
-import la.vok.LavokLibrary.Vectors.Vec2
 
 class PlankWallType() : AbstractWallType() {
     override val tag: String = WallList.plank_wall
@@ -18,14 +17,18 @@ class PlankWallType() : AbstractWallType() {
     override val drop: DropEntry = SingleDrop(ItemsList.plank_wall)
 
     override fun render(
-        wallContext: WallContext,
+        pointX: Int,
+        pointY: Int,
         lg: LGraphics,
-        position: Vec2,
-        size: Vec2,
+        positionX: Float,
+        positionY: Float,
+        sizeX: Float,
+        sizeY: Float,
+        dimension: AbstractDimension,
         gameController: GameController
     ) {
         lg.setTint(170f)
-        super.render(wallContext, lg, position, size, gameController)
+        super.render(pointX, pointY, lg, positionX, positionY, sizeX, sizeY, dimension, gameController)
         lg.noTint()
     }
 }

@@ -4,62 +4,51 @@ import la.vok.Core.CoreContent.Camera.Camera
 import la.vok.Core.GameContent.Layers.EffectLayer
 import la.vok.Core.GameControllers.GameRender
 import la.vok.Game.GameContent.ContentList.TilesList
-import la.vok.Game.GameContent.Tiles.System.TileContext
-import la.vok.Game.GameSystems.WorldSystems.Map.WallContext
 import la.vok.LavokLibrary.KotlinPlus.forEachInArea
 import la.vok.LavokLibrary.Vectors.LPoint
-import la.vok.LavokLibrary.Vectors.p
-import la.vok.LavokLibrary.Vectors.v
-import la.vok.State.AppState
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
-import la.vok.Game.GameContent.ContentList.DimensionsList
-import processing.core.PConstants
-import kotlin.plus
-import kotlin.times
 
 class AOTiles(var gameRender: GameRender, point: LPoint, mp: Float = 0.7f) : EffectLayer(point, mp) {
 
     lateinit var camera: Camera
-    var dimension: AbstractDimension? = null
 
     override fun draw() {
-        if (gameRender.gameController.playerDimension == null) return
-        lg?.noStroke()
-        lg?.pg?.clear()
-        val dim = gameRender.gameController.playerDimension!!
-        val mapApi = gameRender.gameController.gameCycle.mapApi
-        val mapSystem = dim.mapSystem
+        val lg = this.lg ?: return
+        val gameController = gameRender.gameController
+        val playerDim = gameController.playerDimension ?: return
+        
+        lg.noStroke()
+        lg.pg.clear()
+        
+        val mapApi = gameController.gameCycle.mapApi
+        val mapSystem = playerDim.mapSystem
 
-        var p1 = mapApi.getPointFromPos(camera.toWorldPos(gameRender.gameController.wGamePanel!!.frameLeftBottom))
-        var p2 = mapApi.getPointFromPos(camera.toWorldPos(gameRender.gameController.wGamePanel!!.frameRightTop))
+        val p1 = mapApi.getPointFromPos(camera.toWorldPos(gameController.wGamePanel!!.frameLeftBottom))
+        val p2 = mapApi.getPointFromPos(camera.toWorldPos(gameController.wGamePanel!!.frameRightTop))
 
+        val blockScaleX = camera.useCameraSizeX(1f)
+        val blockScaleY = camera.useCameraSizeY(1f)
+        val treeTag = TilesList.tree_part_block
 
-        var tileContext = TileContext()
         forEachInArea(p1, p2, 1) { ix, iy ->
-            val mapTile = mapSystem.getTileType(ix, iy) ?: return@forEachInArea
+            val tileType = mapSystem.getTileType(ix, iy) ?: return@forEachInArea
 
-            if (mapSystem.containsTile(ix, iy)) {
-                tileContext.hp = mapApi.getTileHp(dim, ix, iy)
-                tileContext.positionX = ix
-                tileContext.positionY = iy
-                tileContext.tileType = mapTile
-
-                var tilePos = mapApi.getBlockPos(dim, ix p iy)
-                var tileSize = mapApi.getBlockSize()
-
-                if (mapTile != mapApi.getRegisteredTileType(TilesList.tree_part_block)) {
-                    lg?.fill(0f)
-                    lg?.setBlock(camera.useCamera(tilePos), camera.useCameraSize(tileSize) * 1f + (1 v 1))
-                }
+            if (tileType.tag != treeTag) {
+                val cx = camera.useCameraPosX(ix.toFloat())
+                val cy = camera.useCameraPosY(iy.toFloat())
+                
+                lg.fill(0f)
+                // Use primitive setImage with a small 1x1 black pixel or just rect if setBlock is optimized
+                lg.setBlock(cx, cy, blockScaleX + 1f, blockScaleY + 1f)
             }
         }
 
-        var shader = gameRender.gameController.coreController.shaderLoader.getValue("blur.glsl")
-        shader.set("dis", lg!!.pg.width.toFloat(), lg!!.pg.height.toFloat())
-        shader.set("power", lg!!.pg.width.toFloat()/400.0f)
-        lg?.pg?.filter(shader)
-        shader.set("power", lg!!.pg.width.toFloat()/800.0f)
-        lg?.pg?.filter(shader)
-        lg?.beginDraw()
+        val shader = gameController.coreController.shaderLoader.getValue("blur.glsl")
+        val pg = lg.pg
+        shader.set("dis", pg.width.toFloat(), pg.height.toFloat())
+        shader.set("power", pg.width.toFloat() / 400.0f)
+        pg.filter(shader)
+        shader.set("power", pg.width.toFloat() / 800.0f)
+        pg.filter(shader)
+        lg.beginDraw()
     }
 }

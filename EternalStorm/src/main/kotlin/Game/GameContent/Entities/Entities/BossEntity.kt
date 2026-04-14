@@ -14,7 +14,6 @@ import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
 import la.vok.Game.GameSystems.WorldSystems.Particles.Particles.EntityParticle
-import la.vok.Game.GameSystems.WorldSystems.Particles.Particle
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
@@ -47,15 +46,15 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
 
     override fun spawn() {
         super.spawn()
-        var leader = this // Тот, за кем закрепляется новый сегмент
+        var leader = this 
         if (bossPart == 1) {
             this.ai = BossAi(this, gameCycle)
             for (i in 0 until bossParts) {
                 val entityApi: EntityApi = gameCycle.entityApi
                 val entity = entityApi.getRegisteredEntityByType(this.entityType) as BossEntity
 
-                entity.next = leader   // Сегмент смотрит вперед на лидера
-                leader.prev = entity   // Лидер смотрит назад на сегмент (создаем связь prev)
+                entity.next = leader   
+                leader.prev = entity   
                 entity.first = this
 
                 entity.bossPart = 0
@@ -90,12 +89,11 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
             if (isTouching) {
                 rigidBody?.addForce(0f v 0.01f)
                 rigidBody?.useFriction()
-                lastTouchPos = Vec2(position.x, position.y) // используем .set чтобы не плодить объекты
+                lastTouchPos = Vec2(position.x, position.y) 
             }
 
-            // Если состояние изменилось (вошел или вышел) — спавним частицы
             if (isTouching != wasTouchingBlocks) {
-                spawnParticleBurst(position, 150) // используем текущую позицию для входа/выхода
+                spawnParticleBurst(position, 150) 
             }
 
             wasTouchingBlocks = isTouching
@@ -104,32 +102,21 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
         }
 
         super.physicUpdate()
-        //spawnSingleRandomParticle()
     }
 
     private fun spawnParticleBurst(pos2: Vec2, count: Int) {
         val map = gameCycle.mapApi
+        val dim = dimension ?: return
 
         for(i in 0 until count) {
-            var pos = map.getPointFromPos(pos2 + (AppState.main.random(-1f, 1f) v  AppState.main.random(-1f, 1f)))
-            val type = map.getTileType(dimension!!, pos.x, pos.y) ?: continue
-            val context = map.getTileContext(dimension!!, pos.x, pos.y) ?: continue
-            gameCycle.particlesApi.buildTile(dimension!!, type)
+            val randOffset = AppState.main.random(-1f, 1f) v  AppState.main.random(-1f, 1f)
+            val pos = map.getPointFromPos(pos2 + randOffset)
+            val type = map.getTileType(dim, pos.x, pos.y) ?: continue
+            
+            gameCycle.particlesApi.buildTile(dim, type)
                 .at(map.getBlockPos(pos.x, pos.y) + Vec2(AppState.main.random(-0.5f, 0.5f), AppState.main.random(-0.5f, 0.5f)))
                 .speed(Vec2(AppState.main.random(-0.1f, 0.1f), AppState.main.random(0.05f, 0.1f)).normalize() * AppState.main.random(0.1f, 0.3f))
                 .spawn()
-        }
-    }
-
-    private fun spawnSingleRandomParticle() {
-        val map = gameCycle.mapApi
-        val randPos = position + Vec2(AppState.main.random(-2f, 2f), AppState.main.random(-2f, 2f))
-
-        var pos = map.getPointFromPos(randPos)
-
-        map.getTileType(dimension!!, pos.x, pos.y)?.let { type ->
-            val context = map.getTileContext(dimension!!, pos.x, pos.y) ?: return@let
-            type.spawnTileParticle(pos.x, pos.y, context, dimension!!.mapController)
         }
     }
 
@@ -208,7 +195,6 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
     override fun die() {
         super.die()
 
-        // Убиваем все сегменты цепочки
         var current: BossEntity? = first.prev
         while (current != null) {
             val nextSeg = current.prev
@@ -219,10 +205,9 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
             current = nextSeg
         }
 
-        // Если мы не голова — убиваем голову
         if (first !== this && !first.isDead) {
             first.isDead = true
-            current?.spawnDieParticles()
+            first.spawnDieParticles()
             gameCycle.entityApi.hideEntity(dimension!!, first)
             gameCycle.entityApi.deleteInSystem(dimension!!, first)
         }

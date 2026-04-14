@@ -4,6 +4,7 @@ import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameContent.Map.MapController
 import la.vok.LavokLibrary.Vectors.*
 import la.vok.Game.GameContent.ContentList.TilesList
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 import la.vok.State.AppState
 
 class BigTestBlockType : AbstractTileType() {
@@ -39,12 +40,17 @@ class BigTestBlockType : AbstractTileType() {
         }
     }
     
-    override fun onRemoved(x: Int, y: Int, tileContext: TileContext, reason: Any?) {
-        val dim = tileContext.dimension ?: return
+    override fun onRemoved(
+        x: Int,
+        y: Int,
+        dimension: AbstractDimension,
+        mapController: MapController,
+        reason: Any?
+    ) {
         // Spawn particles across the whole 3x3 area
         for (dx in 0 until width) {
             for (dy in 0 until height) {
-                spawnTileParticle(x + dx, y + dy, tileContext, dim.mapController)
+                spawnTileParticle(x + dx, y + dy, dimension, mapController)
             }
         }
     }

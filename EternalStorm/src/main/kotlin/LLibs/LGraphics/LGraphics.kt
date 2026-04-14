@@ -340,8 +340,14 @@ class LGraphics() : FrameRect {
         noStroke()
     }
 
-    fun setImage(fImage: PImage, xPos: Float, yPos: Float, xSize: Float, ySize: Float) {
-        pg.image(fImage, (disW2 + xPos - xSize / 2) * M, (disH2 - yPos - ySize / 2) * M, xSize * M, ySize * M)
+    fun setImage(img: PImage?, x: Float, y: Float, w: Float, h: Float) {
+        if (img == null) return
+        pg.image(img, (disW2 + x - w / 2f) * M, (disH2 - y - h / 2f) * M, w * M, h * M)
+    }
+
+    fun setImage(img: PImage?, pos: Vec2, size: Vec2) {
+        if (img == null) return
+        pg.image(img, (disW2 + pos.x - size.x / 2f) * M, (disH2 - pos.y - size.y / 2f) * M, size.x * M, size.y * M)
     }
 
     fun setImage(fImage: PImage, xPos: Float, yPos: Float, xSize: Float) {
@@ -405,8 +411,6 @@ class LGraphics() : FrameRect {
 
     fun setLine(from: Vec2, to: Vec2, w: Float, r: Float, g: Float, b: Float) =
         setLine(from.x, from.y, to.x, to.y, w, r, g, b)
-    fun setImage(image: PImage, pos: Vec2, size: Vec2) =
-        setImage(image, pos.x, pos.y, size.x, size.y)
 
     fun setImage(image: PImage, pos: Vec2, xSize: Float) =
         setImage(image, pos.x, pos.y, xSize)

@@ -5,7 +5,6 @@ import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.GameControllers.GameRender
 import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.Items.Other.UsingVariants
-import la.vok.Game.GameContent.Tiles.System.TileContext
 import la.vok.Game.GameContent.ContentList.DimensionsList
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.*
@@ -71,14 +70,6 @@ class HighlightRender(var gameRender: GameRender) : Controller {
             val mapTile = gameRender.gameController.gameCycle.mapApi.getTileType(dim, targetMinePoint!!.x, targetMinePoint!!.y)
 
             if (mapTile != null) {
-                var tileContext = TileContext(dimension = dim)
-
-                tileContext.hp =
-                    gameRender.gameController.gameCycle.mapApi.getTileHp(dim, targetMinePoint!!.x, targetMinePoint!!.y)
-                tileContext.positionX = targetMinePoint!!.x
-                tileContext.positionY = targetMinePoint!!.y
-                tileContext.tileType = mapTile
-
                 var tilePos = gameRender.gameController.gameCycle.mapApi.getBlockPos(targetMinePoint!!)
                 var tileSize = gameRender.gameController.gameCycle.mapApi.getBlockSize().copy()
                 tileSize.x *= mapTile.width
@@ -87,10 +78,10 @@ class HighlightRender(var gameRender: GameRender) : Controller {
                 val offset = Vec2((mapTile.width / 2).toFloat(), (mapTile.height / 2).toFloat())
                 
                 mapTile.renderHighlight(
-                    tileContext,
+                    targetMinePoint!!.x, targetMinePoint!!.y,
                     lg,
-                    camera.useCamera(tilePos + offset),
-                    camera.useCameraSize(tileSize) + (1 v 1),
+                    camera.useCameraPosX(tilePos.x + offset.x), camera.useCameraPosY(tilePos.y + offset.y),
+                    camera.useCameraSizeX(tileSize.x) + 1, camera.useCameraSizeX(tileSize.y) + 1,
                     gameRender,
                 )
             } else {

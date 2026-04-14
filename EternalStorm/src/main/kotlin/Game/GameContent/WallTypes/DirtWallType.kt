@@ -2,15 +2,12 @@ package la.vok.Game.GameContent.WallTypes
 
 import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.ContentList.ItemsList
-import la.vok.Game.GameContent.ContentList.TilesList
 import la.vok.Game.GameContent.ContentList.WallList
 import la.vok.Game.GameContent.Items.Other.DropEntry
 import la.vok.Game.GameContent.Items.Other.SingleDrop
-import la.vok.Game.GameContent.Tiles.System.AbstractTileType
 import la.vok.Game.GameContent.Tiles.System.AbstractWallType
-import la.vok.Game.GameSystems.WorldSystems.Map.WallContext
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.LGraphics.LGraphics
-import la.vok.LavokLibrary.Vectors.Vec2
 
 class DirtWallType() : AbstractWallType() {
     override val tag: String = WallList.dirt_wall
@@ -20,14 +17,18 @@ class DirtWallType() : AbstractWallType() {
     override val drop: DropEntry = SingleDrop(ItemsList.dirt_wall)
 
     override fun render(
-        wallContext: WallContext,
+        pointX: Int,
+        pointY: Int,
         lg: LGraphics,
-        position: Vec2,
-        size: Vec2,
+        positionX: Float,
+        positionY: Float,
+        sizeX: Float,
+        sizeY: Float,
+        dimension: AbstractDimension,
         gameController: GameController
     ) {
         lg.setTint(170f)
-        super.render(wallContext, lg, position, size, gameController)
+        super.render(pointX, pointY, lg, positionX, positionY, sizeX, sizeY, dimension, gameController)
         lg.noTint()
     }
 }

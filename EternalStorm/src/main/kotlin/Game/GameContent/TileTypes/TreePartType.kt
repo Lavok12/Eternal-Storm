@@ -1,23 +1,18 @@
 package la.vok.Game.GameContent.TileTypes
 
 import la.vok.Core.GameControllers.GameController
-import la.vok.Game.GameContent.ContentList.ItemsList
 import la.vok.Game.GameContent.ContentList.TilesList
 import la.vok.Game.GameContent.Entities.Entities.Special.FallingTreeSegmentEntity
 import la.vok.Game.GameContent.Items.Other.DropEntry
 import la.vok.Game.GameContent.Items.Other.NothingDrop
-import la.vok.Game.GameContent.Items.Other.SingleDrop
 import la.vok.Game.GameContent.Map.MapController
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
-import la.vok.Game.GameContent.Tiles.System.TileContext
 import la.vok.Game.GameController.CollisionType
 import la.vok.Game.GameSystems.WorldSystems.Map.MineData
-import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
-import la.vok.Game.GameSystems.WorldSystems.Particles.Particle
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
-import la.vok.State.AppState
+import la.vok.LavokLibrary.Vectors.v
 import processing.core.PImage
 import kotlin.math.*
 
@@ -30,69 +25,74 @@ class TreePartType() : AbstractTileType() {
     override val drop: DropEntry = NothingDrop
 
     override fun render(
-        tileContext: TileContext,
+        pointX: Int,
+        pointY: Int,
         lg: LGraphics,
-        position: Vec2,
-        size: Vec2,
+        positionX: Float,
+        positionY: Float,
+        sizeX: Float,
+        sizeY: Float,
+        dimension: AbstractDimension,
         gameController: GameController
     ) {
         val mapApi = gameController.gameCycle.mapApi
         val tagType = mapApi.getRegisteredTileType(tag)
 
         when {
-            mapApi.getTileType(tileContext.dimension!!, tileContext.positionX, tileContext.positionY - 1) != tagType ->
-                renderBottom(tileContext, lg, position, size, gameController)
+            mapApi.getTileType(dimension, pointX, pointY - 1) != tagType ->
+                renderBottom(lg, positionX, positionY, sizeX, sizeY, gameController)
 
-            mapApi.getTileType(tileContext.dimension!!, tileContext.positionX, tileContext.positionY + 1) != tagType ->
-                renderTop(tileContext, lg, position, size, gameController)
+            mapApi.getTileType(dimension, pointX, pointY + 1) != tagType ->
+                renderTop(lg, positionX, positionY, sizeX, sizeY, gameController)
 
             else ->
-                renderMiddle(tileContext, lg, position, size, gameController)
+                renderMiddle(pointX, pointY, lg, positionX, positionY, sizeX, sizeY, gameController)
         }
     }
 
     fun renderBottom(
-        tileContext: TileContext,
         lg: LGraphics,
-        position: Vec2,
-        size: Vec2,
+        positionX: Float,
+        positionY: Float,
+        sizeX: Float,
+        sizeY: Float,
         gameController: GameController
     ) {
         val texture = gameController.coreController.spriteLoader.getValue("tree_part_block_1.png")
-        lg.setImage(texture, position, size)
+        lg.setImage(texture, positionX, positionY, sizeX, sizeY)
     }
 
     fun renderMiddle(
-        tileContext: TileContext,
+        pointX: Int,
+        pointY: Int,
         lg: LGraphics,
-        position: Vec2,
-        size: Vec2,
+        positionX: Float,
+        positionY: Float,
+        sizeX: Float,
+        sizeY: Float,
         gameController: GameController
     ) {
-        val x = tileContext.positionX
-        val y = tileContext.positionY
-
         val texture = gameController.coreController.spriteLoader.getValue("tree_part_block_2.png")
-        lg.setImage(texture, position, size)
+        lg.setImage(texture, positionX, positionY, sizeX, sizeY)
 
-        val subtype = getMiddleSubtype(x, y)
+        val subtype = getMiddleSubtype(pointX, pointY)
         if (subtype == 0) return
 
         when (subtype) {
             1 -> {
                 val t = gameController.coreController.spriteLoader.getValue("tree_part_block_2_-1.png")
-                lg.setImage(t, position, size * 5f)
+                lg.setImage(t, positionX, positionY, sizeX * 5f, sizeY * 5f)
             }
             2 -> {
                 val t = gameController.coreController.spriteLoader.getValue("tree_part_block_2_+1.png")
-                lg.setImage(t, position, size * 5f)
+                lg.setImage(t, positionX, positionY, sizeX * 5f, sizeY * 5f)
             }
             3 -> {
                 var t = gameController.coreController.spriteLoader.getValue("tree_part_block_2_-1.png")
-                lg.setImage(t, position, size * 5f)
+                lg.setImage(t, positionX, positionY, sizeX * 5f, sizeY * 5f)
 
                 t = gameController.coreController.spriteLoader.getValue("tree_part_block_2_+1.png")
-                lg.setImage(t, position, size * 5f)
+                lg.setImage(t, positionX, positionY, sizeX * 5f, sizeY * 5f)
             }
         }
     }
@@ -110,13 +110,13 @@ class TreePartType() : AbstractTileType() {
         }
     }
 
-    override fun onMined(x: Int, y: Int, mineData: MineData, tileContext: TileContext, mapController: MapController) {
-        val mapApi = mapController.dimension.gameCycle.mapApi
-        val spriteLoader = mapController.dimension.gameCycle.gameController.coreController.spriteLoader
+    override fun onMined(x: Int, y: Int, mineData: MineData, dimension: AbstractDimension, mapController: MapController) {
+        val mapApi = dimension.gameCycle.mapApi
+        val spriteLoader = dimension.gameCycle.gameController.coreController.spriteLoader
 
         val tileYList = mutableListOf<Int>()
         var checkY = y
-        while (mapApi.getTileType(mapController.dimension, x, checkY)?.tag == tag) {
+        while (mapApi.getTileType(dimension, x, checkY)?.tag == tag) {
             tileYList.add(checkY)
             checkY++
         }
@@ -130,8 +130,8 @@ class TreePartType() : AbstractTileType() {
         )
 
         val segmentTextures = tileYList.mapIndexed { index, ty ->
-            val isBottom = mapApi.getTileType(mapController.dimension, x, ty - 1)?.tag != tag
-            val isTop    = mapApi.getTileType(mapController.dimension, x, ty + 1)?.tag != tag
+            val isBottom = mapApi.getTileType(dimension, x, ty - 1)?.tag != tag
+            val isTop    = mapApi.getTileType(dimension, x, ty + 1)?.tag != tag
 
             val mainTex = when {
                 isBottom -> spriteLoader.getValue("tree_part_block_1.png")
@@ -156,15 +156,15 @@ class TreePartType() : AbstractTileType() {
             SegmentTextures(mainTex, bgList, topLeaf)
         }
 
-        tileYList.forEach { ty -> mapApi.deleteTile(mapController.dimension, x, ty) }
+        tileYList.forEach { ty -> mapApi.deleteTile(dimension, x, ty) }
 
         val fallRight = x % 2 == 0
-        val sharedPivot = Vec2(x.toFloat(), y.toFloat() - mapApi.getBlockSize().y * 0.5f)
+        val sharedPivot = (x.toFloat()) v (y.toFloat() - mapApi.getBlockSize().y * 0.5f)
         val siblings = mutableListOf<FallingTreeSegmentEntity>()
 
         segmentTextures.forEachIndexed { index, texData ->
             val entity = FallingTreeSegmentEntity(
-                gameCycle = mapController.dimension.gameCycle,
+                gameCycle = dimension.gameCycle,
                 texture = texData.main,
                 bgTextures = texData.bg,
                 topLeafTexture = texData.topLeaf,
@@ -178,21 +178,22 @@ class TreePartType() : AbstractTileType() {
         }
 
         siblings.forEach { entity ->
-            mapController.dimension.gameCycle.entityApi.spawnEntity(mapController.dimension, entity, sharedPivot.copy())
+            dimension.gameCycle.entityApi.spawnEntity(dimension, entity, sharedPivot.copy())
         }
     }
 
 
     fun renderTop(
-        tileContext: TileContext,
         lg: LGraphics,
-        position: Vec2,
-        size: Vec2,
+        positionX: Float,
+        positionY: Float,
+        sizeX: Float,
+        sizeY: Float,
         gameController: GameController
     ) {
         var texture = gameController.coreController.spriteLoader.getValue("tree_part_block_3_1.png")
-        lg.setImage(texture, position, size*6f)
+        lg.setImage(texture, positionX, positionY, sizeX * 6f, sizeY * 6f)
         texture = gameController.coreController.spriteLoader.getValue("tree_part_block_3.png")
-        lg.setImage(texture, position, size)
+        lg.setImage(texture, positionX, positionY, sizeX, sizeY)
     }
 }
