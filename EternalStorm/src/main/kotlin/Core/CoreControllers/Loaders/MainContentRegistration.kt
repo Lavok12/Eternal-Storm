@@ -25,6 +25,7 @@ import la.vok.Game.GameContent.Items.ItemTypes.Other.SpearItemType
 import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.StoneWorldDimensionType
 import la.vok.Game.GameContent.Items.ItemTypes.Other.TeleporterItemType
+import la.vok.Game.GameContent.Items.ItemTypes.Other.*
 
 class MainContentRegistration(var coreController: CoreController) {
     fun regObjects(objectRegistration: ObjectRegistration) {
@@ -42,6 +43,19 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationItemType(SpearItemType())
         objectRegistration.registrationItemType(PickaxeItemType())
         objectRegistration.registrationItemType(HummerItemType())
+
+        // Material Pickaxes
+        objectRegistration.registrationItemType(WoodenPickaxeItemType())
+        objectRegistration.registrationItemType(StonePickaxeItemType())
+        objectRegistration.registrationItemType(CopperPickaxeItemType())
+        objectRegistration.registrationItemType(TinPickaxeItemType())
+        objectRegistration.registrationItemType(BronzePickaxeItemType())
+        objectRegistration.registrationItemType(IronPickaxeItemType())
+        objectRegistration.registrationItemType(MagicalPickaxeItemType())
+        objectRegistration.registrationItemType(CelestialPickaxeItemType())
+        objectRegistration.registrationItemType(CosmicPickaxeItemType())
+        objectRegistration.registrationItemType(WindPickaxeItemType())
+        objectRegistration.registrationItemType(SolarPickaxeItemType())
 
         // Tile items
         objectRegistration.registrationItemType(GrassTileItemType())
