@@ -539,7 +539,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
     private fun teleportToDim(target: AbstractDimension) {
         val player = gameController.playerControl.getPlayerEntity() ?: return
         val currentDim = player.dimension ?: return
-        gameController.gameCycle.entityApi.teleport(player, target, player.position)
+        gameController.gameCycle.entityApi.teleport(player, target, target.width/2f v target.height)
         gameController.gameCycle.dimensionsApi.changeRenderDimension(currentDim, target)
     }
 

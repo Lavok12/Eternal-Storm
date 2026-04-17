@@ -15,6 +15,8 @@ import la.vok.Game.GameContent.Items.ItemTypes.Tiles.*
 import la.vok.Game.GameContent.Items.ItemTypes.Walls.*
 import la.vok.Game.GameContent.WallTypes.PlankWallType
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.MainDimensionType
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.BrickWorldDimensionType
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.StoneWorldDimensionType
 import la.vok.Game.GameContent.Tiles.System.BigTestBlockType
 import la.vok.Game.GameContent.Tiles.System.MultiTileDummyType
 import la.vok.Game.GameContent.ContentList.TilesList
@@ -24,7 +26,6 @@ import la.vok.Game.GameContent.Items.ItemTypes.Other.MostCommonStickItemType
 import la.vok.Game.GameContent.Items.ItemTypes.Other.PickaxeItemType
 import la.vok.Game.GameContent.Items.ItemTypes.Other.SpearItemType
 import la.vok.LavokLibrary.Vectors.LPoint
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.StoneWorldDimensionType
 import la.vok.Game.GameContent.Items.ItemTypes.Other.TeleporterItemType
 import la.vok.Game.GameContent.Items.ItemTypes.Other.*
 
@@ -153,6 +154,7 @@ class MainContentRegistration(var coreController: CoreController) {
 
     private fun registerDimensions(objectRegistration: ObjectRegistration) {
         objectRegistration.registrationDimensionType(MainDimensionType())
+        objectRegistration.registrationDimensionType(BrickWorldDimensionType())
         objectRegistration.registrationDimensionType(StoneWorldDimensionType())
     }
 

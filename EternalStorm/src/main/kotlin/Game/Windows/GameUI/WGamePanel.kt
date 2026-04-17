@@ -75,14 +75,20 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
         super.leftReleased(position)
         if (inventory.draggedCell != null) {
             inventory.endDrag(position) { item ->
-                val mainDim = gameController.gameCycle.dimensionsController.dimensions[DimensionsList.main] ?: return@endDrag
-                val player = gameController.gameCycle.entityApi.getById(mainDim, playerControl.playerId) ?: return@endDrag
+                val player = playerControl.getPlayerEntity() ?: return@endDrag
+                val currentDim = player.dimension
+                
                 gameController.gameCycle.itemsApi.spawnItemEntity(
-                    mainDim,
+                    currentDim,
                     item.copy().apply { count = item.count },
                     player.position,
                     randomVelocity = true
                 )
+
+                // Sync hand item if dropped
+                if (player.handItemComponent.currentHandItem?.item === item) {
+                    player.handItemComponent.clearHandItem()
+                }
             }
             return
         }
