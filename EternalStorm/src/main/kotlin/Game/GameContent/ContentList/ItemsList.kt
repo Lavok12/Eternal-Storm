@@ -31,4 +31,27 @@ object ItemsList {
     val most_common_stick: String by lazy { AppState.addNamespace("most_common_stick") }
     val teleporter: String by lazy { AppState.addNamespace("teleporter") }
     val big_test_block: String by lazy { AppState.addNamespace("big_test_block") }
+
+    val wooden_brick_tile: String by lazy { AppState.addNamespace("wooden_brick_tile") }
+    val wooden_brick_wall: String by lazy { AppState.addNamespace("wooden_brick_wall") }
+    val stone_brick_tile: String by lazy { AppState.addNamespace("stone_brick_tile") }
+    val stone_brick_wall: String by lazy { AppState.addNamespace("stone_brick_wall") }
+    val copper_brick_tile: String by lazy { AppState.addNamespace("copper_brick_tile") }
+    val copper_brick_wall: String by lazy { AppState.addNamespace("copper_brick_wall") }
+    val tin_brick_tile: String by lazy { AppState.addNamespace("tin_brick_tile") }
+    val tin_brick_wall: String by lazy { AppState.addNamespace("tin_brick_wall") }
+    val bronze_brick_tile: String by lazy { AppState.addNamespace("bronze_brick_tile") }
+    val bronze_brick_wall: String by lazy { AppState.addNamespace("bronze_brick_wall") }
+    val iron_brick_tile: String by lazy { AppState.addNamespace("iron_brick_tile") }
+    val iron_brick_wall: String by lazy { AppState.addNamespace("iron_brick_wall") }
+    val magical_brick_tile: String by lazy { AppState.addNamespace("magical_brick_tile") }
+    val magical_brick_wall: String by lazy { AppState.addNamespace("magical_brick_wall") }
+    val celestial_brick_tile: String by lazy { AppState.addNamespace("celestial_brick_tile") }
+    val celestial_brick_wall: String by lazy { AppState.addNamespace("celestial_brick_wall") }
+    val cosmic_brick_tile: String by lazy { AppState.addNamespace("cosmic_brick_tile") }
+    val cosmic_brick_wall: String by lazy { AppState.addNamespace("cosmic_brick_wall") }
+    val wind_brick_tile: String by lazy { AppState.addNamespace("wind_brick_tile") }
+    val wind_brick_wall: String by lazy { AppState.addNamespace("wind_brick_wall") }
+    val solar_brick_tile: String by lazy { AppState.addNamespace("solar_brick_tile") }
+    val solar_brick_wall: String by lazy { AppState.addNamespace("solar_brick_wall") }
 }
