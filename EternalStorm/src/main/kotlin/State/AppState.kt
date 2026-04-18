@@ -29,7 +29,8 @@ object AppState {
 
     var maxPhysicStep = 0.1f
   
-    val itemsMergeSize = 4 v 4
+    var itemsMergeSize = 4 v 4
+    var mergeCheckInterval = 80L
 
     var hitboxDebug: Boolean = false
         set(value)

@@ -3,6 +3,7 @@ package la.vok.Game.GameSystems.EffectLayers
 import la.vok.Core.CoreContent.Camera.Camera
 import la.vok.Core.GameContent.Layers.EffectLayer
 import la.vok.Core.GameControllers.GameRender
+import la.vok.Game.GameContent.ContentList.BlockTags
 import la.vok.Game.GameContent.ContentList.TilesList
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.KotlinPlus.forEachInArea
@@ -35,14 +36,13 @@ class AOTiles(var gameRender: GameRender, point: LPoint, mp: Float = 0.7f) : Eff
         val treeTag = TilesList.tree_part_block
 
         forEachInArea(p1, p2, 1) { ix, iy ->
-            val tileType = mapSystem.getTileType(ix, iy) ?: return@forEachInArea
-
-            if (tileType.tag != treeTag) {
+            val tileType = gameController.gameCycle.mapApi.getTileType(dim, ix, iy) ?: return@forEachInArea
+            
+            if (!tileType.tags.contains(BlockTags.NO_SHADOW)) {
                 val cx = camera.useCameraPosX(ix.toFloat())
                 val cy = camera.useCameraPosY(iy.toFloat())
                 
                 lg.fill(0f)
-                // Use primitive setImage with a small 1x1 black pixel or just rect if setBlock is optimized
                 lg.setBlock(cx, cy, blockScaleX + 1f, blockScaleY + 1f)
             }
         }

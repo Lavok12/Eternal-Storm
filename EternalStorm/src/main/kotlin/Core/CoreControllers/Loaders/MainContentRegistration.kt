@@ -28,6 +28,7 @@ import la.vok.Game.GameContent.Items.ItemTypes.Other.SpearItemType
 import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.Game.GameContent.Items.ItemTypes.Other.TeleporterItemType
 import la.vok.Game.GameContent.Items.ItemTypes.Other.*
+import la.vok.Game.GameContent.TileTypes.WorkbenchTileType
 
 class MainContentRegistration(var coreController: CoreController) {
     fun regObjects(objectRegistration: ObjectRegistration) {
@@ -101,6 +102,8 @@ class MainContentRegistration(var coreController: CoreController) {
         // Other
         objectRegistration.registrationItemType(MostCommonStickItemType())
         objectRegistration.registrationItemType(TeleporterItemType())
+        objectRegistration.registrationItemType(WorkbenchItemType())
+        objectRegistration.registrationItemType(CzechFlagItemType())
     }
 
     private fun registerTiles(objectRegistration: ObjectRegistration) {
@@ -126,6 +129,8 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationTileType(CosmicBrickTileType())
         objectRegistration.registrationTileType(WindBrickTileType())
         objectRegistration.registrationTileType(SolarBrickTileType())
+        objectRegistration.registrationTileType(WorkbenchTileType())
+        objectRegistration.registrationTileType(CzechFlagTileType())
     }
 
     private fun registerWalls(objectRegistration: ObjectRegistration) {

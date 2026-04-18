@@ -8,6 +8,8 @@ import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameContent.ContentList.DimensionsList
+import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionContext
+import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionType
 import la.vok.LavokLibrary.Vectors.Vec2
 
 class PlayerControl(var gameController: GameController) : Controller {
@@ -113,5 +115,15 @@ class PlayerControl(var gameController: GameController) : Controller {
         val player = getPlayerEntity() ?: return
 
         player.inventory?.choose(id, player.handItemComponent)
+    }
+
+    fun interact(position: Vec2, type: BlockInteractionType) {
+        if (!isControl()) return
+        val player = getPlayerEntity() ?: return
+        
+        val worldPos = gameController.mainCamera.toWorldPos(position)
+        val blockPoint = mapApi.getPointFromPos(worldPos)
+        
+        mapApi.handleInteraction(player.dimension, blockPoint.x, blockPoint.y, type, player)
     }
 }

@@ -54,4 +54,6 @@ object ItemsList {
     val wind_brick_wall: String by lazy { AppState.addNamespace("wind_brick_wall") }
     val solar_brick_tile: String by lazy { AppState.addNamespace("solar_brick_tile") }
     val solar_brick_wall: String by lazy { AppState.addNamespace("solar_brick_wall") }
+    val workbench: String by lazy { AppState.addNamespace("workbench") }
+    val czech_flag: String by lazy { AppState.addNamespace("czech_flag") }
 }

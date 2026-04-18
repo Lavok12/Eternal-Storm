@@ -65,18 +65,18 @@ open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
     }
 
     open fun worldRender(lg: LGraphics, pos: Vec2, size: Vec2, camera: Camera) {
-        val renderSize = size * itemType.worldSize
+        val renderSize = size * itemType.renderConfig.worldSize
         val visual = stackVisualCount()
 
         for (i in 0 until visual) {
             val offset = stackOffset(visual-i-1, renderSize)
-            var renderPos = pos + itemType.worldRenderDelta * size - offset
-            shadowRender(lg, renderPos, renderSize, itemType.shadowPower)
+            var renderPos = pos + itemType.renderConfig.worldDelta * size - offset
+            shadowRender(lg, renderPos, renderSize, itemType.renderConfig.shadowPower)
             baseRender(lg, renderPos, renderSize)
         }
     }
 
-    open fun shadowRender(lg: LGraphics, pos: Vec2, size: Vec2, power: Float = itemType.shadowPower) {
+    open fun shadowRender(lg: LGraphics, pos: Vec2, size: Vec2, power: Float = itemType.renderConfig.shadowPower) {
         lg.setTint(255f, 255f*power)
         lg.setImage(
             ShadowInfo(
@@ -91,16 +91,16 @@ open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
     }
 
     open fun cellRender(lg: LGraphics, pos: Vec2, size: Vec2, cell: InventoryCell) {
-        val renderPos = pos + itemType.slotRenderDelta * (size * itemType.sizeInSlot)
-        val renderSize = size * itemType.sizeInSlot
-        shadowRender(lg, renderPos, renderSize, itemType.shadowPower * 0.5f)
+        val renderPos = pos + itemType.renderConfig.slotDelta * (size * itemType.renderConfig.sizeInSlot)
+        val renderSize = size * itemType.renderConfig.sizeInSlot
+        shadowRender(lg, renderPos, renderSize, itemType.renderConfig.shadowPower * 0.5f)
         baseRender(lg, renderPos, renderSize)
         renderCount(lg, pos, size)
     }
 
     open fun cellDragRender(lg: LGraphics, pos: Vec2, size: Vec2, cell: InventoryCell) {
-        val renderPos = pos + itemType.slotRenderDelta * (size * itemType.sizeInSlot)
-        val renderSize = size * itemType.sizeInSlot * 1.1f
+        val renderPos = pos + itemType.renderConfig.slotDelta * (size * itemType.renderConfig.sizeInSlot)
+        val renderSize = size * itemType.renderConfig.sizeInSlot * 1.1f
         shadowRender(lg, renderPos, renderSize)
         baseRender(lg, renderPos, renderSize)
         renderCount(lg, pos, size)

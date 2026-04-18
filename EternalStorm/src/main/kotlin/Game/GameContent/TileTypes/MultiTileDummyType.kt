@@ -1,5 +1,6 @@
 package la.vok.Game.GameContent.Tiles.System
 
+import la.vok.Game.GameContent.ContentList.BlockTags
 import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.Game.GameController.CollisionType
 
@@ -8,12 +9,12 @@ class MultiTileDummyType(
     override val masterOffset: LPoint
 ) : AbstractTileType() {
     override val isDummy: Boolean = true
-    
-    // Most properties are inherited or not used for dummies
+
     override val maxHp: Int = 1
     override val texture: String = ""
+    override val tags: Set<String> = setOf(BlockTags.NO_SHADOW)
     
     init {
-        collisionType = CollisionType.FULL // Stay solid
+        collisionType = CollisionType.NONE
     }
 }

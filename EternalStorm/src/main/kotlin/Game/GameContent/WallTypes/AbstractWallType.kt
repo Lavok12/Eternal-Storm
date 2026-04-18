@@ -6,6 +6,8 @@ import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameContent.Items.Other.NothingDrop
 import la.vok.Game.GameContent.Map.MapController
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionContext
+import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionType
 import la.vok.Game.GameSystems.WorldSystems.Map.IBlockType
 import la.vok.Game.GameSystems.WorldSystems.Map.MineData
 import la.vok.Game.GameSystems.WorldSystems.Map.WallPlaceType
@@ -21,6 +23,19 @@ abstract class AbstractWallType : IBlockType {
     override val tags: Set<String> = emptySet()
 
     open fun hasTag(tag: String): Boolean = tag in tags
+    
+    val interactionReactions = mutableMapOf<BlockInteractionType, MutableList<(BlockInteractionContext) -> Unit>>()
+
+    fun addInteractionReaction(type: BlockInteractionType, reaction: (BlockInteractionContext) -> Unit) {
+        interactionReactions.getOrPut(type) { mutableListOf() }.add(reaction)
+    }
+
+    override fun onInteract(type: BlockInteractionType, context: BlockInteractionContext): Boolean {
+        val list = interactionReactions[type] ?: return false
+        if (list.isEmpty()) return false
+        list.forEach { it.invoke(context) }
+        return true
+    }
 
     open val placeType: WallPlaceType = WallPlaceType.NEAR_WALL_OR_TILE
 

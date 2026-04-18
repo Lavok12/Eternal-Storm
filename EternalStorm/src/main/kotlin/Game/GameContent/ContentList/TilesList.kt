@@ -24,4 +24,6 @@ object TilesList {
     val cosmic_brick_tile: String by lazy { AppState.addNamespace("cosmic_brick_tile") }
     val wind_brick_tile: String by lazy { AppState.addNamespace("wind_brick_tile") }
     val solar_brick_tile: String by lazy { AppState.addNamespace("solar_brick_tile") }
+    val workbench: String by lazy { AppState.addNamespace("workbench") }
+    val czech_flag: String by lazy { AppState.addNamespace("czech_flag") }
 }

@@ -24,7 +24,7 @@ open class ItemRenderEntity(layersRenderContainer: LayersRenderContainer) : Base
 
     override fun draw(lg: LGraphics, pos: Vec2, size: Vec2, camera: Camera) {
         if (item != null) {
-            item!!.worldRender(lg, pos + (0 v size.y/5f), size * 2f, camera)
+            item!!.worldRender(lg, pos + (0 v size.y/5f), size * 3.5f, camera)
         }
     }
 }

@@ -32,14 +32,7 @@ class HighlightRender(var gameRender: GameRender) : Controller {
         val targetPoint = item.entity.ai?.targetMapPos() ?: LPoint.ZERO
         val dim = item.entity.dimension!!
 
-        targetMinePoint = if (item.descriptor.renderMineHighlight) targetPoint else null
-        
-        if (targetMinePoint != null) {
-            val tileType = mapApi.getTileType(dim, targetMinePoint!!.x, targetMinePoint!!.y)
-            if (tileType != null && tileType.isDummy) {
-                targetMinePoint = LPoint(targetPoint.x + tileType.masterOffset.x, targetPoint.y + tileType.masterOffset.y)
-            }
-        }
+        targetMinePoint = if (item.descriptor.renderMineHighlight) mapApi.getMasterPoint(dim, targetPoint.x, targetPoint.y) else null
 
         val handItem = gameRender.gameController.playerControl.getPlayerEntity()?.handItemComponent?.currentHandItem
         val currentTileType = (handItem?.item?.itemType?.usingVariants as? UsingVariants.PlaceTile)?.let { mapApi.getRegisteredTileType(it.tileTag) }
@@ -75,7 +68,11 @@ class HighlightRender(var gameRender: GameRender) : Controller {
                 tileSize.x *= mapTile.width
                 tileSize.y *= mapTile.height
 
-                val offset = Vec2((mapTile.width / 2).toFloat(), (mapTile.height / 2).toFloat())
+                val blockSize = gameRender.gameController.gameCycle.mapApi.getBlockSize()
+                val offset = Vec2(
+                    ((mapTile.width - 1) / 2f) * blockSize.x,
+                    ((mapTile.height - 1) / 2f) * blockSize.y
+                )
                 
                 mapTile.renderHighlight(
                     targetMinePoint!!.x, targetMinePoint!!.y,
@@ -113,7 +110,11 @@ class HighlightRender(var gameRender: GameRender) : Controller {
                     displaySize.x *= tileType.width
                     displaySize.y *= tileType.height
 
-                    val offset = Vec2((tileType.width / 2).toFloat(), (tileType.height / 2).toFloat())
+                    val blockSize = mapApi.getBlockSize()
+                    val offset = Vec2(
+                        ((tileType.width - 1) / 2f) * blockSize.x,
+                        ((tileType.height - 1) / 2f) * blockSize.y
+                    )
 
                     if (mapApi.canPlaceTile(dim, tileType, targetPlacePoint!!.x, targetPlacePoint!!.y)) {
                         lg.fill(255f, 150f)

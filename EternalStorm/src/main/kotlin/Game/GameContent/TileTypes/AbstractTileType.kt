@@ -8,6 +8,8 @@ import la.vok.Game.GameContent.Items.Other.NothingDrop
 import la.vok.Game.GameContent.Map.MapController
 import la.vok.Game.GameController.CollisionType
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionContext
+import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionType
 import la.vok.Game.GameSystems.WorldSystems.Map.IBlockType
 import la.vok.Game.GameSystems.WorldSystems.Map.MineData
 import la.vok.Game.GameSystems.WorldSystems.Map.TilePlaceType
@@ -16,7 +18,15 @@ import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.p
+import la.vok.LavokLibrary.Vectors.v
 import processing.core.PImage
+
+data class TileRenderConfig(
+    val sizeMultiplier: Float = 1.0f,
+    val useSquareRender: Boolean = false,
+    val renderDelta: Vec2 = 0f v 0f,
+    val renderBreakProgress: Boolean = true
+)
 
 abstract class AbstractTileType : IBlockType {
     open var collisionType = CollisionType.FULL
@@ -28,12 +38,27 @@ abstract class AbstractTileType : IBlockType {
     override val tags: Set<String> = emptySet()
 
     open fun hasTag(tag: String): Boolean = tag in tags
+    
+    val interactionReactions = mutableMapOf<BlockInteractionType, MutableList<(BlockInteractionContext) -> Unit>>()
+
+    fun addInteractionReaction(type: BlockInteractionType, reaction: (BlockInteractionContext) -> Unit) {
+        interactionReactions.getOrPut(type) { mutableListOf() }.add(reaction)
+    }
+
+    override fun onInteract(type: BlockInteractionType, context: BlockInteractionContext): Boolean {
+        val list = interactionReactions[type] ?: return false
+        if (list.isEmpty()) return false
+        list.forEach { it.invoke(context) }
+        return true
+    }
 
     open val width: Int = 1
     open val height: Int = 1
     open val isDummy: Boolean = false
     open val masterOffset: LPoint = 0 p 0
     open val placeOffset: LPoint = 0 p 0
+
+    open val renderConfig: TileRenderConfig = TileRenderConfig()
 
     open val placeType: TilePlaceType = TilePlaceType.NEAR_TILE_OR_ON_WALL
 
@@ -52,22 +77,32 @@ abstract class AbstractTileType : IBlockType {
     ) {
         if (isDummy) return
 
-        if (width == 1 && height == 1) {
-            lg.setImage(
-                gameController.coreController.spriteLoader.getValue(texture),
-                positionX, positionY,
-                sizeX, sizeY
-            )
-        } else {
-            lg.setImage(
-                gameController.coreController.spriteLoader.getValue(texture),
-                positionX,
-                positionY,
-                sizeX * width,
-                sizeY * height
-            )
+        val baseW = sizeX * width
+        val baseH = sizeY * height
+        
+        var finalW = baseW * renderConfig.sizeMultiplier
+        var finalH = baseH * renderConfig.sizeMultiplier
+        
+        if (renderConfig.useSquareRender) {
+            val s = kotlin.math.min(finalW, finalH)
+            finalW = s
+            finalH = s
         }
-        renderBreakProgress(pointX, pointY, lg, positionX, positionY, sizeX, sizeY, dimension, gameController)
+        
+        val offsetX = (baseW - finalW) / 2f + renderConfig.renderDelta.x * sizeX
+        val offsetY = (baseH - finalH) / 2f + renderConfig.renderDelta.y * sizeY
+
+        lg.setImage(
+            gameController.coreController.spriteLoader.getValue(texture),
+            positionX + offsetX,
+            positionY + offsetY,
+            finalW,
+            finalH
+        )
+        
+        if (renderConfig.renderBreakProgress) {
+            renderBreakProgress(pointX, pointY, lg, positionX + offsetX, positionY + offsetY, finalW, finalH, dimension, gameController)
+        }
     }
 
     open fun breakProgress(pointX: Int, pointY: Int, dimension: AbstractDimension, gameController: GameController) : Float {
@@ -142,7 +177,17 @@ abstract class AbstractTileType : IBlockType {
     open fun onMined(x: Int, y: Int, mineData: MineData, dimension: AbstractDimension, mapController: MapController) {
         val pos = mapController.dimension.gameCycle.mapApi.getBlockPos(x, y)
         mapController.dimension.gameCycle.itemsApi.spawnDropTable(dimension, drop, pos, true)
-        mapController.dimension.gameCycle.particlesApi.buildTile(dimension, this).at(pos).count(9).randomSpeed(1f).spawn()
+        
+        // Area particles
+        for (dx in 0 until width) {
+            for (dy in 0 until height) {
+                mapController.dimension.gameCycle.particlesApi.buildTile(dimension, this)
+                    .atBlock(x + dx, y + dy)
+                    .count(3)
+                    .randomSpeed(1f)
+                    .spawn()
+            }
+        }
     }
 
     open fun onRemoved(

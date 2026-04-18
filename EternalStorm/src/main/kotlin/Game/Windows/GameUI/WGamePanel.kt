@@ -9,13 +9,14 @@ import la.vok.Game.GameController.PlayerControl
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.Game.GameContent.ContentList.DimensionsList
+import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionType
 import la.vok.State.AppState
 
 class WGamePanel(windowsManager: WindowsManager, var gameController: GameController) : WStandartPanel(windowsManager) {
     val playerControl: PlayerControl get() = gameController.playerControl
 
-    override var padding: Vec2 get() = 10 v 10; set(value) {}
-    override var tags: Array<String> get() = arrayOf("game"); set(value) {}
+    override var padding: Vec2 = 10 v 10
+    override var tags: Array<String> = arrayOf("game")
 
     val inventory = InventoryPanelController(this, playerControl)
     val crafts = CraftPanelController(this, playerControl, gameController.gameCycle)
@@ -63,6 +64,7 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
         val cell = inventory.allCells().map { it.first }.firstOrNull { it.inside(position) }
         if (cell != null) { inventory.startDrag(cell, position); return }
         playerControl.leftPressed(position)
+        playerControl.interact(position, BlockInteractionType.LEFT)
     }
 
     override fun leftUpdate(position: Vec2, oldPosition: Vec2) {
@@ -137,6 +139,13 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
         super.rightPressed(position)
         if (insideUxElement(position)) return
         playerControl.rightPressed(position)
+        playerControl.interact(position, BlockInteractionType.RIGHT)
+    }
+
+    override fun centerPressed(position: Vec2) {
+        super.centerPressed(position)
+        if (insideUxElement(position)) return
+        playerControl.interact(position, BlockInteractionType.MIDDLE)
     }
 
     override fun rightUpdate(position: Vec2, oldPosition: Vec2) {

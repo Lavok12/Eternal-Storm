@@ -24,7 +24,7 @@ class TreePartType() : AbstractTileType() {
     override val maxHp: Int = 10
     override val texture: String = "tree_part_block_1.png"
     override val drop: DropEntry = NothingDrop
-    override val tags = setOf(BlockTags.WOOD, BlockTags.SOLID)
+    override val tags = setOf(BlockTags.WOOD, BlockTags.SOLID, BlockTags.NO_SHADOW)
 
     override fun render(
         pointX: Int,

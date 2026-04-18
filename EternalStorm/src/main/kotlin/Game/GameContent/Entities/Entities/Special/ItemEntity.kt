@@ -47,7 +47,6 @@ open class ItemEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.ItemEnti
         return false
     }
 
-    private val mergeCheckInterval = 120L
     private var mergeTrigger: HitboxComponent? = null
     private var mergeDetector: CollisionDetector? = null
 
@@ -107,7 +106,7 @@ open class ItemEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.ItemEnti
         item?.physicUpdate(this)
         mergeDetector?.update()
 
-        if (physicTicks % mergeCheckInterval == 0L) {
+        if (physicTicks % AppState.mergeCheckInterval == 0L) {
             tryMergeWithNearby()
         }
     }

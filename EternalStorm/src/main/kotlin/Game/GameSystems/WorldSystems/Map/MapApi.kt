@@ -5,6 +5,7 @@ import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
 import la.vok.Game.GameContent.Tiles.System.AbstractWallType
+import la.vok.Game.GameContent.Tiles.System.MultiTileDummyType
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Map.MineData
 import la.vok.Game.GameSystems.WorldSystems.Map.TilePlaceType
@@ -13,7 +14,11 @@ import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
+import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionContext
+import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionType
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.LavokLibrary.Vectors.p
 
 class MapApi(var gameCycle: GameCycle) {
     val gameController: GameController get() = gameCycle.gameController
@@ -29,28 +34,61 @@ class MapApi(var gameCycle: GameCycle) {
     fun tileIsActive(dimension: AbstractDimension, x: Int, y: Int): Boolean =
         dimension.mapSystem.containsTile(x, y)
 
-    fun getTileType(dimension: AbstractDimension, x: Int, y: Int): AbstractTileType? =
-        dimension.mapSystem.getTileType(x, y)
+    fun getTileType(dimension: AbstractDimension, x: Int, y: Int): AbstractTileType? {
+        val rawTile = dimension.mapSystem.getTileType(x, y)
+        if (rawTile != null && rawTile.isDummy) {
+            return dimension.mapSystem.getTileType(x + rawTile.masterOffset.x, y + rawTile.masterOffset.y)
+        }
+        return rawTile
+    }
 
-    fun getTileHp(dimension: AbstractDimension, x: Int, y: Int): Int =
-        dimension.mapSystem.getTileHp(x, y)
+    fun getMasterPoint(dimension: AbstractDimension, x: Int, y: Int): LPoint {
+        val rawTile = dimension.mapSystem.getTileType(x, y)
+        if (rawTile != null && rawTile.isDummy) {
+            return LPoint(x + rawTile.masterOffset.x, y + rawTile.masterOffset.y)
+        }
+        return LPoint(x, y)
+    }
+
+    fun getTileHp(dimension: AbstractDimension, x: Int, y: Int): Int {
+        val rawTile = dimension.mapSystem.getTileType(x, y)
+        if (rawTile != null && rawTile.isDummy) {
+            return dimension.mapSystem.getTileHp(x + rawTile.masterOffset.x, y + rawTile.masterOffset.y)
+        }
+        return dimension.mapSystem.getTileHp(x, y)
+    }
 
     fun setTileHp(dimension: AbstractDimension, x: Int, y: Int, hp: Int) {
-        if (isInsideMap(dimension, x, y)) {
+        if (!isInsideMap(dimension, x, y)) return
+        val rawTile = dimension.mapSystem.getTileType(x, y)
+        if (rawTile != null && rawTile.isDummy) {
+            dimension.mapSystem.setTileHp(x + rawTile.masterOffset.x, y + rawTile.masterOffset.y, hp)
+        } else {
             dimension.mapSystem.setTileHp(x, y, hp)
         }
     }
 
     fun damageTile(dimension: AbstractDimension, x: Int, y: Int, damage: Int) {
         if (!isInsideMap(dimension, x, y)) return
-        dimension.mapSystem.damageTile(x, y, damage)
+        val rawTile = dimension.mapSystem.getTileType(x, y)
+        if (rawTile != null && rawTile.isDummy) {
+            dimension.mapSystem.damageTile(x + rawTile.masterOffset.x, y + rawTile.masterOffset.y, damage)
+        } else {
+            dimension.mapSystem.damageTile(x, y, damage)
+        }
     }
 
     fun mineTile(dimension: AbstractDimension, x: Int, y: Int, mineData: MineData) {
         if (!tileIsActive(dimension, x, y)) return
         val tileType = getTileType(dimension, x, y) ?: return
         if (mineData.power < tileType.blockStrength) return
-        dimension.mapSystem.mineTile(x, y, mineData)
+        
+        val rawTile = dimension.mapSystem.getTileType(x, y)
+        if (rawTile != null && rawTile.isDummy) {
+            dimension.mapSystem.mineTile(x + rawTile.masterOffset.x, y + rawTile.masterOffset.y, mineData)
+        } else {
+            dimension.mapSystem.mineTile(x, y, mineData)
+        }
     }
 
     fun repairTile(dimension: AbstractDimension, x: Int, y: Int, amount: Int) {
@@ -64,15 +102,62 @@ class MapApi(var gameCycle: GameCycle) {
         val py = y + type.placeOffset.y
 
         if (item.count < 1 && consumed) return false
-        if (tileIsActive(dimension, px, py)) return false
         if (!isInsideMap(dimension, px, py)) return false
         if (!canPlaceTile(dimension, type, px, py)) return false
         
+        // Place Master
         dimension.mapSystem.setTileType(px, py, type)
         dimension.mapSystem.setTileHp(px, py, type.maxHp)
         dimension.mapSystem.callPlace(px, py, item)
+        
+        // Place Dummies
+        if (type.width > 1 || type.height > 1) {
+            for (dx in 0 until type.width) {
+                for (dy in 0 until type.height) {
+                    if (dx == 0 && dy == 0) continue
+                    val nx = px + dx
+                    val ny = py + dy
+                    if (isInsideMap(dimension, nx, ny)) {
+                        dimension.mapSystem.setTileType(nx, ny,
+                            MultiTileDummyType(type.tag + "_dummy", -dx p -dy)
+                        )
+                        dimension.mapSystem.setTileHp(nx, ny, type.maxHp)
+                    }
+                }
+            }
+        }
+        
         if (consumed) item.count--
         return true
+    }
+
+    fun handleInteraction(dimension: AbstractDimension, x: Int, y: Int, type: BlockInteractionType, interactor: Entity?): Boolean {
+        if (!isInsideMap(dimension, x, y)) return false
+        
+        // getTileType already handles dummy redirection
+        val tile = getTileType(dimension, x, y)
+        val context = BlockInteractionContext(x, y, dimension, interactor, this)
+        
+        if (tile != null) {
+            if (tile.onInteract(type, context)) return true
+        }
+        
+        val wall = getWallType(dimension, x, y)
+        if (wall != null) {
+            if (wall.onInteract(type, context)) return true
+        }
+        
+        return false
+    }
+
+    fun deactivateTile(dimension: AbstractDimension, x: Int, y: Int, reason: Any? = null) {
+        if (!isInsideMap(dimension, x, y)) return
+        val rawTile = dimension.mapSystem.getTileType(x, y)
+        if (rawTile != null && rawTile.isDummy) {
+            dimension.mapSystem.deactivateTile(x + rawTile.masterOffset.x, y + rawTile.masterOffset.y, reason)
+        } else {
+            dimension.mapSystem.deactivateTile(x, y, reason)
+        }
     }
 
     fun generateTile(dimension: AbstractDimension, type: AbstractTileType?, x: Int, y: Int) {
@@ -110,7 +195,7 @@ class MapApi(var gameCycle: GameCycle) {
     }
 
     fun getRegisteredTileType(tag: String): AbstractTileType =
-        objectRegistration.tiles[tag]!!
+        objectRegistration.tiles[tag] ?: error("Tile $tag not found")
 
     // --------------------------------------------------------
     // WALLS

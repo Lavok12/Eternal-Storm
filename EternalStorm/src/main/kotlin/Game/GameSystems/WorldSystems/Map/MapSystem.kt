@@ -60,10 +60,6 @@ class MapSystem(
         if (!isInside(x, y)) return
         val tileType = getTileType(x, y) ?: return
         
-        if (tileType.isDummy) {
-            return deactivateTile(x + tileType.masterOffset.x, y + tileType.masterOffset.y, reason)
-        }
-
         tileType.onRemoved(x, y, mapController.dimension, mapController, reason)
         removeMultiTileParts(x, y, tileType)
         val idx = getIndex(x, y)
@@ -74,10 +70,6 @@ class MapSystem(
     fun damageTile(x: Int, y: Int, damage: Int) {
         if (!containsTile(x, y)) return
         val tileType = getTileType(x, y) ?: return
-
-        if (tileType.isDummy) {
-            return damageTile(x + tileType.masterOffset.x, y + tileType.masterOffset.y, damage)
-        }
 
         tileType.damage(x, y, damage, mapController.dimension, mapController)
         val idx = getIndex(x, y)
@@ -94,10 +86,6 @@ class MapSystem(
     fun mineTile(x: Int, y: Int, mineData: MineData) {
         if (!containsTile(x, y)) return
         val tileType = getTileType(x, y) ?: return
-
-        if (tileType.isDummy) {
-            return mineTile(x + tileType.masterOffset.x, y + tileType.masterOffset.y, mineData)
-        }
 
         if (mineData.power < tileType.blockStrength) return
 
