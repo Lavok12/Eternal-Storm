@@ -10,12 +10,13 @@ import la.vok.Game.GameContent.Tiles.System.AbstractWallType
 import la.vok.Game.GameContent.TileTypes.BronzeBrickTileType
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.LGraphics.LGraphics
+import la.vok.State.AppState
 
 class BronzeBrickWallType() : AbstractWallType() {
     override val tag: String = WallList.bronze_brick_wall
     override val blockStrength: Int = 70
     override val maxHp: Int = 60
-    override val texture: String = "bronze_bricks.png"
+    override val texture: String = AppState.res("bronze_bricks.png")
     override val drop: DropEntry = SingleDrop(ItemsList.bronze_brick_wall)
     override val tags = setOf(BlockTags.SOLID)
 

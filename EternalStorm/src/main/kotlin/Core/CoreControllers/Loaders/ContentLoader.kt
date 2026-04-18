@@ -1,5 +1,6 @@
 package la.vok.Core.CoreControllers.Loaders
 
+import la.vok.Core.CoreContent.Resources.ResourceLocation
 import la.vok.State.AppState
 
 interface ContentLoader<T> {
@@ -11,36 +12,40 @@ interface ContentLoader<T> {
     fun loadPaths()
     fun loadValue(key: String): T
 
-    fun getValue(key: String): T {
-        AppState.logger.trace("[${this::class.simpleName}] getValue('$key')")
+    fun resolveKey(key: String): String {
+        return ResourceLocation.parse(key).toString().intern()
+    }
 
-        valueMap[key]?.let {
-            AppState.logger.trace("[${this::class.simpleName}] cache hit for '$key'")
+    fun getValue(key: String): T {
+        val fullKey = resolveKey(key)
+        AppState.logger.trace("[${this::class.simpleName}] getValue('$fullKey')")
+
+        valueMap[fullKey]?.let {
             return it
         }
 
-        val path = pathMap[key]
-            ?: error("Key '$key' not found in pathMap (${this::class.simpleName})")
+        val path = pathMap[fullKey]
+            ?: error("Key '$fullKey' not found in pathMap (${this::class.simpleName})")
 
-        AppState.logger.debug("[${this::class.simpleName}] loading '$key' from '$path'")
+        AppState.logger.debug("[${this::class.simpleName}] loading '$fullKey' from '$path'")
 
-        val value = loadValue(key)
-        valueMap[key] = value
+        val value = loadValue(fullKey)
+        valueMap[fullKey] = value
         return value
     }
 
     fun getContent(key: String): Content<T> {
-        AppState.logger.trace("[${this::class.simpleName}] getContent('$key')")
+        val fullKey = resolveKey(key)
+        AppState.logger.trace("[${this::class.simpleName}] getContent('$fullKey')")
 
-        if (!pathMap.containsKey(key)) {
-            error("Key '$key' not found in pathMap (${this::class.simpleName})")
+        if (!pathMap.containsKey(fullKey)) {
+            error("Key '$fullKey' not found in pathMap (${this::class.simpleName})")
         }
 
-        return contentMap.getOrPut(key) {
-            AppState.logger.trace("[${this::class.simpleName}] creating Content for '$key'")
-            Content(this, key)
+        return contentMap.getOrPut(fullKey) {
+            Content(this, fullKey)
         }
     }
 
-    fun contains(key: String): Boolean = pathMap.containsKey(key)
+    fun contains(key: String): Boolean = pathMap.containsKey(resolveKey(key))
 }

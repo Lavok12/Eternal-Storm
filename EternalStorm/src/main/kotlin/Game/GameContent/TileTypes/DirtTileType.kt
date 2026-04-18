@@ -5,11 +5,12 @@ import la.vok.Game.GameContent.Items.Other.SingleDrop
 import la.vok.Game.GameContent.ContentList.ItemsList
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
 import la.vok.Game.GameContent.ContentList.TilesList
+import la.vok.State.AppState
 
 class DirtTileType() : AbstractTileType() {
     override val tag: String = TilesList.dirt_block
     override val blockStrength: Int = 10
     override val maxHp: Int = 10
-    override val texture: String = "dirtTexture.jpg"
+    override val texture: String = AppState.res("dirtTexture.jpg")
     override val drop: DropEntry = SingleDrop(ItemsList.dirt_block)
 }

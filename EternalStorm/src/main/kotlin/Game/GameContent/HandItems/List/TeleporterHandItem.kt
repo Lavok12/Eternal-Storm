@@ -14,7 +14,7 @@ class TeleporterHandItem(item: TeleporterItem, component: HandItemComponent) : H
     item,
     component,
     HandItemDescriptor(
-        spriteName = "t4.png",
+        spriteName = "AxeSwingTrace.png",
         spriteSize = 1.5f v 1.5f,
         useDuration = 100f,
         animationType = AnimationType.Swing(),

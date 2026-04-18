@@ -4,6 +4,7 @@ import la.vok.Game.GameContent.ContentList.ItemTags
 import la.vok.Game.GameContent.Items.Items.MaterialPickaxeItem
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameController.GameCycle
+import la.vok.State.AppState
 
 class MaterialPickaxeItemType(
     override val tag: String,
@@ -22,7 +23,7 @@ class MaterialPickaxeItemType(
             mineDamage,
             minePower,
             useDuration,
-            "Pickaxes/$texture", // Sprites are in Pickaxes/ subfolder
+            AppState.res("Pickaxes/$texture"), // Sprites are in Pickaxes/ subfolder
             handDamage
         )
     }

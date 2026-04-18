@@ -15,22 +15,38 @@ class SpritesLoader(var coreController: CoreController) : Controller, ContentLoa
     override val contentMap: MutableMap<String, Content<PImage>> = mutableMapOf<String, Content<PImage>>()
 
     override fun loadPaths() {
-        AppState.logger.debug("[SpriteLoader] Loading sprites")
+        AppState.logger.debug("[SpriteLoader] Loading sprites from all sources")
+        pathMap.clear()
 
-        val files = LFileUtility(AppState.imagesPath, true).getAllFilesRecursive()
-        val fileNames = LFileUtility(AppState.imagesPath, false).getAllFilesRecursive()
+        val sortedSources = AppState.resourceSources.sortedBy { it.priority }
 
-        AppState.logger.debug("[SpriteLoader] Found ${files.size} images")
+        for (source in sortedSources) {
+            val spritePath = "${source.rootPath}/${AppState.FOLDER_IMAGES}"
+            val utility = LFileUtility(spritePath, true)
+            
+            if (!utility.isExists()) {
+                AppState.logger.trace("[SpriteLoader] Source '${source.namespace}' has no Images directory at $spritePath")
+                continue
+            }
 
-        for (i in files.indices) {
-            AppState.logger.trace("[SpriteLoader] ${fileNames[i]} -> ${files[i]}")
-            pathMap[fileNames[i]] = files[i]
+            val files = utility.getAllFilesRecursive()
+            val fileNames = LFileUtility(spritePath, false).getAllFilesRecursive()
+
+            AppState.logger.debug("[SpriteLoader] Source '${source.namespace}' found ${files.size} images")
+
+            for (i in files.indices) {
+                val fullKey = "${source.namespace}:${fileNames[i]}".intern()
+                AppState.logger.trace("[SpriteLoader] Registering $fullKey -> ${files[i]}")
+                pathMap[fullKey] = files[i]
+            }
         }
     }
 
     override fun loadValue(key: String): PImage {
-        AppState.logger.debug("[SpriteLoader] Loading image '$key'")
-        return AppState.main.loadImage(pathMap[key])
+        val fullKey = resolveKey(key)
+        val path = pathMap[fullKey] ?: error("Sprite '$fullKey' path not found")
+        AppState.logger.debug("[SpriteLoader] Loading image '$fullKey' from '$path'")
+        return AppState.main.loadImage(path)
     }
 
 }

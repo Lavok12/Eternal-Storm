@@ -301,7 +301,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
             lg.setText(dim.dimensionTag, cx - cw / 2f + 25f * scale, posY + 4f, 16f * scale)
             
             lg.fill(180f, 200f, 220f, 220f * alpha)
-            lg.setText("Entities: ${dim.entitySystem.entities.size}", cx - cw / 2f + 180f * scale, posY + 4f, 12f * scale)
+            lg.setText("Entities: ${dim.entitySystem.entities.size}", cx - cw / 2f + 340f * scale, posY + 4f, 12f * scale)
             
             val btnW = 110f * scale
             val btnX = cx + cw / 2f - btnW / 2f - 15f * scale

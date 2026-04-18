@@ -19,6 +19,7 @@ import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.p
 import la.vok.LavokLibrary.Vectors.v
+import la.vok.State.AppState
 import processing.core.PImage
 
 data class TileRenderConfig(
@@ -112,9 +113,9 @@ abstract class AbstractTileType : IBlockType {
 
     open fun getBreakProgressTexture(progress: Float, gameController: GameController) : PImage? {
         if (progress <= 0f) return null
-        if (progress < 0.33f) return gameController.coreController.spriteLoader.getValue("t1.png")
-        if (progress < 0.66f) return gameController.coreController.spriteLoader.getValue("t2.png")
-        if (progress < 1f) return gameController.coreController.spriteLoader.getValue("t3.png")
+        if (progress < 0.33f) return gameController.coreController.spriteLoader.getValue(AppState.res("t1.png"))
+        if (progress < 0.66f) return gameController.coreController.spriteLoader.getValue(AppState.res("t2.png"))
+        if (progress < 1f) return gameController.coreController.spriteLoader.getValue(AppState.res("t3.png"))
         return null
     }
 

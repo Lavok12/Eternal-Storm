@@ -2,6 +2,7 @@ package la.vok.Game.GameContent.Items.ItemTypes.Tiles
 
 import la.vok.Game.GameContent.ContentList.ItemsList
 import la.vok.Game.GameContent.ContentList.TilesList
+import la.vok.State.AppState
 import la.vok.Game.GameContent.Items.ItemTypes.Blocks.BaseTileItemType
 import la.vok.Game.GameContent.Items.Other.AbstractItemType
 import la.vok.Game.GameContent.Items.Other.UsingVariants
@@ -12,7 +13,7 @@ import la.vok.LavokLibrary.Vectors.v
 
 class CzechFlagItemType : BaseTileItemType() {
     override val tag: String = ItemsList.czech_flag
-    override val texture: String = "czech_flag.png"
+    override val texture: String = AppState.res("czech_flag.png")
 
     override val renderConfig = super.renderConfig.copy(
         worldSize = 1.35f v 1.35f,

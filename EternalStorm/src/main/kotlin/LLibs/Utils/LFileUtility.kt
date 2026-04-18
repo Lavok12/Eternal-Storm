@@ -55,4 +55,8 @@ class LFileUtility(private val rootPath: String, private val useAbsolutePath: Bo
             .map { Pair(formatPath(it), it.isDirectory) }
             .toList()
     }
+
+    fun isExists(): Boolean {
+        return rootDir.exists() && rootDir.isDirectory
+    }
 }

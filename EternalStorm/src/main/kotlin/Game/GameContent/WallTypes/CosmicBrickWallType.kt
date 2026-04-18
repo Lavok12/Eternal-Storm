@@ -9,12 +9,13 @@ import la.vok.Game.GameContent.Items.Other.SingleDrop
 import la.vok.Game.GameContent.Tiles.System.AbstractWallType
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.LGraphics.LGraphics
+import la.vok.State.AppState
 
 class CosmicBrickWallType() : AbstractWallType() {
     override val tag: String = WallList.cosmic_brick_wall
     override val blockStrength: Int = 400
     override val maxHp: Int = 350
-    override val texture: String = "cosmic_bricks.png"
+    override val texture: String = AppState.res("cosmic_bricks.png")
     override val drop: DropEntry = SingleDrop(ItemsList.cosmic_brick_wall)
     override val tags = setOf(BlockTags.SOLID)
 

@@ -6,12 +6,13 @@ import la.vok.Game.GameContent.ContentList.ItemsList
 import la.vok.Game.GameContent.ContentList.BlockTags
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
 import la.vok.Game.GameContent.ContentList.TilesList
+import la.vok.State.AppState
 
 class StoneTileType() : AbstractTileType() {
     override val tag: String = TilesList.stone_block
     override val blockStrength: Int = 60
     override val maxHp: Int = 30
-    override val texture: String = "stone_texture.jpg"
+    override val texture: String = AppState.res("stone_texture.jpg")
     override val drop: DropEntry = SingleDrop(ItemsList.stone_block)
     override val tags = setOf(BlockTags.SOLID)
 }

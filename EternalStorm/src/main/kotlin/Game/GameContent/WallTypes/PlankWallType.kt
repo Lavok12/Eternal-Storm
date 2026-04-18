@@ -9,12 +9,13 @@ import la.vok.Game.GameContent.Items.Other.SingleDrop
 import la.vok.Game.GameContent.Tiles.System.AbstractWallType
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.LGraphics.LGraphics
+import la.vok.State.AppState
 
 class PlankWallType() : AbstractWallType() {
     override val tag: String = WallList.plank_wall
     override val blockStrength: Int = 10
     override val maxHp: Int = 10
-    override val texture: String = "plankTexture.jpg"
+    override val texture: String = AppState.res("plankTexture.jpg")
     override val drop: DropEntry = SingleDrop(ItemsList.plank_wall)
     override val tags: Set<String> = setOf(BlockTags.PLANK)
 

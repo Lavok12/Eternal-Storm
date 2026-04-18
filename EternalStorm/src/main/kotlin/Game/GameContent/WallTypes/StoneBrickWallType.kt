@@ -9,12 +9,13 @@ import la.vok.Game.GameContent.Items.Other.SingleDrop
 import la.vok.Game.GameContent.Tiles.System.AbstractWallType
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.LGraphics.LGraphics
+import la.vok.State.AppState
 
 class StoneBrickWallType() : AbstractWallType() {
     override val tag: String = WallList.stone_brick_wall
     override val blockStrength: Int = 30
     override val maxHp: Int = 20
-    override val texture: String = "stone_bricks.png"
+    override val texture: String = AppState.res("stone_bricks.png")
     override val drop: DropEntry = SingleDrop(ItemsList.stone_brick_wall)
     override val tags = setOf(BlockTags.SOLID)
 

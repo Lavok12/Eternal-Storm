@@ -1,5 +1,6 @@
 package Core.CoreControllers
 
+import la.vok.Core.CoreContent.Resources.ResourceSource
 import la.vok.Core.CoreControllers.CoreController
 import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Game.GameContent.Crafts.CraftType
@@ -9,6 +10,8 @@ import la.vok.Game.GameContent.Tiles.System.AbstractTileType
 import la.vok.Game.GameContent.Tiles.System.AbstractWallType
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimensionType
 import la.vok.State.AppState
+import la.vok.State.AppState.main
+import kotlin.text.clear
 
 class ObjectRegistration(var coreController: CoreController) : Controller {
     var tiles = HashMap<String, AbstractTileType>()
@@ -18,6 +21,14 @@ class ObjectRegistration(var coreController: CoreController) : Controller {
     var dimensions = HashMap<String, AbstractDimensionType>()
     var crafts = ArrayList<CraftType>()
     val craftsByPriority = HashMap<Int, ArrayList<CraftType>>()
+
+    val resourceSources = mutableListOf<ResourceSource>()
+
+    fun initBaseSources() {
+        resourceSources.clear()
+        resourceSources.add(ResourceSource("eternal_storm", main.dataPath("Content"), 0))
+    }
+
 
     init { create() }
 

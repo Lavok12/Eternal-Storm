@@ -22,32 +22,39 @@ class LocalizedSpriteLoader(
     }
 
     override fun loadPaths() {
-        AppState.logger.debug("[LocalizedSpriteLoader] Loading localized sprites for '$currentLanguage'")
+        AppState.logger.debug("[LocalizedSpriteLoader] Loading localized sprites for '$currentLanguage' from all sources")
 
         pathMap.clear()
         valueMap.clear()
         contentMap.clear()
 
-        val langDir = "${AppState.localizedImagesPath}/$currentLanguage"
+        val sortedSources = AppState.resourceSources.sortedBy { it.priority }
 
-        val files = LFileUtility(langDir, true).getAllFilesRecursive()
-        val fileNames = LFileUtility(langDir, false).getAllFilesRecursive()
+        for (source in sortedSources) {
+            val langDir = "${source.rootPath}/${AppState.FOLDER_IMAGES_LOCALIZED}/$currentLanguage"
+            val utility = LFileUtility(langDir, true)
+            
+            if (!utility.isExists()) continue
 
-        AppState.logger.debug("[LocalizedSpriteLoader] Found ${files.size} localized images")
+            val files = utility.getAllFilesRecursive()
+            val fileNames = LFileUtility(langDir, false).getAllFilesRecursive()
 
-        for (i in files.indices) {
-            val name = fileNames[i]
-            val path = files[i]
-            AppState.logger.trace("[LocalizedSpriteLoader] $name -> $path")
-            pathMap[name] = path
+            AppState.logger.debug("[LocalizedSpriteLoader] Source '${source.namespace}' found ${files.size} localized images")
+
+            for (i in files.indices) {
+                val fullKey = "${source.namespace}:${fileNames[i]}".intern()
+                AppState.logger.trace("[LocalizedSpriteLoader] Registering $fullKey -> ${files[i]}")
+                pathMap[fullKey] = files[i]
+            }
         }
     }
 
     override fun loadValue(key: String): PImage {
-        val path = pathMap[key]
-            ?: error("Localized image '$key' not found for language '$currentLanguage'")
+        val fullKey = resolveKey(key)
+        val path = pathMap[fullKey]
+            ?: error("Localized image '$fullKey' not found for language '$currentLanguage'")
 
-        AppState.logger.debug("[LocalizedSpriteLoader] Loading '$key' from '$path'")
+        AppState.logger.debug("[LocalizedSpriteLoader] Loading '$fullKey' from '$path'")
         return AppState.main.loadImage(path)
     }
 

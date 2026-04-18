@@ -10,6 +10,9 @@ import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.Sketch.ProcessingSketch
 
+import la.vok.Core.CoreContent.Resources.ResourceLocation
+import la.vok.Core.CoreContent.Resources.ResourceSource
+
 object AppState {
     lateinit var main: ProcessingSketch
     var pixelDensityFactor = 1f;
@@ -17,12 +20,28 @@ object AppState {
     val lg: LGraphics
         get() {return coreController.mainRender.lg}
 
-    val imagesPath: String by lazy { main.dataPath("Content/Images") }
-    val languagePath: String by lazy { main.dataPath("Content/Lang") }
-    val shadersPath: String by lazy { main.dataPath("Content/Shaders") }
-    val fontsPath: String by lazy { main.dataPath("Content/Fonts") }
-    val localizedFontsPath: String by lazy { main.dataPath("Content/FontsLocalized") }
-    val localizedImagesPath: String by lazy { main.dataPath("Content/ImagesLocalized") }
+    const val FOLDER_IMAGES = "Images"
+    const val FOLDER_LANG = "Lang"
+    const val FOLDER_SHADERS = "Shaders"
+    const val FOLDER_FONTS = "Fonts"
+    const val FOLDER_FONTS_LOCALIZED = "FontsLocalized"
+    const val FOLDER_IMAGES_LOCALIZED = "ImagesLocalized"
+
+    val imagesPath: String by lazy { main.dataPath(FOLDER_IMAGES) }
+    val languagePath: String by lazy { main.dataPath(FOLDER_LANG) }
+    val shadersPath: String by lazy { main.dataPath(FOLDER_SHADERS) }
+    val fontsPath: String by lazy { main.dataPath(FOLDER_FONTS) }
+    val localizedFontsPath: String by lazy { main.dataPath(FOLDER_FONTS_LOCALIZED) }
+    val localizedImagesPath: String by lazy { main.dataPath(FOLDER_IMAGES_LOCALIZED) }
+
+    fun res(path: String): String {
+        return ResourceLocation.parse(path).toString().intern()
+    }
+
+    fun tag(name: String): String {
+        return ResourceLocation.parse(name).toString().intern()
+    }
+    // -------------------------------
 
     var doubleClickDelay = 300L
     var doublePressDelay = 300L
@@ -62,10 +81,5 @@ object AppState {
         return languageLoader.getContent("key")
     }
 
-    fun addNamespace(text: String) : String {
-        return "Main:$text"
-    }
-
-
-    val logger = ConsoleLogger("Main", LogLevel.DEBUG, true)
+    val logger = ConsoleLogger("eternal_storm", LogLevel.DEBUG, true)
 }

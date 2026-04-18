@@ -17,38 +17,47 @@ class FontsLoader(var coreController: CoreController) : Controller, ContentLoade
     override val contentMap: MutableMap<String, Content<PFont>> = mutableMapOf()
 
     override fun loadPaths() {
-        AppState.logger.debug("[FontsLoader] Loading fonts")
+        AppState.logger.debug("[FontsLoader] Loading fonts from all sources")
 
         pathMap.clear()
         valueMap.clear()
         contentMap.clear()
 
-        val files = LFileUtility(AppState.fontsPath, true).getAllFilesRecursive()
-        val fileNames = LFileUtility(AppState.fontsPath, false).getAllFilesRecursive()
+        val sortedSources = AppState.resourceSources.sortedBy { it.priority }
 
-        AppState.logger.debug("[FontsLoader] Found ${files.size} font files")
+        for (source in sortedSources) {
+            val fontsPath = "${source.rootPath}/${AppState.FOLDER_FONTS}"
+            val utility = LFileUtility(fontsPath, true)
+            
+            if (!utility.isExists()) continue
 
-        for (i in files.indices) {
-            val name = fileNames[i]
-            val path = files[i]
+            val files = utility.getAllFilesRecursive()
+            val fileNames = LFileUtility(fontsPath, false).getAllFilesRecursive()
 
-            // фильтруем по расширению
-            if (name.endsWith(".ttf", true) || name.endsWith(".otf", true) || name.endsWith(".vlw", true)) {
-                AppState.logger.trace("[FontsLoader] $name -> $path")
-                pathMap[name] = path
+            AppState.logger.debug("[FontsLoader] Source '${source.namespace}' found ${files.size} font files")
+
+            for (i in files.indices) {
+                val name = fileNames[i]
+                val path = files[i]
+
+                if (name.endsWith(".ttf", true) || name.endsWith(".otf", true) || name.endsWith(".vlw", true)) {
+                    val fullKey = "${source.namespace}:$name".intern()
+                    AppState.logger.trace("[FontsLoader] Registering $fullKey -> $path")
+                    pathMap[fullKey] = path
+                }
             }
         }
     }
 
     override fun loadValue(key: String): PFont {
-        val path = pathMap[key] ?: error("Font '$key' not found")
+        val fullKey = resolveKey(key)
+        val path = pathMap[fullKey] ?: error("Font '$fullKey' not found")
 
-        AppState.logger.debug("[FontsLoader] Loading font '$key' from '$path'")
+        AppState.logger.debug("[FontsLoader] Loading font '$fullKey' from '$path'")
 
-        return if (key.endsWith(".vlw", true)) {
+        return if (fullKey.endsWith(".vlw", true)) {
             AppState.main.loadFont(path)
         } else {
-            // Для ttf/otf используем createFont
             AppState.main.createFont(path, 32f, true)
         }
     }

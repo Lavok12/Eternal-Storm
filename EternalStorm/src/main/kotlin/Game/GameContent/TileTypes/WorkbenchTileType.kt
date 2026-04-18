@@ -4,6 +4,7 @@ import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.ContentList.BlockTags
 import la.vok.Game.GameContent.ContentList.ItemsList
 import la.vok.Game.GameContent.ContentList.TilesList
+import la.vok.State.AppState
 import la.vok.Game.GameContent.Items.Other.DropEntry
 import la.vok.Game.GameContent.Items.Other.SingleDrop
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
@@ -18,7 +19,7 @@ import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.p
 
 class WorkbenchTileType : AbstractTileType() {
-    override val texture: String = "workbench.png"
+    override val texture: String = AppState.res("workbench.png")
     override val width: Int = 3
     override val height: Int = 2
     override val tag: String = TilesList.workbench

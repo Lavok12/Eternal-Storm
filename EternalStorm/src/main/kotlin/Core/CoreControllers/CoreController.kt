@@ -13,7 +13,9 @@ import la.vok.Core.CoreControllers.Loaders.FontsLoader
 import la.vok.Core.CoreControllers.Loaders.LocalizedFontsLoader
 import la.vok.Core.CoreControllers.Loaders.LocalizedSpriteLoader
 import Core.CoreControllers.ObjectRegistration
+import la.vok.Core.CoreContent.Resources.ResourceSource
 import la.vok.State.AppState
+import la.vok.State.AppState.main
 
 class CoreController : Controller {
     init {
@@ -40,7 +42,9 @@ class CoreController : Controller {
 
     var objectRegistration = ObjectRegistration(this)
 
+
     fun start() {
+        objectRegistration.initBaseSources()
         spriteLoader.loadPaths()
         localizedSpriteLoader.loadPaths()
         shaderLoader.loadPaths()

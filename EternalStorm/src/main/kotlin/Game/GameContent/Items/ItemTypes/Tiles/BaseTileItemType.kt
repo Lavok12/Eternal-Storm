@@ -11,10 +11,11 @@ import la.vok.Game.GameContent.Items.Other.ItemRenderConfig
 import la.vok.Game.GameController.GameCycle
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
+import la.vok.State.AppState
 
 open class BaseTileItemType : AbstractItemType() {
     override val tag: String = ItemsList.dirt_block
-    override val texture = "dirtTexture.jpg"
+    override val texture: String = AppState.res("dirtTexture.jpg")
     override val usingVariants = UsingVariants.PlaceTile(TilesList.dirt_block)
     override val maxInStack: Int = 99999
     override val tags = setOf(ItemTags.PLACEABLE)

@@ -16,22 +16,35 @@ class ShaderLoader(var coreController: CoreController) : Controller, ContentLoad
     override val contentMap: MutableMap<String, Content<PShader>> = mutableMapOf<String, Content<PShader>>()
 
     override fun loadPaths() {
-        AppState.logger.debug("[ShaderLoader] Loading shaders")
+        AppState.logger.debug("[ShaderLoader] Loading shaders from all sources")
+        pathMap.clear()
 
-        val files = LFileUtility(AppState.shadersPath, true).getAllFilesRecursive()
-        val fileNames = LFileUtility(AppState.shadersPath, false).getAllFilesRecursive()
+        val sortedSources = AppState.resourceSources.sortedBy { it.priority }
 
-        AppState.logger.debug("[ShaderLoader] Found ${files.size} shaders")
+        for (source in sortedSources) {
+            val shaderPath = "${source.rootPath}/${AppState.FOLDER_SHADERS}"
+            val utility = LFileUtility(shaderPath, true)
+            
+            if (!utility.isExists()) continue
 
-        for (i in files.indices) {
-            AppState.logger.trace("[ShaderLoader] ${fileNames[i]} -> ${files[i]}")
-            pathMap[fileNames[i]] = files[i]
+            val files = utility.getAllFilesRecursive()
+            val fileNames = LFileUtility(shaderPath, false).getAllFilesRecursive()
+
+            AppState.logger.debug("[ShaderLoader] Source '${source.namespace}' found ${files.size} shaders")
+
+            for (i in files.indices) {
+                val fullKey = "${source.namespace}:${fileNames[i]}".intern()
+                AppState.logger.trace("[ShaderLoader] Registering $fullKey -> ${files[i]}")
+                pathMap[fullKey] = files[i]
+            }
         }
     }
 
     override fun loadValue(key: String): PShader {
-        AppState.logger.debug("[ShaderLoader] Loading shader '$key'")
-        return AppState.main.loadShader(pathMap[key])
+        val fullKey = resolveKey(key)
+        val path = pathMap[fullKey] ?: error("Shader '$fullKey' path not found")
+        AppState.logger.debug("[ShaderLoader] Loading shader '$fullKey' from '$path'")
+        return AppState.main.loadShader(path)
     }
 
 }

@@ -4,6 +4,7 @@ import la.vok.Game.GameContent.Items.Items.MostCommonStickItem
 import la.vok.Game.GameContent.Items.Other.AbstractItemType
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameContent.ContentList.ItemsList
+import la.vok.State.AppState
 import la.vok.Game.GameContent.ContentList.ItemTags
 import la.vok.Game.GameContent.Items.Other.ItemRenderConfig
 import la.vok.Game.GameController.GameCycle
@@ -12,7 +13,7 @@ import la.vok.LavokLibrary.Vectors.v
 
 class MostCommonStickItemType : AbstractItemType() {
     override val tag: String = ItemsList.most_common_stick
-    override val texture = "most_common_stick.png"
+    override val texture: String = AppState.res("most_common_stick.png")
 
     override val tags = setOf(ItemTags.WEAPON)
 

@@ -57,7 +57,7 @@ class HandItemComponent(
         changeRequested = false
     }
 
-    open fun checkItemsCount() {
+    fun checkItemsCount() {
         if (currentHandItem?.item?.count == 0) {
             currentHandItem?.hide()
             currentHandItem?.deactivate()
@@ -69,12 +69,12 @@ class HandItemComponent(
         }
     }
 
-    open fun renderUpdate() {
+    fun renderUpdate() {
         checkItemsCount()
         currentHandItem?.renderUpdate()
     }
 
-    open fun physicUpdate() {
+    fun physicUpdate() {
         checkItemsCount()
         tryApplyChange()
         currentHandItem?.physicUpdate()
@@ -90,25 +90,25 @@ class HandItemComponent(
             if ((entity.ai?.targetWorldPos()?.x ?: 0f) > entity.position.x) 1
             else -1
     }
-    open fun leftReleased() { currentHandItem?.leftReleased() }
-    open fun rightReleased() { currentHandItem?.rightReleased() }
+    fun leftReleased() { currentHandItem?.leftReleased() }
+    fun rightReleased() { currentHandItem?.rightReleased() }
 
-    open fun leftPressed(position: Vec2) {
+    fun leftPressed(position: Vec2) {
         checkItemsCount()
         currentHandItem?.leftPressed(position)
     }
 
-    open fun rightPressed(position: Vec2) {
+    fun rightPressed(position: Vec2) {
         checkItemsCount()
         currentHandItem?.rightPressed(position)
     }
 
-    open fun leftUpdate(position: Vec2, oldPosition: Vec2) {
+    fun leftUpdate(position: Vec2, oldPosition: Vec2) {
         checkItemsCount()
         currentHandItem?.leftUpdate(position, oldPosition)
     }
 
-    open fun rightUpdate(position: Vec2, oldPosition: Vec2) {
+    fun rightUpdate(position: Vec2, oldPosition: Vec2) {
         checkItemsCount()
         currentHandItem?.rightUpdate(position, oldPosition)
     }

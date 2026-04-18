@@ -14,6 +14,7 @@ import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimens
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
+import la.vok.State.AppState
 import processing.core.PImage
 import kotlin.math.*
 
@@ -22,7 +23,7 @@ class TreePartType() : AbstractTileType() {
     override val tag: String = TilesList.tree_part_block
     override val blockStrength: Int = 10
     override val maxHp: Int = 10
-    override val texture: String = "tree_part_block_1.png"
+    override val texture: String = AppState.res("tree_part_block_1.png")
     override val drop: DropEntry = NothingDrop
     override val tags = setOf(BlockTags.WOOD, BlockTags.SOLID, BlockTags.NO_SHADOW)
 
@@ -60,7 +61,7 @@ class TreePartType() : AbstractTileType() {
         sizeY: Float,
         gameController: GameController
     ) {
-        val texture = gameController.coreController.spriteLoader.getValue("tree_part_block_1.png")
+        val texture = gameController.coreController.spriteLoader.getValue(AppState.res("tree_part_block_1.png"))
         lg.setImage(texture, positionX, positionY, sizeX, sizeY)
     }
 
@@ -74,7 +75,7 @@ class TreePartType() : AbstractTileType() {
         sizeY: Float,
         gameController: GameController
     ) {
-        val texture = gameController.coreController.spriteLoader.getValue("tree_part_block_2.png")
+        val texture = gameController.coreController.spriteLoader.getValue(AppState.res("tree_part_block_2.png"))
         lg.setImage(texture, positionX, positionY, sizeX, sizeY)
 
         val subtype = getMiddleSubtype(pointX, pointY)
@@ -82,11 +83,11 @@ class TreePartType() : AbstractTileType() {
 
         when (subtype) {
             1 -> {
-                val t = gameController.coreController.spriteLoader.getValue("tree_part_block_2_-1.png")
+                val t = gameController.coreController.spriteLoader.getValue(AppState.res("tree_part_block_2_-1.png"))
                 lg.setImage(t, positionX, positionY, sizeX * 5f, sizeY * 5f)
             }
             2 -> {
-                val t = gameController.coreController.spriteLoader.getValue("tree_part_block_2_+1.png")
+                val t = gameController.coreController.spriteLoader.getValue(AppState.res("tree_part_block_2_+1.png"))
                 lg.setImage(t, positionX, positionY, sizeX * 5f, sizeY * 5f)
             }
             3 -> {
@@ -136,12 +137,12 @@ class TreePartType() : AbstractTileType() {
             val isTop    = mapApi.getTileType(dimension, x, ty + 1)?.tag != tag
 
             val mainTex = when {
-                isBottom -> spriteLoader.getValue("tree_part_block_1.png")
-                isTop    -> spriteLoader.getValue("tree_part_block_3.png")
-                else     -> spriteLoader.getValue("tree_part_block_2.png")
+                isBottom -> spriteLoader.getValue(AppState.res("tree_part_block_1.png"))
+                isTop    -> spriteLoader.getValue(AppState.res("tree_part_block_3.png"))
+                else     -> spriteLoader.getValue(AppState.res("tree_part_block_2.png"))
             }
 
-            val topLeaf = if (isTop) spriteLoader.getValue("tree_part_block_3_1.png") else null
+            val topLeaf = if (isTop) spriteLoader.getValue(AppState.res("tree_part_block_3_1.png")) else null
 
             val bgList = mutableListOf<PImage>()
             if (!isBottom && !isTop) {
@@ -193,9 +194,9 @@ class TreePartType() : AbstractTileType() {
         sizeY: Float,
         gameController: GameController
     ) {
-        var texture = gameController.coreController.spriteLoader.getValue("tree_part_block_3_1.png")
+        var texture = gameController.coreController.spriteLoader.getValue(AppState.res("tree_part_block_3_1.png"))
         lg.setImage(texture, positionX, positionY, sizeX * 6f, sizeY * 6f)
-        texture = gameController.coreController.spriteLoader.getValue("tree_part_block_3.png")
+        texture = gameController.coreController.spriteLoader.getValue(AppState.res("tree_part_block_3.png"))
         lg.setImage(texture, positionX, positionY, sizeX, sizeY)
     }
 }

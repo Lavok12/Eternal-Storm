@@ -22,43 +22,48 @@ class LocalizedFontsLoader(
     }
 
     override fun loadPaths() {
-        AppState.logger.debug("[LocalizedFontsLoader] Loading localized fonts for '$currentLanguage'")
+        AppState.logger.debug("[LocalizedFontsLoader] Loading localized fonts for '$currentLanguage' from all sources")
 
         pathMap.clear()
         valueMap.clear()
         contentMap.clear()
 
+        val sortedSources = AppState.resourceSources.sortedBy { it.priority }
 
-        val langDir = "${AppState.localizedFontsPath}/$currentLanguage"
+        for (source in sortedSources) {
+            val langDir = "${source.rootPath}/${AppState.FOLDER_FONTS_LOCALIZED}/$currentLanguage"
+            val utility = LFileUtility(langDir, true)
+            
+            if (!utility.isExists()) continue
 
-        val files = LFileUtility(langDir, true).getAllFilesRecursive()
-        val fileNames = LFileUtility(langDir, false).getAllFilesRecursive()
+            val files = utility.getAllFilesRecursive()
+            val fileNames = LFileUtility(langDir, false).getAllFilesRecursive()
 
-        AppState.logger.debug("[LocalizedFontsLoader] Found ${files.size} localized font files")
+            AppState.logger.debug("[LocalizedFontsLoader] Source '${source.namespace}' found ${files.size} localized font files")
 
-        for (i in files.indices) {
-            val name = fileNames[i]
-            val path = files[i]
+            for (i in files.indices) {
+                val name = fileNames[i]
+                val path = files[i]
 
-            // Фильтрация по расширениям шрифтов
-            if (name.endsWith(".ttf", true) || name.endsWith(".otf", true) || name.endsWith(".vlw", true)) {
-                AppState.logger.trace("[LocalizedFontsLoader] $name -> $path")
-                pathMap[name] = path
+                if (name.endsWith(".ttf", true) || name.endsWith(".otf", true) || name.endsWith(".vlw", true)) {
+                    val fullKey = "${source.namespace}:$name".intern()
+                    AppState.logger.trace("[LocalizedFontsLoader] Registering $fullKey -> $path")
+                    pathMap[fullKey] = path
+                }
             }
         }
     }
 
     override fun loadValue(key: String): PFont {
-        val path = pathMap[key]
-            ?: error("Localized font '$key' not found for language '$currentLanguage'")
+        val fullKey = resolveKey(key)
+        val path = pathMap[fullKey]
+            ?: error("Localized font '$fullKey' not found for language '$currentLanguage'")
 
-        AppState.logger.debug("[LocalizedFontsLoader] Loading font '$key' from '$path'")
+        AppState.logger.debug("[LocalizedFontsLoader] Loading font '$fullKey' from '$path'")
 
-        return if (key.endsWith(".vlw", true)) {
+        return if (fullKey.endsWith(".vlw", true)) {
             AppState.main.loadFont(path)
         } else {
-            // Для векторных шрифтов (ttf/otf) используем стандартный размер 32
-            // В Processing размер можно переопределить при выводе текста через textFont(font, size)
             AppState.main.createFont(path, 32f, true)
         }
     }
