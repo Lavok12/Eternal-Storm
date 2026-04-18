@@ -55,7 +55,7 @@ class InventoryCell(
             else -> lg.fill(140f, 150f, 160f, 100f)
         }
         lg.noStroke()
-        lg.setBlock(positionWithCache, size*0.9f, 15f)
+        lg.setBlock(positionWithCache, size*0.9f)
         slot?.item?.cellRender(lg, positionWithCache, size*0.9f, this)
     }
 

@@ -16,15 +16,35 @@ open class WStandartPanel(windowsManager: WindowsManager) : AbstractWindow(windo
     open val bgBottomColor: LColor = LColor(200f)
 
     open var gradientMultiple = 0.5f
+
+    private var cachedBg: processing.core.PImage? = null
+    private var lastBgRes = LPoint(-1, -1)
+    private var lastTopCol: LColor? = null
+    private var lastBottomCol: LColor? = null
+
     override fun draw(mainRender: MainRender) {
-        lg.setImage(
-            GradientInfo(
+        val resX = (logicalSize.x * gradientMultiple).toInt()
+        val resY = (logicalSize.y * gradientMultiple).toInt()
+
+        if (cachedBg == null || 
+            resX != lastBgRes.x || resY != lastBgRes.y || 
+            bgTopColor != lastTopCol || bgBottomColor != lastBottomCol) {
+            
+            cachedBg = GradientInfo(
                 bgTopColor,
                 bgBottomColor,
                 LPoint(0, 0),
-                LPoint(0, (logicalSize.y * gradientMultiple).toInt()),
-                LPoint((logicalSize.x * gradientMultiple).toInt(), (logicalSize.y * gradientMultiple).toInt())
-            ).generate(),
+                LPoint(0, resY),
+                LPoint(resX, resY)
+            ).generate()
+            
+            lastBgRes = LPoint(resX, resY)
+            lastTopCol = bgTopColor.copy()
+            lastBottomCol = bgBottomColor.copy()
+        }
+
+        lg.setImage(
+            cachedBg!!,
             Vec2(0f),
             logicalSize
         )

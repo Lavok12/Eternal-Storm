@@ -80,7 +80,7 @@ inline fun forEachVec4(from: Vec4, to: Vec4, step: Float, action: (Vec4) -> Unit
     }
 }
 
-fun forEachInArea(p1: LPoint, p2: LPoint, plusBorder: Int = 0, action: (x: Int, y: Int) -> Unit) {
+inline fun forEachInArea(p1: LPoint, p2: LPoint, plusBorder: Int = 0, action: (x: Int, y: Int) -> Unit) {
     // Вычисляем границы, чтобы метод работал при любом порядке углов
     val minX = minOf(p1.x, p2.x)
     val maxX = maxOf(p1.x, p2.x)

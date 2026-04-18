@@ -56,7 +56,7 @@ class LanguageLoader(
         pathMap.clear()
         valueMap.clear()
 
-        val sortedSources = AppState.resourceSources.sortedBy { it.priority }
+        val sortedSources = coreController.objectRegistration.resourceSources.sortedBy { it.priority }
 
         for (source in sortedSources) {
             val langPath = "${source.rootPath}/${AppState.FOLDER_LANG}/$currentLanguage"

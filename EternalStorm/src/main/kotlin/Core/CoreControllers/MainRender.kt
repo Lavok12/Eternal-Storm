@@ -13,6 +13,11 @@ class MainRender(var coreController: CoreController) : Controller {
     }
 
     lateinit var lg: LGraphics
+    
+    private var lastUsedMem = 0L
+    private var allocAcc = 0L
+    private var lastStatTime = 0L
+    private var allocRate = 0f
 
     override fun renderTick() {
         AppState.logger.trace("[Render] tick() begin")
@@ -81,9 +86,28 @@ class MainRender(var coreController: CoreController) : Controller {
         AppState.main.textSize(20f)
         AppState.main.fill(255f)
         AppState.main.textAlign(PApplet.LEFT, PApplet.TOP)
-        AppState.main.text("${FrameLimiter.currentUpdateFPS}", 10f, 10f)
-        AppState.main.text("${FrameLimiter.currentRenderFPS}", 10f, 30f)
-        AppState.main.text("${FrameLimiter.currentPhysicsFPS}", 10f, 50f)
+        AppState.main.text("${FrameLimiter.currentUpdateFPS}", 10f, 30f)
+        AppState.main.text("${FrameLimiter.currentRenderFPS}", 10f, 50f)
+        AppState.main.text("${FrameLimiter.currentPhysicsFPS}", 10f, 70f)
+
+        val rt = Runtime.getRuntime()
+        val used = rt.totalMemory() - rt.freeMemory()
+        val usedMB = used / (1024 * 1024)
+        val maxMB = rt.maxMemory() / (1024 * 1024)
+
+        val now = System.currentTimeMillis()
+        if (used > lastUsedMem) {
+            allocAcc += (used - lastUsedMem)
+        }
+        if (now - lastStatTime >= 1000) {
+            allocRate = allocAcc.toFloat() / (1024f * 1024f)
+            allocAcc = 0
+            lastStatTime = now
+        }
+        lastUsedMem = used
+
+        AppState.main.text("Memory: $usedMB MB / $maxMB MB (${"%.1f".format(allocRate)} MB/s)", 10f, 10f)
+
     }
 
     fun renderTooltip() {

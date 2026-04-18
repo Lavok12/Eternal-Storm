@@ -28,7 +28,7 @@ class LocalizedFontsLoader(
         valueMap.clear()
         contentMap.clear()
 
-        val sortedSources = AppState.resourceSources.sortedBy { it.priority }
+        val sortedSources = coreController.objectRegistration.resourceSources.sortedBy { it.priority }
 
         for (source in sortedSources) {
             val langDir = "${source.rootPath}/${AppState.FOLDER_FONTS_LOCALIZED}/$currentLanguage"

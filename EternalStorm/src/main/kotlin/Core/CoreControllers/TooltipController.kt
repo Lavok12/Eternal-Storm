@@ -69,7 +69,7 @@ class TooltipController(var coreController: CoreController) : Controller {
         lg.stroke(LColor(30f, 30f, 30f))
         lg.strokeWeight(3f)
         lg.fill(LColor(180f, 185f, 190f))
-        lg.setBlock(boxPos, boxSize, 4f)
+        lg.setBlock(boxPos, boxSize)
         lg.noStroke()
 
         lg.fill(255f)

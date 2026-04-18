@@ -22,6 +22,8 @@ class CoreController : Controller {
         create()
     }
 
+    var objectRegistration = ObjectRegistration(this)
+
     var spriteLoader = SpritesLoader(this)
     var localizedSpriteLoader = LocalizedSpriteLoader(this, AppState.lang)
     var shaderLoader = ShaderLoader(this)
@@ -39,8 +41,6 @@ class CoreController : Controller {
     var mainContentRegistration = MainContentRegistration(this)
 
     var sceneController: SceneController? = null
-
-    var objectRegistration = ObjectRegistration(this)
 
 
     fun start() {

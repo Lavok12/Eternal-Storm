@@ -49,7 +49,7 @@ class CraftCell(
             else                    -> lg.fill(100f, 100f, 110f, alpha)
         }
         lg.noStroke()
-        lg.setBlock(positionWithCache, size * 0.9f, 15f)
+        lg.setBlock(positionWithCache, size * 0.9f)
 
         if (completionPercent < 1) {
             // Полоска прогресса снизу
@@ -58,8 +58,7 @@ class CraftCell(
             lg.fill(255f, 255f, 100f, 160f)
             lg.setBlock(
                 positionWithCache + ((-(size.x * 0.9f - barW) / 2f) v (-size.y * 0.9f / 2f + barH / 2f)),
-                barW v barH,
-                3f
+                barW v barH
             )
         }
 

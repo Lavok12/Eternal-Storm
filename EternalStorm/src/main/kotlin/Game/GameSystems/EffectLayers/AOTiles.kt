@@ -33,7 +33,6 @@ class AOTiles(var gameRender: GameRender, point: LPoint, mp: Float = 0.7f) : Eff
 
         val blockScaleX = camera.useCameraSizeX(1f)
         val blockScaleY = camera.useCameraSizeY(1f)
-        val treeTag = TilesList.tree_part_block
 
         forEachInArea(p1, p2, 1) { ix, iy ->
             val tileType = gameController.gameCycle.mapApi.getTileType(dim, ix, iy) ?: return@forEachInArea

@@ -28,7 +28,7 @@ class LocalizedSpriteLoader(
         valueMap.clear()
         contentMap.clear()
 
-        val sortedSources = AppState.resourceSources.sortedBy { it.priority }
+        val sortedSources = coreController.objectRegistration.resourceSources.sortedBy { it.priority }
 
         for (source in sortedSources) {
             val langDir = "${source.rootPath}/${AppState.FOLDER_IMAGES_LOCALIZED}/$currentLanguage"

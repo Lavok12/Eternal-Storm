@@ -96,7 +96,7 @@ class LGraphics() : FrameRect {
     fun checkResolution() {
         if (windowWidth != AppState.main.width ||
             windowHeight != AppState.main.height) {
-            updateResolution()
+            //updateResolution()
         }
     }
 
@@ -295,7 +295,7 @@ class LGraphics() : FrameRect {
         pg.rect((disW2 + xPos - xSize / 2) * M, (disH2 - yPos - ySize / 2) * M, xSize * M, ySize * M)
     }
 
-    fun setBlock(xPos: Float, yPos: Float, xSize: Float, ySize: Float, k: Float) {
+    fun setBlockNB(xPos: Float, yPos: Float, xSize: Float, ySize: Float, k: Float) {
         pg.rect((disW2 + xPos - xSize / 2) * M, (disH2 - yPos - ySize / 2) * M, xSize * M, ySize * M, k * M)
     }
 
@@ -399,8 +399,8 @@ class LGraphics() : FrameRect {
     fun setBlock(pos: Vec2, size: Vec2) =
         setBlock(pos.x, pos.y, size.x, size.y)
 
-    fun setBlock(pos: Vec2, size: Vec2, radius: Float) =
-        setBlock(pos.x, pos.y, size.x, size.y, radius)
+    fun setBlockNB(pos: Vec2, size: Vec2, radius: Float) =
+        setBlockNB(pos.x, pos.y, size.x, size.y, radius)
     fun setEps(pos: Vec2, size: Vec2) =
         setEps(pos.x, pos.y, size.x, size.y)
 

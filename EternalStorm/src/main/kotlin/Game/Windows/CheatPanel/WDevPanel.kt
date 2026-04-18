@@ -62,6 +62,47 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
     private var isOpen = true
 
     // =====================================================================
+    // MEMORY MONITORING
+    // =====================================================================
+
+    private var lastUsedMem     = 0L
+    private var allocAcc        = 0L
+    private var lastStatTime    = 0L
+    private var allocRate       = 0f
+    
+    private val memHistory      = FloatArray(100)
+    private var historyIdx      = 0
+    private var historyTimer    = 0f
+
+    private fun updateMemoryStats(dt: Float) {
+        val rt = Runtime.getRuntime()
+        val used = rt.totalMemory() - rt.freeMemory()
+        val now = System.currentTimeMillis()
+
+        // Track allocations (only positive deltas)
+        if (used > lastUsedMem) {
+            allocAcc += (used - lastUsedMem)
+        }
+
+        // Update allocation rate every second
+        if (now - lastStatTime >= 1000) {
+            allocRate = allocAcc.toFloat() / (1024f * 1024f)
+            allocAcc = 0
+            lastStatTime = now
+        }
+
+        // Update history graph every 0.1s
+        historyTimer += dt
+        if (historyTimer >= 0.1f) {
+            memHistory[historyIdx] = used.toFloat() / (1024f * 1024f)
+            historyIdx = (historyIdx + 1) % memHistory.size
+            historyTimer = 0f
+        }
+
+        lastUsedMem = used
+    }
+
+    // =====================================================================
     // DATA PROVIDERS
     // =====================================================================
 
@@ -87,6 +128,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
 
     override fun draw(mainRender: MainRender) {
         val dt = FrameLimiter.renderDeltaTime
+        updateMemoryStats(dt)
         lg.pg.clear()
         
         if (isOpen) {
@@ -117,14 +159,14 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
         lg.noStroke()
         for (i in 1..4) {
             lg.fill(20f, 30f, 80f, (8f - i * 1.5f) * alpha)
-            lg.setBlock(cx, cy, w + i * 12f, h + i * 12f, cornerR + i * 5f)
+            lg.setBlock(cx, cy, w + i * 12f, h + i * 12f)
         }
 
         lg.fill(16f, 18f, 26f, 240f * alpha)
-        lg.setBlock(cx, cy, w, h, cornerR)
+        lg.setBlock(cx, cy, w, h)
 
         lg.fill(80f, 140f, 255f, 60f * alpha)
-        lg.setBlock(cx, cy + h / 2f - 2f, w * 0.9f, 2f, 1f)
+        lg.setBlock(cx, cy + h / 2f - 2f, w * 0.9f, 2f)
 
         lg.setTextAlign(0, 0)
         lg.fill(180f, 210f, 255f, 230f * alpha)
@@ -157,11 +199,11 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
             
             val bgAlpha = if (isActive) 180f else if (isHover) 120f else 60f
             lg.fill(40f, 60f, 120f, bgAlpha * alpha)
-            lg.setBlock(tx, tabY, tabW * scale, tabH * scale, 12f)
+            lg.setBlock(tx, tabY, tabW * scale, tabH * scale)
             
             if (isActive) {
                 lg.fill(100f, 180f, 255f, 255f * alpha)
-                lg.setBlock(tx, tabY - tabH * scale / 2f + 2f, tabW * 0.6f * scale, 3f, 1f)
+                lg.setBlock(tx, tabY - tabH * scale / 2f + 2f, tabW * 0.6f * scale, 3f)
             }
 
             lg.fill(if (isActive) 255f else 180f, 240f * alpha)
@@ -183,7 +225,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
             
             lg.fill(30f, 35f, 55f, 160f * alpha)
             if (isHover && hoveredBtn == 0) lg.fill(45f, 60f, 110f, 180f * alpha)
-            lg.setBlock(cx, posY, cw, ch, 14f)
+            lg.setBlock(cx, posY, cw, ch)
             
             lg.setTextAlign(-1, 0)
             lg.fill(220f, 235f, 255f, 240f * alpha)
@@ -194,7 +236,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
             val btnHover = (isHover && hoveredBtn == 1)
             
             lg.fill(60f, 180f, 120f, if (btnHover) 240f * alpha else 140f * alpha)
-            lg.setBlock(btnX, posY, btnW, ch * 0.7f, 10f)
+            lg.setBlock(btnX, posY, btnW, ch * 0.7f)
             
             lg.setTextAlign(0, 0)
             lg.fill(255f, 255f * alpha)
@@ -216,7 +258,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
             
             lg.fill(32f, 32f, 48f, 160f * alpha)
             if (isHover && hoveredBtn == 0) lg.fill(50f, 50f, 85f, 180f * alpha)
-            lg.setBlock(cx, posY, cw, ch, 14f)
+            lg.setBlock(cx, posY, cw, ch)
             
             try {
                 val sprite = gameController.coreController.spriteLoader.getValue(item.texture)
@@ -232,7 +274,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
             val btnHover = (isHover && hoveredBtn == 1)
             
             lg.fill(200f, 130f, 60f, if (btnHover) 240f * alpha else 150f * alpha)
-            lg.setBlock(btnX, posY, btnW, ch * 0.7f, 10f)
+            lg.setBlock(btnX, posY, btnW, ch * 0.7f)
             
             lg.setTextAlign(0, 0)
             lg.fill(255f, 255f * alpha)
@@ -251,7 +293,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
             if (posY > topY + ch || posY < topY - viewH - ch) return@forEachIndexed
             
             lg.fill(38f, 35f, 45f, 140f * alpha)
-            lg.setBlock(cx, posY, cw, ch, 16f)
+            lg.setBlock(cx, posY, cw, ch)
             
             val resType = craft.resultType
             if (resType != null) {
@@ -294,7 +336,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
             
             lg.fill(30f, 45f, 50f, 160f * alpha)
             if (isHover && hoveredBtn == 0) lg.fill(50f, 70f, 85f, 180f * alpha)
-            lg.setBlock(cx, posY, cw, ch, 14f)
+            lg.setBlock(cx, posY, cw, ch)
             
             lg.setTextAlign(-1, 0)
             lg.fill(150f, 255f, 200f, 240f * alpha)
@@ -308,7 +350,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
             val btnHover = (isHover && hoveredBtn == 1)
             
             lg.fill(80f, 140f, 255f, if (btnHover) 240f * alpha else 150f * alpha)
-            lg.setBlock(btnX, posY, btnW, ch * 0.7f, 10f)
+            lg.setBlock(btnX, posY, btnW, ch * 0.7f)
             
             lg.setTextAlign(0, 0)
             lg.fill(255f, 255f * alpha)
@@ -332,15 +374,49 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
         yOff -= 32f * scale
         
         lg.fill(25f, 30f, 45f, 200f * alpha)
-        lg.setBlock(cx, yOff, tw, 28f * scale, 8f)
+        lg.setBlock(cx, yOff, tw, 28f * scale)
         lg.fill(80f, 160f, 255f, 180f * alpha)
         val barW = tw * pct
-        lg.setBlock(cx - tw / 2f + barW / 2f, yOff, barW, 28f * scale, 8f)
+        lg.setBlock(cx - tw / 2f + barW / 2f, yOff, barW, 28f * scale)
         
         lg.fill(255f, 240f * alpha)
         lg.setText("Used: $used MB / Max: $max MB", cx - tw / 2f + 15f * scale, yOff + 4f, 11f * scale)
+        lg.setTextAlign(1, 0)
+        lg.fill(255f, 150f, 100f, 220f * alpha)
+        lg.setText("ALLOC: ${"%.1f".format(allocRate)} MB/s", cx + tw / 2f - 15f * scale, yOff + 4f, 11f * scale)
         
-        yOff -= 65f * scale
+        // --- MEMORY GRAPH ---
+        yOff -= 55f * scale
+        val graphH = 60f * scale
+        lg.fill(20f, 25f, 40f, 180f * alpha)
+        lg.setBlock(cx, yOff, tw, graphH)
+        
+        // Draw history lines
+        lg.stroke(80f, 160f, 255f, 200f * alpha)
+        lg.strokeWeight(2f * scale)
+        val step = tw / (memHistory.size - 1)
+        val minMem = memHistory.minOrNull() ?: 0f
+        val maxMem = memHistory.maxOrNull()?.coerceAtLeast(minMem + 1f) ?: 100f
+        val range = maxMem - minMem
+        
+        for (i in 0 until memHistory.size - 1) {
+            val idx1 = (historyIdx + i) % memHistory.size
+            val idx2 = (historyIdx + i + 1) % memHistory.size
+            
+            val v1 = memHistory[idx1]
+            val v2 = memHistory[idx2]
+            
+            val x1 = cx - tw / 2f + i * step
+            val x2 = cx - tw / 2f + (i + 1) * step
+            val y1 = yOff - graphH / 2f + ((v1 - minMem) / range) * graphH
+            val y2 = yOff - graphH / 2f + ((v2 - minMem) / range) * graphH
+            
+            lg.setLine(x1, y1, x2, y2)
+        }
+        lg.noStroke()
+        lg.setTextAlign(-1, 0)
+
+        yOff -= 50f * scale
         
         lg.fill(140f, 200f, 255f, 220f * alpha)
         lg.setText("SYSTEM TELEMETRY", cx - tw / 2f + 10f * scale, yOff, 15f * scale)
@@ -373,7 +449,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
         val hActive = AppState.hitboxDebug
         val hHover = hoveredIndex == 10 && hoveredBtn == 1
         lg.fill(if (hActive) 60f else 30f, if (hActive) 180f else 40f, if (hActive) 100f else 55f, if (hHover) 255f * alpha else 180f * alpha)
-        lg.setBlock(cx - btnW / 2f - 10f * scale, yOff, btnW, btnH, 12f)
+        lg.setBlock(cx - btnW / 2f - 10f * scale, yOff, btnW, btnH)
         lg.setTextAlign(0, 0)
         lg.fill(255f, 255f * alpha)
         lg.setText("HITBOXES: ${if (hActive) "ACTIVE" else "DISABLED"}", cx - btnW / 2f - 10f * scale, yOff + 4f, 12f * scale)
@@ -381,7 +457,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
         val rActive = AppState.renderDebug
         val rHover = hoveredIndex == 11 && hoveredBtn == 1
         lg.fill(if (rActive) 100f else 30f, if (rActive) 140f else 40f, if (rActive) 255f else 55f, if (rHover) 255f * alpha else 180f * alpha)
-        lg.setBlock(cx + btnW / 2f + 10f * scale, yOff, btnW, btnH, 12f)
+        lg.setBlock(cx + btnW / 2f + 10f * scale, yOff, btnW, btnH)
         lg.fill(255f, 255f * alpha)
         lg.setText("METADATA: ${if (rActive) "VISIBLE" else "HIDDEN"}", cx + btnW / 2f + 10f * scale, yOff + 4f, 12f * scale)
 
@@ -393,12 +469,12 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
         yOff -= 32f * scale
         
         lg.fill(30f, 40f, 60f, 150f * alpha)
-        lg.setBlock(cx, yOff, tw, 20f * scale, 10f)
+        lg.setBlock(cx, yOff, tw, 20f * scale)
         
         val zNorm = ((gameController.mainCamera.size - 2f) / 198f).coerceIn(0f, 1f)
         val hx = cx - tw / 2f + tw * zNorm
         lg.fill(120f, 180f, 255f, 230f * alpha)
-        lg.setBlock(hx, yOff, 30f * scale, 30f * scale, 8f)
+        lg.setBlock(hx, yOff, 30f * scale, 30f * scale)
     }
 
     override fun mouseWheel(position: Vec2, event: MouseEvent) {
@@ -442,7 +518,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
             val tw = panelW * 0.82f * scale
             val btnW = 240f * scale
             val btnH = 45f * scale
-            var yOff = (topY - (30 + 32 + 65 + 32 + 4 * 26 + 40 + 45) * scale) + scroll * scale
+            var yOff = (topY - (30 + 32 + 55 + 50 + 32 + 4 * 26 + 40 + 45) * scale) + scroll * scale
             
             if (absInside(cx - btnW / 2f - 10f * scale v yOff, btnW v btnH, position)) { hoveredIndex = 10; hoveredBtn = 1; return }
             if (absInside(cx + btnW / 2f + 10f * scale v yOff, btnW v btnH, position)) { hoveredIndex = 11; hoveredBtn = 1; return }

@@ -18,7 +18,7 @@ class SpritesLoader(var coreController: CoreController) : Controller, ContentLoa
         AppState.logger.debug("[SpriteLoader] Loading sprites from all sources")
         pathMap.clear()
 
-        val sortedSources = AppState.resourceSources.sortedBy { it.priority }
+        val sortedSources = coreController.objectRegistration.resourceSources.sortedBy { it.priority }
 
         for (source in sortedSources) {
             val spritePath = "${source.rootPath}/${AppState.FOLDER_IMAGES}"

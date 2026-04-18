@@ -44,6 +44,7 @@ open class EffectLayer(var point: LPoint, var mp: Float = 1f) {
     }
 
     fun resize(point: LPoint, mp: Float = 1f) {
+        if (this.point == point && this.mp == mp && lg != null) return
         AppState.logger.debug("resize LG ${this::class.simpleName}")
         this.point = point
         this.mp = mp

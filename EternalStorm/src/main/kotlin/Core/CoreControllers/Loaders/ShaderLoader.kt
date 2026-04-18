@@ -19,7 +19,7 @@ class ShaderLoader(var coreController: CoreController) : Controller, ContentLoad
         AppState.logger.debug("[ShaderLoader] Loading shaders from all sources")
         pathMap.clear()
 
-        val sortedSources = AppState.resourceSources.sortedBy { it.priority }
+        val sortedSources = coreController.objectRegistration.resourceSources.sortedBy { it.priority }
 
         for (source in sortedSources) {
             val shaderPath = "${source.rootPath}/${AppState.FOLDER_SHADERS}"

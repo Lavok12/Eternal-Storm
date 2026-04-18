@@ -8,7 +8,7 @@ import la.vok.LavokLibrary.Vectors.LColor
 
 class MainDimension(gameCycle: GameCycle) : AbstractDimension(gameCycle) {
     override val dimensionTag: String = DimensionsList.main
-    override val width: Int = 1500
+    override val width: Int = 15000
     override val height: Int = 1000
     override var skyColor: LColor  = LColor(100f, 160f, 220f)
 
