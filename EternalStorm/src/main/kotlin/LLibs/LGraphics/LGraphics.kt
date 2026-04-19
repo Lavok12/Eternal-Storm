@@ -345,6 +345,11 @@ class LGraphics() : FrameRect {
         pg.image(img, (disW2 + x - w / 2f) * M, (disH2 - y - h / 2f) * M, w * M, h * M)
     }
 
+    fun setImage(img: PImage?, x: Float, y: Float, w: Float, h: Float, sx: Int, sy: Int, sw: Int, sh: Int) {
+        if (img == null) return
+        pg.image(img, (disW2 + x - w / 2f) * M, (disH2 - y - h / 2f) * M, w * M, h * M, sx, sy, (sx + sw), (sy + sh))
+    }
+
     fun setImage(img: PImage?, pos: Vec2, size: Vec2) {
         if (img == null) return
         pg.image(img, (disW2 + pos.x - size.x / 2f) * M, (disH2 - pos.y - size.y / 2f) * M, size.x * M, size.y * M)

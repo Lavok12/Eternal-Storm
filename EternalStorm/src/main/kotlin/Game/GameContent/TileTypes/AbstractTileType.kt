@@ -26,7 +26,8 @@ data class TileRenderConfig(
     val sizeMultiplier: Float = 1.0f,
     val useSquareRender: Boolean = false,
     val renderDelta: Vec2 = 0f v 0f,
-    val renderBreakProgress: Boolean = true
+    val renderBreakProgress: Boolean = true,
+    val useBatchLayer: Boolean = true
 )
 
 abstract class AbstractTileType : IBlockType {
@@ -101,7 +102,7 @@ abstract class AbstractTileType : IBlockType {
             finalH
         )
         
-        if (renderConfig.renderBreakProgress) {
+        if (renderConfig.renderBreakProgress && !AppState.isBatchRendering) {
             renderBreakProgress(pointX, pointY, lg, positionX + offsetX, positionY + offsetY, finalW, finalH, dimension, gameController)
         }
     }

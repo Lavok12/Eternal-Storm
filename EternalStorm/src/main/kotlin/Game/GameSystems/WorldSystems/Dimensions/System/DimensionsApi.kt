@@ -18,5 +18,6 @@ class DimensionsApi(val dimensionsController: DimensionsController) {
     fun changeRenderDimension(oldDim: AbstractDimension, newDim: AbstractDimension) {
         dimensionsController.gameCycle.entityApi.hideDimensionEntity(oldDim)
         dimensionsController.gameCycle.entityApi.showDimensionEntity(newDim)
+        dimensionsController.gameCycle.batchApi.markAllDirty()
     }
 }

@@ -18,6 +18,8 @@ import la.vok.Game.GameSystems.WorldSystems.Dimensions.System.DimensionsApi
 import la.vok.State.AppState
 import processing.event.MouseEvent
 import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.math.log10
 
 class WDevPanel(windowsManager: WindowsManager, val gameController: GameController) : WStandartPanel(windowsManager) {
 
@@ -461,6 +463,22 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
         lg.fill(255f, 255f * alpha)
         lg.setText("METADATA: ${if (rActive) "VISIBLE" else "HIDDEN"}", cx + btnW / 2f + 10f * scale, yOff + 4f, 12f * scale)
 
+        yOff -= 55f * scale
+        
+        val bActive = AppState.enableBatching
+        val bHover = hoveredIndex == 12 && hoveredBtn == 1
+        lg.fill(if (bActive) 30f else 100f, if (bActive) 140f else 40f, if (bActive) 100f else 55f, if (bHover) 255f * alpha else 180f * alpha)
+        lg.setBlock(cx - btnW / 2f - 10f * scale, yOff, btnW, btnH)
+        lg.fill(255f, 255f * alpha)
+        lg.setText("BATCH: ${if (bActive) "ACTIVE" else "DISABLED"}", cx - btnW / 2f - 10f * scale, yOff + 4f, 12f * scale)
+        
+        val dbActive = AppState.debugBatchGrid
+        val dbHover = hoveredIndex == 13 && hoveredBtn == 1
+        lg.fill(if (dbActive) 100f else 30f, if (dbActive) 140f else 40f, if (dbActive) 255f else 55f, if (dbHover) 255f * alpha else 180f * alpha)
+        lg.setBlock(cx + btnW / 2f + 10f * scale, yOff, btnW, btnH)
+        lg.fill(255f, 255f * alpha)
+        lg.setText("BATCH GRID: ${if (dbActive) "VISIBLE" else "HIDDEN"}", cx + btnW / 2f + 10f * scale, yOff + 4f, 12f * scale)
+
         yOff -= 75f * scale
 
         lg.setTextAlign(-1, 0)
@@ -471,7 +489,9 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
         lg.fill(30f, 40f, 60f, 150f * alpha)
         lg.setBlock(cx, yOff, tw, 20f * scale)
         
-        val zNorm = ((gameController.mainCamera.size - 2f) / 198f).coerceIn(0f, 1f)
+        val minZ = 0.5f
+        val maxZ = 200f
+        val zNorm = (log10(gameController.mainCamera.size / minZ) / log10(maxZ / minZ)).coerceIn(0f, 1f)
         val hx = cx - tw / 2f + tw * zNorm
         lg.fill(120f, 180f, 255f, 230f * alpha)
         lg.setBlock(hx, yOff, 30f * scale, 30f * scale)
@@ -523,6 +543,10 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
             if (absInside(cx - btnW / 2f - 10f * scale v yOff, btnW v btnH, position)) { hoveredIndex = 10; hoveredBtn = 1; return }
             if (absInside(cx + btnW / 2f + 10f * scale v yOff, btnW v btnH, position)) { hoveredIndex = 11; hoveredBtn = 1; return }
             
+            yOff -= 55f * scale
+            if (absInside(cx - btnW / 2f - 10f * scale v yOff, btnW v btnH, position)) { hoveredIndex = 12; hoveredBtn = 1; return }
+            if (absInside(cx + btnW / 2f + 10f * scale v yOff, btnW v btnH, position)) { hoveredIndex = 13; hoveredBtn = 1; return }
+
             yOff -= (75 + 32) * scale
             if (absInside(cx v yOff, tw v 40f * scale, position)) { hoveredIndex = 20; hoveredBtn = 1; return }
             return
@@ -568,12 +592,22 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
                 Tab.TECH -> {
                     if (hoveredIndex == 10) AppState.hitboxDebug = !AppState.hitboxDebug
                     if (hoveredIndex == 11) AppState.renderDebug = !AppState.renderDebug
+                    if (hoveredIndex == 12) {
+                        AppState.enableBatching = !AppState.enableBatching
+                        if (!AppState.enableBatching) {
+                            gameController.gameCycle.batchApi.clearAll()
+                        }
+                    }
+                    if (hoveredIndex == 13) AppState.debugBatchGrid = !AppState.debugBatchGrid
                     if (hoveredIndex == 20) {
                         val scale = 0.85f + 0.15f * openAnim.evaluate(openProgress)
                         val tw = panelW * 0.82f * scale
                         val cx = 0f
+                        val minZ = 0.5f
+                        val maxZ = 200f
                         val zNorm = ((position.x - (cx - tw / 2f)) / (tw.coerceAtLeast(1f))).coerceIn(0f, 1f)
-                        gameController.mainCamera.setCameraZoom((2f + zNorm * 198f), minZoom = 2f, maxZoom = 200f)
+                        val targetZoom = minZ * (maxZ / minZ).pow(zNorm)
+                        gameController.mainCamera.setCameraZoom(targetZoom, minZoom = minZ, maxZoom = maxZ)
                     }
                 }
                 else -> {}
@@ -585,8 +619,13 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
         if (activeTab == Tab.TECH && hoveredIndex == 20) {
             val scale = 0.85f + 0.15f * openAnim.evaluate(openProgress)
             val tw = panelW * 0.82f * scale
-            val zNorm = ((position.x - (0f - tw/2f)) / (tw.coerceAtLeast(1f))).coerceIn(0f, 1f)
-            gameController.mainCamera.setCameraZoom((2f + zNorm * 198f), minZoom = 2f, maxZoom = 200f)
+            val cx = 0f
+            
+            val minZ = 0.5f
+            val maxZ = 200f
+            val zNorm = ((position.x - (cx - tw / 2f)) / (tw.coerceAtLeast(1f))).coerceIn(0f, 1f)
+            val targetZoom = minZ * (maxZ / minZ).pow(zNorm)
+            gameController.mainCamera.setCameraZoom(targetZoom, minZoom = minZ, maxZoom = maxZ)
         }
     }
     private fun absInside(pos: Vec2, size: Vec2, tap: Vec2): Boolean {

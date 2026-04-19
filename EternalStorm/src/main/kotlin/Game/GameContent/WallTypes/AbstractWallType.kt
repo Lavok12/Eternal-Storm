@@ -22,6 +22,8 @@ abstract class AbstractWallType : IBlockType {
     override val drop: DropEntry = NothingDrop
     override val tags: Set<String> = emptySet()
 
+    open val useBatchLayer: Boolean = true
+
     open fun hasTag(tag: String): Boolean = tag in tags
     
     val interactionReactions = mutableMapOf<BlockInteractionType, MutableList<(BlockInteractionContext) -> Unit>>()

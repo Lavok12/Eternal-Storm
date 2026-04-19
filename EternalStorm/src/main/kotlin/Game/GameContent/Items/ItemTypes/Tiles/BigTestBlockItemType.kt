@@ -7,6 +7,6 @@ import la.vok.Game.GameContent.Items.Other.UsingVariants
 
 class BigTestBlockItemType : BaseTileItemType() {
     override val tag: String = ItemsList.big_test_block
-    override val texture: String = AppState.res("3x3.png")
+    override val texture: String = AppState.res("big_test_block.png")
     override val usingVariants = UsingVariants.PlaceTile(TilesList.big_test_block)
 }

@@ -22,6 +22,8 @@ class GameCycle(var gameController: GameController) : Controller {
 
     var dimensionsController = DimensionsController(this)
     val dimensionsApi get() = dimensionsController.dimensionsApi
+    
+    val batchApi: la.vok.Game.GameSystems.RenderSystems.BatchApi = la.vok.Game.GameSystems.RenderSystems.BatchApi(this)
 
     var collisionSystem = CollisionSystem(this)
 

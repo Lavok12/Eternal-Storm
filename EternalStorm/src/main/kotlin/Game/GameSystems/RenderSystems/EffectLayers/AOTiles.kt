@@ -1,10 +1,9 @@
-package la.vok.Game.GameSystems.EffectLayers
+package la.vok.Game.GameSystems.RenderSystems.EffectLayers
 
 import la.vok.Core.CoreContent.Camera.Camera
 import la.vok.Core.GameContent.Layers.EffectLayer
 import la.vok.Core.GameControllers.GameRender
 import la.vok.Game.GameContent.ContentList.BlockTags
-import la.vok.Game.GameContent.ContentList.TilesList
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.KotlinPlus.forEachInArea
 import la.vok.LavokLibrary.Vectors.LPoint
@@ -24,7 +23,7 @@ class AOTiles(var gameRender: GameRender, point: LPoint, mp: Float = 0.7f) : Eff
         }
         lg.noStroke()
         lg.pg.clear()
-        
+
         val mapApi = gameController.gameCycle.mapApi
         val mapSystem = dim.mapSystem
 
@@ -36,11 +35,11 @@ class AOTiles(var gameRender: GameRender, point: LPoint, mp: Float = 0.7f) : Eff
 
         forEachInArea(p1, p2, 1) { ix, iy ->
             val tileType = gameController.gameCycle.mapApi.getTileType(dim, ix, iy) ?: return@forEachInArea
-            
+
             if (!tileType.tags.contains(BlockTags.NO_SHADOW)) {
                 val cx = camera.useCameraPosX(ix.toFloat())
                 val cy = camera.useCameraPosY(iy.toFloat())
-                
+
                 lg.fill(0f)
                 lg.setBlock(cx, cy, blockScaleX + 1f, blockScaleY + 1f)
             }

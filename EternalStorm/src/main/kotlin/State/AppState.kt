@@ -64,6 +64,20 @@ object AppState {
     var renderDebug: Boolean = false
 
 
+    var enableBatching = true
+    var debugBatchGrid = false
+    var batchChunkSize = 16
+    var batchBlockResolution = 16f
+    var batchAoResolution = 12f
+    var batchAoAlpha = 255f
+    var batchAoBlurMultiplier = 0.8f
+    var batchMaxZoom = 20f
+    var maxBatchUpdatesPerFrame = 5
+
+    var batchGridWidth = 30
+    var batchGridHeight = 20
+    
+    var isBatchRendering = false
     var lang = "ru"
         set(value)
             {

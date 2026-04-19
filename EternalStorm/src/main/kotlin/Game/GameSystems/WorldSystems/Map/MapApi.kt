@@ -24,6 +24,22 @@ class MapApi(var gameCycle: GameCycle) {
     val gameController: GameController get() = gameCycle.gameController
     val objectRegistration: ObjectRegistration get() = gameController.coreController.objectRegistration
 
+    private fun markDirtyFootprint(dimension: AbstractDimension, x: Int, y: Int) {
+        if (!isInsideMap(dimension, x, y)) return
+        val rawTile = dimension.mapSystem.getTileType(x, y)
+        val cx = if (rawTile != null && rawTile.isDummy) x + rawTile.masterOffset.x else x
+        val cy = if (rawTile != null && rawTile.isDummy) y + rawTile.masterOffset.y else y
+        
+        val master = dimension.mapSystem.getTileType(cx, cy)
+        val w = master?.width ?: 1
+        val h = master?.height ?: 1
+        for (dx in 0 until w) {
+            for (dy in 0 until h) {
+                gameCycle.batchApi.markDirty(cx + dx, cy + dy)
+            }
+        }
+    }
+
     // --------------------------------------------------------
     // TILES
     // --------------------------------------------------------
@@ -60,6 +76,7 @@ class MapApi(var gameCycle: GameCycle) {
 
     fun setTileHp(dimension: AbstractDimension, x: Int, y: Int, hp: Int) {
         if (!isInsideMap(dimension, x, y)) return
+        markDirtyFootprint(dimension, x, y)
         val rawTile = dimension.mapSystem.getTileType(x, y)
         if (rawTile != null && rawTile.isDummy) {
             dimension.mapSystem.setTileHp(x + rawTile.masterOffset.x, y + rawTile.masterOffset.y, hp)
@@ -70,6 +87,7 @@ class MapApi(var gameCycle: GameCycle) {
 
     fun damageTile(dimension: AbstractDimension, x: Int, y: Int, damage: Int) {
         if (!isInsideMap(dimension, x, y)) return
+        markDirtyFootprint(dimension, x, y)
         val rawTile = dimension.mapSystem.getTileType(x, y)
         if (rawTile != null && rawTile.isDummy) {
             dimension.mapSystem.damageTile(x + rawTile.masterOffset.x, y + rawTile.masterOffset.y, damage)
@@ -83,6 +101,7 @@ class MapApi(var gameCycle: GameCycle) {
         val tileType = getTileType(dimension, x, y) ?: return
         if (mineData.power < tileType.blockStrength) return
         
+        markDirtyFootprint(dimension, x, y)
         val rawTile = dimension.mapSystem.getTileType(x, y)
         if (rawTile != null && rawTile.isDummy) {
             dimension.mapSystem.mineTile(x + rawTile.masterOffset.x, y + rawTile.masterOffset.y, mineData)
@@ -109,6 +128,7 @@ class MapApi(var gameCycle: GameCycle) {
         dimension.mapSystem.setTileType(px, py, type)
         dimension.mapSystem.setTileHp(px, py, type.maxHp)
         dimension.mapSystem.callPlace(px, py, item)
+        markDirtyFootprint(dimension, px, py)
         
         // Place Dummies
         if (type.width > 1 || type.height > 1) {
@@ -152,6 +172,7 @@ class MapApi(var gameCycle: GameCycle) {
 
     fun deactivateTile(dimension: AbstractDimension, x: Int, y: Int, reason: Any? = null) {
         if (!isInsideMap(dimension, x, y)) return
+        markDirtyFootprint(dimension, x, y)
         val rawTile = dimension.mapSystem.getTileType(x, y)
         if (rawTile != null && rawTile.isDummy) {
             dimension.mapSystem.deactivateTile(x + rawTile.masterOffset.x, y + rawTile.masterOffset.y, reason)
@@ -170,11 +191,15 @@ class MapApi(var gameCycle: GameCycle) {
         maxHp(dimension, x, y)
     }
 
-    fun setTileType(dimension: AbstractDimension, type: AbstractTileType?, x: Int, y: Int) =
+    fun setTileType(dimension: AbstractDimension, type: AbstractTileType?, x: Int, y: Int) {
+        markDirtyFootprint(dimension, x, y)
         dimension.mapSystem.setTileType(x, y, type)
+    }
 
-    fun setTileType(dimension: AbstractDimension, type: String, x: Int, y: Int) =
+    fun setTileType(dimension: AbstractDimension, type: String, x: Int, y: Int) {
+        markDirtyFootprint(dimension, x, y)
         dimension.mapSystem.setTileType(x, y, getRegisteredTileType(type))
+    }
 
     fun maxHp(dimension: AbstractDimension, x: Int, y: Int) =
         dimension.mapSystem.maxHp(x, y)
@@ -211,12 +236,15 @@ class MapApi(var gameCycle: GameCycle) {
         dimension.mapSystem.getWallHp(x, y)
 
     fun setWallHp(dimension: AbstractDimension, x: Int, y: Int, hp: Int) {
-        if (isInsideMap(dimension, x, y))
+        if (isInsideMap(dimension, x, y)) {
+            markDirtyFootprint(dimension, x, y)
             dimension.mapSystem.setWallHp(x, y, hp)
+        }
     }
 
     fun damageWall(dimension: AbstractDimension, x: Int, y: Int, damage: Int) {
         if (!isInsideMap(dimension, x, y)) return
+        markDirtyFootprint(dimension, x, y)
         dimension.mapSystem.damageWall(x, y, damage)
     }
 
@@ -224,6 +252,7 @@ class MapApi(var gameCycle: GameCycle) {
         if (!wallIsActive(dimension, x, y)) return
         val wallType = getWallType(dimension, x, y) ?: return
         if (mineData.power < wallType.blockStrength) return
+        markDirtyFootprint(dimension, x, y)
         dimension.mapSystem.mineWall(x, y, mineData)
     }
 
@@ -241,6 +270,7 @@ class MapApi(var gameCycle: GameCycle) {
         dimension.mapSystem.setWallType(x, y, type)
         dimension.mapSystem.setWallHp(x, y, type.maxHp)
         dimension.mapSystem.callPlaceWall(x, y, item)
+        markDirtyFootprint(dimension, x, y)
         if (consumed) item.count--
         return true
     }
@@ -255,17 +285,23 @@ class MapApi(var gameCycle: GameCycle) {
         maxHpWall(dimension, x, y)
     }
 
-    fun setWallType(dimension: AbstractDimension, type: AbstractWallType?, x: Int, y: Int) =
+    fun setWallType(dimension: AbstractDimension, type: AbstractWallType?, x: Int, y: Int) {
+        markDirtyFootprint(dimension, x, y)
         dimension.mapSystem.setWallType(x, y, type)
+    }
 
-    fun setWallType(dimension: AbstractDimension, type: String, x: Int, y: Int) =
+    fun setWallType(dimension: AbstractDimension, type: String, x: Int, y: Int) {
+        markDirtyFootprint(dimension, x, y)
         dimension.mapSystem.setWallType(x, y, getRegisteredWallType(type))
+    }
 
     fun maxHpWall(dimension: AbstractDimension, x: Int, y: Int) =
         dimension.mapSystem.maxHpWall(x, y)
 
-    fun deleteWall(dimension: AbstractDimension, x: Int, y: Int) =
+    fun deleteWall(dimension: AbstractDimension, x: Int, y: Int) {
+        markDirtyFootprint(dimension, x, y)
         dimension.mapSystem.deactivateWall(x, y)
+    }
 
     fun fillWallRegion(dimension: AbstractDimension, type: AbstractWallType, startX: Int, startY: Int, endX: Int, endY: Int) {
         for (x in startX..endX)

@@ -8,7 +8,7 @@ import la.vok.Game.ClientContent.Windows.WGamePanel
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameController.GameLoader
 import la.vok.Game.GameController.PlayerControl
-import la.vok.Game.GameSystems.EffectLayers.AOTiles
+import la.vok.Game.GameSystems.RenderSystems.EffectLayers.AOTiles
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.Menu.MenuContent.Windows.WMenuPanel
