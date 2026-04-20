@@ -2,6 +2,7 @@ package la.vok.Game.GameContent.Map
 
 import Core.CoreControllers.ObjectRegistration
 import la.vok.Core.GameControllers.GameController
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
 import la.vok.Game.GameContent.Tiles.System.AbstractWallType
@@ -14,7 +15,7 @@ import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
-import la.vok.Game.GameContent.Entities.Entities.Special.Entity
+import la.vok.Game.GameContent.TileData.AbstractTileData
 import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionContext
 import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionType
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
@@ -23,6 +24,23 @@ import la.vok.LavokLibrary.Vectors.p
 class MapApi(var gameCycle: GameCycle) {
     val gameController: GameController get() = gameCycle.gameController
     val objectRegistration: ObjectRegistration get() = gameController.coreController.objectRegistration
+
+    fun getTileData(dimension: AbstractDimension, x: Int, y: Int): AbstractTileData? {
+        val rawTile = dimension.mapSystem.getTileType(x, y)
+        val cx = if (rawTile != null && rawTile.isDummy) x + rawTile.masterOffset.x else x
+        val cy = if (rawTile != null && rawTile.isDummy) y + rawTile.masterOffset.y else y
+        return dimension.mapSystem.getTileData(cx, cy)
+    }
+
+    fun setTileData(dimension: AbstractDimension, x: Int, y: Int, data: AbstractTileData?) {
+        val rawTile = dimension.mapSystem.getTileType(x, y)
+        val cx = if (rawTile != null && rawTile.isDummy) x + rawTile.masterOffset.x else x
+        val cy = if (rawTile != null && rawTile.isDummy) y + rawTile.masterOffset.y else y
+        dimension.mapSystem.setTileData(cx, cy, data)
+    }
+
+    fun hasTileData(dimension: AbstractDimension, x: Int, y: Int): Boolean =
+        getTileData(dimension, x, y) != null
 
     private fun markDirtyFootprint(dimension: AbstractDimension, x: Int, y: Int) {
         if (!isInsideMap(dimension, x, y)) return
@@ -153,8 +171,7 @@ class MapApi(var gameCycle: GameCycle) {
 
     fun handleInteraction(dimension: AbstractDimension, x: Int, y: Int, type: BlockInteractionType, interactor: Entity?): Boolean {
         if (!isInsideMap(dimension, x, y)) return false
-        
-        // getTileType already handles dummy redirection
+
         val tile = getTileType(dimension, x, y)
         val context = BlockInteractionContext(x, y, dimension, interactor, this)
         

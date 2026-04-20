@@ -90,7 +90,7 @@ open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
         lg.noTint()
     }
 
-    open fun cellRender(lg: LGraphics, pos: Vec2, size: Vec2, cell: InventoryCell) {
+    open fun cellRender(lg: LGraphics, pos: Vec2, size: Vec2, cell: InventoryCell? = null) {
         val renderPos = pos + itemType.renderConfig.slotDelta * (size * itemType.renderConfig.sizeInSlot)
         val renderSize = size * itemType.renderConfig.sizeInSlot
         shadowRender(lg, renderPos, renderSize, itemType.renderConfig.shadowPower * 0.5f)
@@ -98,7 +98,7 @@ open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
         renderCount(lg, pos, size)
     }
 
-    open fun cellDragRender(lg: LGraphics, pos: Vec2, size: Vec2, cell: InventoryCell) {
+    open fun cellDragRender(lg: LGraphics, pos: Vec2, size: Vec2, cell: InventoryCell? = null) {
         val renderPos = pos + itemType.renderConfig.slotDelta * (size * itemType.renderConfig.sizeInSlot)
         val renderSize = size * itemType.renderConfig.sizeInSlot * 1.1f
         shadowRender(lg, renderPos, renderSize)

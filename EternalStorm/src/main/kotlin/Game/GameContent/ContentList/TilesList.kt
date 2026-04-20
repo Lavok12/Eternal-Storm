@@ -26,4 +26,5 @@ object TilesList {
     val solar_brick_tile: String by lazy { AppState.tag("solar_brick_tile") }
     val workbench: String by lazy { AppState.tag("workbench") }
     val czech_flag: String by lazy { AppState.tag("czech_flag") }
+    val frame_block: String by lazy { AppState.tag("frame_block") }
 }

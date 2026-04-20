@@ -14,6 +14,7 @@ import la.vok.Game.GameSystems.WorldSystems.Map.IBlockType
 import la.vok.Game.GameSystems.WorldSystems.Map.MineData
 import la.vok.Game.GameSystems.WorldSystems.Map.TilePlaceType
 import la.vok.LavokLibrary.Gradient.ShadowInfo
+import la.vok.Game.GameContent.TileData.AbstractTileData
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.LPoint
@@ -27,7 +28,8 @@ data class TileRenderConfig(
     val useSquareRender: Boolean = false,
     val renderDelta: Vec2 = 0f v 0f,
     val renderBreakProgress: Boolean = true,
-    val useBatchLayer: Boolean = true
+    val useBatchLayer: Boolean = true,
+    val renderWallsBehind: Boolean = false
 )
 
 abstract class AbstractTileType : IBlockType {
@@ -60,6 +62,8 @@ abstract class AbstractTileType : IBlockType {
     open val masterOffset: LPoint = 0 p 0
     open val placeOffset: LPoint = 0 p 0
 
+    open fun createTileData(x: Int, y: Int, dimension: AbstractDimension): AbstractTileData? = null
+
     open val renderConfig: TileRenderConfig = TileRenderConfig()
 
     open val placeType: TilePlaceType = TilePlaceType.NEAR_TILE_OR_ON_WALL
@@ -91,19 +95,20 @@ abstract class AbstractTileType : IBlockType {
             finalH = s
         }
         
-        val offsetX = (baseW - finalW) / 2f + renderConfig.renderDelta.x * sizeX
-        val offsetY = (baseH - finalH) / 2f + renderConfig.renderDelta.y * sizeY
+        // positionX/Y are passed as the true geometric center of the tile area
+        val centerX = positionX + renderConfig.renderDelta.x * sizeX
+        val centerY = positionY + renderConfig.renderDelta.y * sizeY
 
         lg.setImage(
             gameController.coreController.spriteLoader.getValue(texture),
-            positionX + offsetX,
-            positionY + offsetY,
+            centerX,
+            centerY,
             finalW,
             finalH
         )
         
         if (renderConfig.renderBreakProgress && !AppState.isBatchRendering) {
-            renderBreakProgress(pointX, pointY, lg, positionX + offsetX, positionY + offsetY, finalW, finalH, dimension, gameController)
+            renderBreakProgress(pointX, pointY, lg, centerX, centerY, finalW, finalH, dimension, gameController)
         }
     }
 
@@ -174,6 +179,10 @@ abstract class AbstractTileType : IBlockType {
 
     open fun damage(x: Int, y: Int, damage: Int, dimension: AbstractDimension, mapController: MapController) {
         mapController.dimension.gameCycle.particlesApi.buildTile(dimension, this).atBlock(x, y).count(5).randomSpeed(1f).spawn()
+    }
+
+    open fun mine(x: Int, y: Int, mineData: MineData, dimension: AbstractDimension, mapController: MapController) {
+
     }
 
     open fun onMined(x: Int, y: Int, mineData: MineData, dimension: AbstractDimension, mapController: MapController) {

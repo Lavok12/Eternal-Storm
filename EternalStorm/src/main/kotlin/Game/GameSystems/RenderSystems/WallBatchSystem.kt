@@ -25,7 +25,13 @@ class WallBatchSystem(gameController: GameController) : BatchSystem(gameControll
         AppState.isBatchRendering = true
         for (ix in startX..endX) {
             for (iy in startY..endY) {
-                if (mapSystem.containsTile(ix, iy)) continue
+                if (mapSystem.containsTile(ix, iy)) {
+                    var tileType = mapSystem.getTileType(ix, iy)
+                    if (tileType != null && tileType.isDummy) {
+                        tileType = mapSystem.getTileType(ix + tileType.masterOffset.x, iy + tileType.masterOffset.y)
+                    }
+                    if (tileType == null || !tileType.renderConfig.renderWallsBehind) continue
+                }
                 val wallType = mapSystem.getWallType(ix, iy) ?: continue
                 
                 if (!wallType.useBatchLayer) continue

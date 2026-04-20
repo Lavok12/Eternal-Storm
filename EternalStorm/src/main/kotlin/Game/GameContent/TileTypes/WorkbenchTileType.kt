@@ -30,7 +30,7 @@ class WorkbenchTileType : AbstractTileType() {
     override val drop = SingleDrop(ItemsList.workbench)
     override val placeOffset: LPoint = -1 p 0
 
-    override val renderConfig = TileRenderConfig(useSquareRender = true, sizeMultiplier = 1.6f, renderDelta = Vec2(0f, 0.49f))
+    override val renderConfig = TileRenderConfig(useSquareRender = true, sizeMultiplier = 1.6f, renderDelta = Vec2(0f, 0.49f), renderWallsBehind = true)
 
     init {
         val reaction = { context: BlockInteractionContext ->

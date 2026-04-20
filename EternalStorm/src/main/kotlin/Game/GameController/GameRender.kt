@@ -10,7 +10,7 @@ import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
 import la.vok.Game.GameController.HighlightRender
 import la.vok.Game.GameSystems.RenderSystems.EffectLayers.AOTiles
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
-import la.vok.LavokLibrary.KotlinPlus.forEachInArea
+import la.vok.LavokLibrary.KotlinPlus.*
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 
@@ -88,7 +88,13 @@ class GameRender(val gameController: GameController) : Controller {
             }
         } else {
             forEachInArea(p1, p2, 1) { ix, iy ->
-                if (mapSystem.containsTile(ix, iy)) return@forEachInArea
+                if (mapSystem.containsTile(ix, iy)) {
+                    var tileType = mapSystem.getTileType(ix, iy)
+                    if (tileType != null && tileType.isDummy) {
+                        tileType = mapSystem.getTileType(ix + tileType.masterOffset.x, iy + tileType.masterOffset.y)
+                    }
+                    if (tileType == null || !tileType.renderConfig.renderWallsBehind) return@forEachInArea
+                }
                 val wallType = mapSystem.getWallType(ix, iy) ?: return@forEachInArea
 
                 if (mapSystem.containsWall(ix, iy)) {
@@ -126,7 +132,6 @@ class GameRender(val gameController: GameController) : Controller {
             forEachInArea(p1, p2, 1) { ix, iy ->
                 if (!mapSystem.containsTile(ix, iy)) return@forEachInArea
                 val tileType = mapSystem.getTileType(ix, iy) ?: return@forEachInArea
-
                 val cx = camera.useCameraPosX(ix.toFloat() + (tileType.width - 1) / 2f)
                 val cy = camera.useCameraPosY(iy.toFloat() + (tileType.height - 1) / 2f)
                 

@@ -1,4 +1,4 @@
-package Game.GameContent.TileTypes
+package la.vok.Game.GameContent.TileTypes
 
 import la.vok.Game.GameContent.Items.Other.DropEntry
 import la.vok.Game.GameContent.Items.Other.SingleDrop

@@ -1,7 +1,7 @@
 package Core.CoreControllers.Loaders
 
 import Core.CoreControllers.ObjectRegistration
-import Game.GameContent.TileTypes.GrassTileType
+import la.vok.Game.GameContent.TileTypes.GrassTileType
 import la.vok.Core.CoreControllers.CoreController
 import la.vok.Game.GameContent.Crafts.CraftRegistrator
 import la.vok.Game.GameContent.Entities.EntitiTypes.*
@@ -104,6 +104,7 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationItemType(TeleporterItemType())
         objectRegistration.registrationItemType(WorkbenchItemType())
         objectRegistration.registrationItemType(CzechFlagItemType())
+        objectRegistration.registrationItemType(FrameItemType())
     }
 
     private fun registerTiles(objectRegistration: ObjectRegistration) {
@@ -131,6 +132,7 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationTileType(SolarBrickTileType())
         objectRegistration.registrationTileType(WorkbenchTileType())
         objectRegistration.registrationTileType(CzechFlagTileType())
+        objectRegistration.registrationTileType(FrameTileType())
     }
 
     private fun registerWalls(objectRegistration: ObjectRegistration) {

@@ -12,13 +12,16 @@ class MapSystem(
     val height: Int = mapController.dimension.height
     private val size = width * height
 
-    private var tiles: Array<AbstractTileType?> = arrayOfNulls(size)
-    private var tilesHp: IntArray = IntArray(size)
+    private val tiles: Array<AbstractTileType?> = arrayOfNulls(size)
+    private val tilesHp: IntArray = IntArray(size)
 
-    private var walls: Array<AbstractWallType?> = arrayOfNulls(size)
-    private var wallsHp: IntArray = IntArray(size)
+    private val walls: Array<AbstractWallType?> = arrayOfNulls(size)
+    private val wallsHp: IntArray = IntArray(size)
+
+    private val tileDataMap = HashMap<Long, la.vok.Game.GameContent.TileData.AbstractTileData>()
 
     private fun getIndex(x: Int, y: Int): Int = y * width + x
+    private fun coordToKey(x: Int, y: Int): Long = (x.toLong() shl 32) or (y.toLong() and 0xFFFFFFFFL)
 
     fun isInside(x: Int, y: Int): Boolean =
         x in 0 until width && y in 0 until height
@@ -39,6 +42,17 @@ class MapSystem(
     fun setTileType(x: Int, y: Int, type: AbstractTileType?) {
         if (!isInside(x, y)) return
         tiles[getIndex(x, y)] = type
+        
+        // --- TileData Lifecycle ---
+        val key = coordToKey(x, y)
+        tileDataMap.remove(key) // Always remove old data first
+        
+        if (type != null && !type.isDummy) {
+            val data = type.createTileData(x, y, mapController.dimension)
+            if (data != null) {
+                tileDataMap[key] = data
+            }
+        }
     }
 
     fun setTileHp(x: Int, y: Int, hp: Int) {
@@ -52,8 +66,15 @@ class MapSystem(
         tilesHp[idx] = tiles[idx]?.maxHp ?: 0
     }
 
-    fun callPlace(x: Int, y: Int, item: Item) {
+    fun callPlace(x: Int, y: Int, item: la.vok.Game.GameContent.Items.Other.Item) {
         getTileType(x, y)?.place(x, y, item, mapController)
+    }
+
+    fun getTileData(x: Int, y: Int): la.vok.Game.GameContent.TileData.AbstractTileData? = tileDataMap[coordToKey(x, y)]
+
+    fun setTileData(x: Int, y: Int, data: la.vok.Game.GameContent.TileData.AbstractTileData?) {
+        val key = coordToKey(x, y)
+        if (data == null) tileDataMap.remove(key) else tileDataMap[key] = data
     }
 
     fun deactivateTile(x: Int, y: Int, reason: Any? = null) {
@@ -65,6 +86,8 @@ class MapSystem(
         val idx = getIndex(x, y)
         tiles[idx] = null
         tilesHp[idx] = 0
+        getTileData(x, y)?.onRemoved()
+        tileDataMap.remove(coordToKey(x, y))
     }
 
     fun damageTile(x: Int, y: Int, damage: Int) {
@@ -80,6 +103,10 @@ class MapSystem(
             removeMultiTileParts(x, y, tileType)
             tiles[idx] = null
             tilesHp[idx] = 0
+            val data = getTileData(x, y)
+            data?.onDestroyed()
+            data?.onRemoved()
+            tileDataMap.remove(coordToKey(x, y))
         }
     }
 
@@ -90,6 +117,8 @@ class MapSystem(
         if (mineData.power < tileType.blockStrength) return
 
         tileType.damage(x, y, mineData.value, mapController.dimension, mapController)
+        tileType.mine(x, y, mineData, mapController.dimension, mapController)
+
         val idx = getIndex(x, y)
         tilesHp[idx] -= mineData.value
 
@@ -99,6 +128,10 @@ class MapSystem(
             removeMultiTileParts(x, y, tileType)
             tiles[idx] = null
             tilesHp[idx] = 0
+            val data = getTileData(x, y)
+            data?.onDestroyed()
+            data?.onRemoved()
+            tileDataMap.remove(coordToKey(x, y))
         }
     }
 
