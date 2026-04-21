@@ -13,6 +13,7 @@ class UpdateController(val gameCycle: GameCycle) : Controller {
     private var lastMinuteUpdate: Long = FrameLimiter.uptimeMs
 
     override fun logicalTick() {
+        gameCycle.mapApi.applyBufferedUpdates()
         val now = FrameLimiter.uptimeMs
 
         // --- Logical Tick Updates ---

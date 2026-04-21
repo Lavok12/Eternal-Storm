@@ -25,6 +25,16 @@ import la.vok.LavokLibrary.Vectors.p
 class MapApi(var gameCycle: GameCycle) {
     val gameController: GameController get() = gameCycle.gameController
     val objectRegistration: ObjectRegistration get() = gameController.coreController.objectRegistration
+    
+    fun applyBufferedUpdates() {
+        gameCycle.dimensionsController.dimensions.values.forEach { 
+            it.mapSystem.applyBufferedUpdates()
+        }
+    }
+
+    fun applyBufferedUpdates(dimension: AbstractDimension) {
+        dimension.mapSystem.applyBufferedUpdates()
+    }
 
     fun dispatchLogicalUpdate(phase: UpdatePhase) {
         gameCycle.dimensionsController.dimensions.values.forEach { 
@@ -321,17 +331,45 @@ class MapApi(var gameCycle: GameCycle) {
 
     fun moveTile(dimension: AbstractDimension, fromX: Int, fromY: Int, toX: Int, toY: Int) {
         if (!isInsideMap(dimension, fromX, fromY) || !isInsideMap(dimension, toX, toY)) return
+        
+        val type = getTileType(dimension, fromX, fromY) ?: return
+        if (type.width > 1 || type.height > 1) {
+            val master = getMasterPoint(dimension, fromX, fromY)
+            // Use swapArea for multitiles (assuming target area is clear or will be swapped)
+            swapArea(dimension, master.x, master.y, toX, toY, type.width, type.height)
+            return
+        }
+
         markDirtyFootprint(dimension, fromX, fromY)
         markDirtyFootprint(dimension, toX, toY)
-        dimension.mapSystem.deactivateTile(toX, toY, "moved_here")
         dimension.mapSystem.swapTiles(fromX, fromY, toX, toY)
+    }
+
+    fun swapArea(dimension: AbstractDimension, x1: Int, y1: Int, x2: Int, y2: Int, w: Int, h: Int) {
+        markDirtyFootprint(dimension, x1, y1)
+        markDirtyFootprint(dimension, x2, y2)
+        dimension.mapSystem.swapArea(x1, y1, x2, y2, w, h)
     }
 
     fun copyTile(dimension: AbstractDimension, fromX: Int, fromY: Int, toX: Int, toY: Int) {
         if (!isInsideMap(dimension, fromX, fromY) || !isInsideMap(dimension, toX, toY)) return
+        
+        val type = getTileType(dimension, fromX, fromY) ?: return
+        if (type.width > 1 || type.height > 1) {
+            val master = getMasterPoint(dimension, fromX, fromY)
+            copyArea(dimension, master.x, master.y, toX, toY, type.width, type.height)
+            return
+        }
+
         markDirtyFootprint(dimension, fromX, fromY)
         markDirtyFootprint(dimension, toX, toY)
         dimension.mapSystem.copyTile(fromX, fromY, toX, toY)
+    }
+
+    fun copyArea(dimension: AbstractDimension, x1: Int, y1: Int, x2: Int, y2: Int, w: Int, h: Int) {
+        markDirtyFootprint(dimension, x1, y1)
+        markDirtyFootprint(dimension, x2, y2)
+        dimension.mapSystem.copyArea(x1, y1, x2, y2, w, h)
     }
 
     fun swapTiles(dimension: AbstractDimension, x1: Int, y1: Int, x2: Int, y2: Int) {
