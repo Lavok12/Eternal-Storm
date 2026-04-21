@@ -3,7 +3,7 @@ package la.vok.Game.GameController
 import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Game.GameSystems.EntityComponents.Collision.CollisionDetector
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 import kotlin.math.floor
 
 class CollisionSystem(var gameCycle: GameCycle) : Controller {

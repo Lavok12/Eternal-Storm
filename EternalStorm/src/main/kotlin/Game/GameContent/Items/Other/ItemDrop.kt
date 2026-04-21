@@ -1,7 +1,6 @@
 package la.vok.Game.GameContent.Items.Other
 
-import la.vok.Game.GameController.GameCycle
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.Vectors.Vec2
 import kotlin.random.Random
 

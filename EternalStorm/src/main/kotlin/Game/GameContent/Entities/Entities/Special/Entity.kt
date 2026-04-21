@@ -19,12 +19,10 @@ import la.vok.Game.GameSystems.EntityComponents.MobInventory
 import la.vok.Game.GameSystems.EntityComponents.HpBody
 import la.vok.Game.GameSystems.EntityComponents.RigidBody
 import la.vok.Game.GameSystems.WorldSystems.Particles.Particles.EntityParticle
-import la.vok.Game.GameSystems.WorldSystems.Particles.Particle
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.System.DimensionsApi
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 
 @Suppress("UNCHECKED_CAST")
 open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) {

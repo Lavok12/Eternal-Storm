@@ -1,6 +1,6 @@
 package la.vok.Game.GameContent.TileData
 
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 
 abstract class AbstractTileData(
     val x: Int,

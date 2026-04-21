@@ -29,13 +29,13 @@ open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
         if (itemType.texture != "") {
             when (itemType.usingVariants) {
                 is UsingVariants.PlaceTile -> {
-                    lg.setImage(coreController.spriteLoader.getValue(itemType.texture), pos, size*0.7f)
+                    lg.setImage(coreController.spriteLoader.getValue(itemType.texture), pos, size*0.7f, itemType.renderConfig.flipX)
                 }
                 is UsingVariants.PlaceWall -> {
-                    lg.setImage(coreController.spriteLoader.getValue(itemType.texture), pos, size*0.9f)
+                    lg.setImage(coreController.spriteLoader.getValue(itemType.texture), pos, size*0.9f, itemType.renderConfig.flipX)
                 }
                 else -> {
-                    lg.setImage(coreController.spriteLoader.getValue(itemType.texture), pos, size)
+                    lg.setImage(coreController.spriteLoader.getValue(itemType.texture), pos, size, itemType.renderConfig.flipX)
                 }
             }
         }

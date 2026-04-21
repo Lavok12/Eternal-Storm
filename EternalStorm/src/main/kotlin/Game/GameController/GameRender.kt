@@ -1,6 +1,5 @@
 package la.vok.Core.GameControllers
 
-import com.jogamp.nativewindow.util.Dimension
 import la.vok.Core.CoreContent.Camera.Camera
 import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.CoreControllers.CoreController
@@ -9,10 +8,9 @@ import la.vok.Core.GameContent.RenderSystem.RenderLayers.LayersRenderContainer
 import la.vok.Game.ClientContent.RenderSystem.RenderLayers.RenderLayers
 import la.vok.Game.GameController.HighlightRender
 import la.vok.Game.GameSystems.RenderSystems.EffectLayers.AOTiles
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.KotlinPlus.*
 import la.vok.LavokLibrary.LGraphics.LGraphics
-import la.vok.LavokLibrary.Vectors.Vec2
 
 class GameRender(val gameController: GameController) : Controller {
     var highlightRender = HighlightRender(this)
@@ -80,7 +78,7 @@ class GameRender(val gameController: GameController) : Controller {
                 val chunkX = kotlin.math.floor(ix.toFloat() / la.vok.State.AppState.batchChunkSize).toInt()
                 val chunkY = kotlin.math.floor(iy.toFloat() / la.vok.State.AppState.batchChunkSize).toInt()
                 
-                if (!wallType.useBatchLayer || skippedWallChunks.contains(chunkX to chunkY)) {
+                if (!wallType.renderConfig.useBatchLayer || skippedWallChunks.contains(chunkX to chunkY)) {
                     val cx = camera.useCameraPosX(ix.toFloat())
                     val cy = camera.useCameraPosY(iy.toFloat())
                     wallType.render(ix, iy, lg, cx, cy, blockSizeX, blockSizeY, dim, gameController)

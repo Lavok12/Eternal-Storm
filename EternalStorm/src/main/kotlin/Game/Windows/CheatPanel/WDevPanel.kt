@@ -13,11 +13,9 @@ import la.vok.LLibs.AnimationType
 import la.vok.LLibs.FloatAnimation
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.System.DimensionsApi
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 import la.vok.State.AppState
 import processing.event.MouseEvent
-import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.log10
 

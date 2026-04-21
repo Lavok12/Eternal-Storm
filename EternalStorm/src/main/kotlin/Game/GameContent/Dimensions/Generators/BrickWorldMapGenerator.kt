@@ -1,8 +1,8 @@
-package la.vok.Game.GameSystems.WorldSystems.Dimensions.Generators
+package la.vok.Game.GameContent.Dimensions.Generators
 
 import la.vok.Game.GameContent.ContentList.TilesList
 import la.vok.Game.GameContent.ContentList.WallList
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 
 class BrickWorldMapGenerator(dimension: AbstractDimension) : AbstractMapGenerator(dimension) {
 

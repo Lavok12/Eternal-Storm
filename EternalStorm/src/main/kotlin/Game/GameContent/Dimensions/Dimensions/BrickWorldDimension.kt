@@ -1,8 +1,8 @@
-package la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions
+package la.vok.Game.GameContent.Dimensions.Dimensions
 
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameContent.ContentList.DimensionsList
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Generators.BrickWorldMapGenerator
+import la.vok.Game.GameContent.Dimensions.Generators.BrickWorldMapGenerator
 import la.vok.LavokLibrary.Vectors.LColor
 
 class BrickWorldDimension(gameCycle: GameCycle) : AbstractDimension(gameCycle) {

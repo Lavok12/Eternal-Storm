@@ -1,7 +1,7 @@
-package la.vok.Game.GameSystems.WorldSystems.Dimensions.Generators
+package la.vok.Game.GameContent.Dimensions.Generators
 
 import la.vok.Game.GameContent.ContentList.TilesList
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 import la.vok.State.AppState
 
 class StoneWorldMapGenerator(dimension: AbstractDimension) : AbstractMapGenerator(dimension) {

@@ -8,5 +8,4 @@ object BlockTags {
     const val DECORATIVE = "DECORATIVE"
     const val UNBREAKABLE = "UNBREAKABLE"
     const val PLANK = "PLANK"
-    const val NO_SHADOW = "NO_SHADOW"
 }

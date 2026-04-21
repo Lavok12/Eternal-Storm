@@ -41,7 +41,8 @@ class HighlightRender(var gameRender: GameRender) : Controller {
             if (item.descriptor.renderPlaceHighlight) {
                 val offset = currentTileType?.placeOffset ?: (0 p 0)
                 val pt = LPoint(targetPoint.x + offset.x, targetPoint.y + offset.y)
-                if (!mapApi.tileIsActive(dim, pt.x, pt.y)) pt else null
+                val tileAt = mapApi.getTileType(dim, pt.x, pt.y)
+                if (tileAt == null || tileAt.canBeReplaced) pt else null
             } else null
 
         targetItem = handItem

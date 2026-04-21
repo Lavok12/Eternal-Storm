@@ -1,8 +1,8 @@
-package la.vok.Game.GameSystems.WorldSystems.Dimensions.System
+package la.vok.Game.GameSystems.WorldSystems.Dimensions
 
 import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Game.GameController.GameCycle
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 
 class DimensionsController(var gameCycle: GameCycle) : Controller {
     val dimensions = mutableMapOf<String, AbstractDimension>()

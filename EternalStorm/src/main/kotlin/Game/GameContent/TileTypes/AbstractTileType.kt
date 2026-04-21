@@ -7,7 +7,7 @@ import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameContent.Items.Other.NothingDrop
 import la.vok.Game.GameContent.Map.MapController
 import la.vok.Game.GameController.CollisionType
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionContext
 import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionType
 import la.vok.Game.GameSystems.WorldSystems.Map.IBlockType
@@ -24,12 +24,14 @@ import la.vok.State.AppState
 import processing.core.PImage
 
 data class TileRenderConfig(
-    val sizeMultiplier: Float = 1.0f,
-    val useSquareRender: Boolean = false,
-    val renderDelta: Vec2 = 0f v 0f,
-    val renderBreakProgress: Boolean = true,
-    val useBatchLayer: Boolean = true,
-    val renderWallsBehind: Boolean = false
+    var sizeMultiplier: Float = 1.0f,
+    var useSquareRender: Boolean = false,
+    var renderDelta: Vec2 = 0f v 0f,
+    var renderBreakProgress: Boolean = true,
+    var useBatchLayer: Boolean = true,
+    var renderWallsBehind: Boolean = false,
+    var AOShadow: Boolean = true,
+    var flipX: Boolean = false
 )
 
 abstract class AbstractTileType : IBlockType {
@@ -40,6 +42,8 @@ abstract class AbstractTileType : IBlockType {
     override val texture: String = ""
     override val drop: DropEntry = NothingDrop
     override val tags: Set<String> = emptySet()
+
+    open val canBeReplaced: Boolean = false
 
     open fun hasTag(tag: String): Boolean = tag in tags
     
@@ -104,7 +108,8 @@ abstract class AbstractTileType : IBlockType {
             centerX,
             centerY,
             finalW,
-            finalH
+            finalH,
+            renderConfig.flipX
         )
         
         if (renderConfig.renderBreakProgress && !AppState.isBatchRendering) {

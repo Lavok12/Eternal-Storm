@@ -7,12 +7,11 @@ import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Particles.Particles.EntityParticle
 import la.vok.Game.GameSystems.WorldSystems.Particles.Particles.TileParticle
 import la.vok.Game.GameSystems.WorldSystems.Particles.Particles.WallParticle
-import la.vok.Game.GameSystems.WorldSystems.Particles.Particle
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
 import processing.core.PImage
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 
 class ParticlesApi(var gameCycle: GameCycle) {
     val gameController: GameController get() = gameCycle.gameController

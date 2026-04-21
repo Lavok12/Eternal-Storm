@@ -16,6 +16,7 @@ import la.vok.Game.GameSystems.WorldSystems.Map.MineData
 import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
+import javax.swing.event.HyperlinkEvent
 
 open class HummerHandItem(item: HummerItem, component: HandItemComponent) : HandItem(
     item,
@@ -61,7 +62,7 @@ open class HummerHandItem(item: HummerItem, component: HandItemComponent) : Hand
     open fun onMineTile() {
         var placePos = entity.ai?.targetMapPos() ?: LPoint.Companion.ZERO
         var mineData =
-            MineData((item as HummerItem).mineDamage, (item as HummerItem).minePower, entity.systemId, this)
+            MineData((item as HummerItem).mineDamage, (item as HummerItem).minePower, entity.systemId, this, item)
         gameCycle.mapApi.mineWall(entity.dimension!!, placePos.x, placePos.y, mineData)
     }
 }

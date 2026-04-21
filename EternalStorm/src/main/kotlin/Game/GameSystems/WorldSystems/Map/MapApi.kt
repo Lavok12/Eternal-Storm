@@ -18,7 +18,7 @@ import la.vok.LavokLibrary.Vectors.v
 import la.vok.Game.GameContent.TileData.AbstractTileData
 import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionContext
 import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionType
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.Vectors.p
 
 class MapApi(var gameCycle: GameCycle) {
@@ -134,14 +134,34 @@ class MapApi(var gameCycle: GameCycle) {
         setTileHp(dimension, x, y, newHp)
     }
 
-    fun controlPlaceTile(dimension: AbstractDimension, type: AbstractTileType, x: Int, y: Int, item: Item, consumed: Boolean = true): Boolean {
+    fun controlPlaceTile(dimension: AbstractDimension, type: AbstractTileType, x: Int, y: Int, item: Item, sourceId: Long? = 0, consumed: Boolean = true): Boolean {
         val px = x + type.placeOffset.x
         val py = y + type.placeOffset.y
 
         if (item.count < 1 && consumed) return false
         if (!isInsideMap(dimension, px, py)) return false
         if (!canPlaceTile(dimension, type, px, py)) return false
-        
+
+        // Replace check and mine
+        for (dx in 0 until type.width) {
+            for (dy in 0 until type.height) {
+                val nx = px + dx
+                val ny = py + dy
+                val existingTile = getTileType(dimension, nx, ny)
+                if (existingTile != null && existingTile.canBeReplaced) {
+                    val masterPoint = getMasterPoint(dimension, nx, ny)
+                    val master = getTileType(dimension, masterPoint.x, masterPoint.y)!!
+                    mineTile(dimension, masterPoint.x, masterPoint.y, MineData(
+                        value = master.maxHp,
+                        power = 10000,
+                        sourceId = sourceId,
+                        instrument = gameController.playerControl.getPlayerEntity()?.handItemComponent?.currentHandItem,
+                        item = item
+                    ))
+                }
+            }
+        }
+
         // Place Master
         dimension.mapSystem.setTileType(px, py, type)
         dimension.mapSystem.setTileHp(px, py, type.maxHp)
@@ -373,7 +393,9 @@ class MapApi(var gameCycle: GameCycle) {
                 val nx = x + dx
                 val ny = y + dy
                 if (!isInsideMap(dimension, nx, ny)) return false
-                if (tileIsActive(dimension, nx, ny)) return false
+
+                val existingTile = getTileType(dimension, nx, ny)
+                if (existingTile != null && !existingTile.canBeReplaced) return false
             }
         }
 
@@ -388,7 +410,7 @@ class MapApi(var gameCycle: GameCycle) {
 
                 val matches = when (type.placeType) {
                     TilePlaceType.FREE -> true
-                    TilePlaceType.ON_TILE -> tileIsActive(dimension, nx, ny)
+                    TilePlaceType.ON_TILE -> tileIsActive(dimension, nx, ny - 1)
                     TilePlaceType.NEAR_TILE -> hasNearTile(dimension, nx, ny)
                     TilePlaceType.NEAR_WALL -> hasNearWall(dimension, nx, ny)
                     TilePlaceType.NEAR_TILE_OR_ON_WALL -> hasNearTile(dimension, nx, ny) || wallIsActive(dimension, nx, ny)

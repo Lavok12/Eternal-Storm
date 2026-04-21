@@ -6,8 +6,7 @@ import la.vok.Game.GameContent.VfxObjects.DamageVfxObject
 import la.vok.Game.GameController.GameCycle
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
-import la.vok.State.AppState
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 
 class VfxObjectsApi(var gameCycle: GameCycle) {
     val gameController: GameController get() = gameCycle.gameController

@@ -10,7 +10,8 @@ data class ItemRenderConfig(
     var worldDelta: Vec2 = 0f v 0f,
     var slotDelta: Vec2 = 0f v 0f,
     var shadowPower: Float = 1.0f,
-    var sizeMultiplier: Float = 1.0f
+    var sizeMultiplier: Float = 1.0f,
+    var flipX: Boolean = false
 )
 
 abstract class AbstractItemType {

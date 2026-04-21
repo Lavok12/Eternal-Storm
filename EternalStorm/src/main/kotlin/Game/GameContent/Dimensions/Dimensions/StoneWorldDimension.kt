@@ -1,9 +1,8 @@
-package la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions
+package la.vok.Game.GameContent.Dimensions.Dimensions
 
 import la.vok.Game.GameController.GameCycle
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 import la.vok.Game.GameContent.ContentList.DimensionsList
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Generators.StoneWorldMapGenerator
+import la.vok.Game.GameContent.Dimensions.Generators.StoneWorldMapGenerator
 import la.vok.LavokLibrary.Vectors.LColor
 
 class StoneWorldDimension(gameCycle: GameCycle) : AbstractDimension(gameCycle) {

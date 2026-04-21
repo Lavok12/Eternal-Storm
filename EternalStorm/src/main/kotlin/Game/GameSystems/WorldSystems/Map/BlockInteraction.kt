@@ -2,7 +2,7 @@ package la.vok.Game.GameSystems.WorldSystems.Map
 
 import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.Map.MapApi
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 
 enum class BlockInteractionType {
     LEFT, RIGHT, MIDDLE

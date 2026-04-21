@@ -20,10 +20,9 @@ class CzechFlagTileType : AbstractTileType() {
     override var collisionType = CollisionType.NONE
     override val blockStrength = 10
     override val maxHp = 40
-    override val tags: Set<String> = setOf(BlockTags.NO_SHADOW)
     override val drop = SingleDrop(ItemsList.czech_flag)
     
-    override val renderConfig = TileRenderConfig(useSquareRender = true, sizeMultiplier = 1.7f, renderDelta = 0.55f v 0f)
+    override val renderConfig = TileRenderConfig(useSquareRender = true, sizeMultiplier = 1.7f, renderDelta = 0.55f v 0f, AOShadow = false)
     
     init {
         collisionType = CollisionType.NONE

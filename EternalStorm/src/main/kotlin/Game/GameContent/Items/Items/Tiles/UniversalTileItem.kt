@@ -5,4 +5,4 @@ import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameController.GameCycle
 
 @Suppress("UNCHECKED_CAST")
-open class UniversalBlockItem(itemType: AbstractItemType, gameCycle: GameCycle) : Item(itemType, gameCycle)
+open class UniversalTileItem(itemType: AbstractItemType, gameCycle: GameCycle) : Item(itemType, gameCycle)

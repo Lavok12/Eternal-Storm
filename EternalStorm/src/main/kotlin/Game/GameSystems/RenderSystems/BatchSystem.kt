@@ -2,7 +2,7 @@ package la.vok.Game.GameSystems.RenderSystems
 
 import la.vok.Core.CoreContent.Camera.Camera
 import la.vok.Core.GameControllers.GameController
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.State.AppState
 import kotlin.math.floor

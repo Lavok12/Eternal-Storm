@@ -2,7 +2,7 @@ package la.vok.Game.GameContent.TileData
 
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameContent.Items.Other.ItemContainer
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 

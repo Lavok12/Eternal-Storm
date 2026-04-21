@@ -57,4 +57,6 @@ object ItemsList {
     val workbench: String by lazy { AppState.tag("workbench") }
     val czech_flag: String by lazy { AppState.tag("czech_flag") }
     val frame: String by lazy { AppState.tag("frame") }
+    val small_grass: String by lazy { AppState.tag("small_grass") }
+    val sunflower: String by lazy { AppState.tag("sunflower") }
 }

@@ -1,8 +1,10 @@
-package la.vok.Game.GameSystems.WorldSystems.Dimensions.Generators
+package la.vok.Game.GameContent.Dimensions.Generators
 
 import la.vok.Game.GameContent.ContentList.TilesList
 import la.vok.Game.GameContent.ContentList.WallList
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Tiles.System.MultiTileDummyType
+import la.vok.LavokLibrary.Vectors.p
 import la.vok.State.AppState
 
 class MainMapGenerator(dimension: AbstractDimension) : AbstractMapGenerator(dimension) {
@@ -30,6 +32,12 @@ class MainMapGenerator(dimension: AbstractDimension) : AbstractMapGenerator(dime
                     mapApi.generateWall(dimension, wallType, x, y)
                 } else {
                     when {
+                        y == surfY + 1 && p.random(100f) < 5f -> {
+                            mapApi.generateTile(dimension, TilesList.sunflower, x, y)
+                            mapApi.generateTile(dimension, MultiTileDummyType(TilesList.sunflower + "_dummy", 0 p -1), x, y + 1)
+                            mapApi.generateTile(dimension, MultiTileDummyType(TilesList.sunflower + "_dummy", 0 p -2), x, y + 2)
+                        }
+                        y == surfY + 1 && p.random(100f) < 25f -> mapApi.generateTile(dimension, TilesList.small_grass, x, y)
                         y > surfY -> { /* Air */ }
                         y == surfY -> mapApi.generateTile(dimension, TilesList.grass_block, x, y)
                         y > surfY - 5 -> mapApi.generateTile(dimension, TilesList.dirt_block, x, y)

@@ -1,7 +1,7 @@
-package la.vok.Game.GameSystems.WorldSystems.Dimensions.System
+package la.vok.Game.GameSystems.WorldSystems.Dimensions
 
 import la.vok.Game.GameContent.ContentList.DimensionsList
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 
 class DimensionsApi(val dimensionsController: DimensionsController) {
     

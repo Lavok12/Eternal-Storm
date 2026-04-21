@@ -1,4 +1,4 @@
-package la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions
+package la.vok.Game.GameContent.Dimensions.Dimensions
 
 import la.vok.Game.GameContent.Map.MapController
 import la.vok.Game.GameController.GameCycle

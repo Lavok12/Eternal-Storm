@@ -8,9 +8,7 @@ import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
 import la.vok.Game.GameSystems.WorldSystems.Particles.ParticlesApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.System.DimensionsController
-import la.vok.Game.GameContent.ContentList.DimensionsList
+import la.vok.Game.GameSystems.WorldSystems.Dimensions.DimensionsController
 
 class GameCycle(var gameController: GameController) : Controller {
     val entityApi: EntityApi = EntityApi(this)

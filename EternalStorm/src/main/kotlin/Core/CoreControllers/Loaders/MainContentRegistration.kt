@@ -14,9 +14,9 @@ import la.vok.Game.GameContent.WallTypes.*
 import la.vok.Game.GameContent.Items.ItemTypes.Tiles.*
 import la.vok.Game.GameContent.Items.ItemTypes.Walls.*
 import la.vok.Game.GameContent.WallTypes.PlankWallType
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.MainDimensionType
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.BrickWorldDimensionType
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.StoneWorldDimensionType
+import la.vok.Game.GameContent.Dimensions.Dimensions.MainDimensionType
+import la.vok.Game.GameContent.Dimensions.Dimensions.BrickWorldDimensionType
+import la.vok.Game.GameContent.Dimensions.Dimensions.StoneWorldDimensionType
 import la.vok.Game.GameContent.Tiles.System.BigTestBlockType
 import la.vok.Game.GameContent.Tiles.System.MultiTileDummyType
 import la.vok.Game.GameContent.ContentList.TilesList
@@ -105,6 +105,8 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationItemType(WorkbenchItemType())
         objectRegistration.registrationItemType(CzechFlagItemType())
         objectRegistration.registrationItemType(FrameItemType())
+        objectRegistration.registrationItemType(SmallGrassTileItemType())
+        objectRegistration.registrationItemType(SunflowerItemType())
     }
 
     private fun registerTiles(objectRegistration: ObjectRegistration) {
@@ -133,6 +135,8 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationTileType(WorkbenchTileType())
         objectRegistration.registrationTileType(CzechFlagTileType())
         objectRegistration.registrationTileType(FrameTileType())
+        objectRegistration.registrationTileType(SmallGrassTileType())
+        objectRegistration.registrationTileType(SunflowerTileType())
     }
 
     private fun registerWalls(objectRegistration: ObjectRegistration) {

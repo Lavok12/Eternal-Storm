@@ -2,7 +2,7 @@ package la.vok.Game.GameSystems.RenderSystems
 
 import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.ContentList.BlockTags
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.State.AppState
 
@@ -45,7 +45,7 @@ class AOBatchSystem(gameController: GameController) : BatchSystem(gameController
                 if (drawnMasters.contains(mHash)) continue
                 
                 val masterTile = if (tile.isDummy) mapSystem.getTileType(mx, my) else tile
-                if (masterTile == null || masterTile.tags.contains(BlockTags.NO_SHADOW)) continue
+                if (masterTile == null || !masterTile.renderConfig.AOShadow) continue
 
                 // 3. Draw shadow for the whole block area
                 for (dx in 0 until masterTile.width) {

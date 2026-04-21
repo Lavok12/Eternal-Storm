@@ -1,6 +1,6 @@
 package la.vok.Game.GameContent.Items.ItemTypes.Blocks
 
-import la.vok.Game.GameContent.Items.Items.UniversalBlockItem
+import la.vok.Game.GameContent.Items.Items.UniversalTileItem
 import la.vok.Game.GameContent.Items.Other.AbstractItemType
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameContent.Items.Other.UsingVariants
@@ -9,7 +9,6 @@ import la.vok.Game.GameContent.ContentList.TilesList
 import la.vok.Game.GameContent.ContentList.ItemTags
 import la.vok.Game.GameContent.Items.Other.ItemRenderConfig
 import la.vok.Game.GameController.GameCycle
-import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
 
@@ -28,6 +27,6 @@ open class BaseTileItemType : AbstractItemType() {
     )
 
     override fun createItem(gameCycle: GameCycle): Item {
-        return UniversalBlockItem(this, gameCycle)
+        return UniversalTileItem(this, gameCycle)
     }
 }

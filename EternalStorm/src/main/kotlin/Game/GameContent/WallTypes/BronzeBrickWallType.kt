@@ -7,8 +7,7 @@ import la.vok.Game.GameContent.ContentList.WallList
 import la.vok.Game.GameContent.Items.Other.DropEntry
 import la.vok.Game.GameContent.Items.Other.SingleDrop
 import la.vok.Game.GameContent.Tiles.System.AbstractWallType
-import la.vok.Game.GameContent.TileTypes.BronzeBrickTileType
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.State.AppState
 

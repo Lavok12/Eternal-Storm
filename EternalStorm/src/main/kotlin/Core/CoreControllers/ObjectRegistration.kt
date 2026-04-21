@@ -8,10 +8,9 @@ import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Items.Other.AbstractItemType
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
 import la.vok.Game.GameContent.Tiles.System.AbstractWallType
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimensionType
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimensionType
 import la.vok.State.AppState
 import la.vok.State.AppState.main
-import kotlin.text.clear
 
 class ObjectRegistration(var coreController: CoreController) : Controller {
     var tiles = HashMap<String, AbstractTileType>()

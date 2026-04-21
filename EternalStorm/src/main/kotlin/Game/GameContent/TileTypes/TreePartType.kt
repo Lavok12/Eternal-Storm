@@ -8,11 +8,11 @@ import la.vok.Game.GameContent.Items.Other.DropEntry
 import la.vok.Game.GameContent.Items.Other.NothingDrop
 import la.vok.Game.GameContent.Map.MapController
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
+import la.vok.Game.GameContent.Tiles.System.TileRenderConfig
 import la.vok.Game.GameController.CollisionType
 import la.vok.Game.GameSystems.WorldSystems.Map.MineData
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.LGraphics.LGraphics
-import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
 import processing.core.PImage
@@ -25,7 +25,8 @@ class TreePartType() : AbstractTileType() {
     override val maxHp: Int = 10
     override val texture: String = AppState.res("tree_part_block_1.png")
     override val drop: DropEntry = NothingDrop
-    override val tags = setOf(BlockTags.WOOD, BlockTags.SOLID, BlockTags.NO_SHADOW)
+    override val tags = setOf(BlockTags.WOOD, BlockTags.SOLID)
+    override val renderConfig = TileRenderConfig(AOShadow = false)
 
     override fun render(
         pointX: Int,
@@ -62,7 +63,7 @@ class TreePartType() : AbstractTileType() {
         gameController: GameController
     ) {
         val texture = gameController.coreController.spriteLoader.getValue(AppState.res("tree_part_block_1.png"))
-        lg.setImage(texture, positionX, positionY, sizeX, sizeY)
+        lg.setImage(texture, positionX, positionY, sizeX, sizeY, renderConfig.flipX)
     }
 
     fun renderMiddle(
@@ -76,7 +77,7 @@ class TreePartType() : AbstractTileType() {
         gameController: GameController
     ) {
         val texture = gameController.coreController.spriteLoader.getValue(AppState.res("tree_part_block_2.png"))
-        lg.setImage(texture, positionX, positionY, sizeX, sizeY)
+        lg.setImage(texture, positionX, positionY, sizeX, sizeY, renderConfig.flipX)
 
         val subtype = getMiddleSubtype(pointX, pointY)
         if (subtype == 0) return
@@ -84,18 +85,18 @@ class TreePartType() : AbstractTileType() {
         when (subtype) {
             1 -> {
                 val t = gameController.coreController.spriteLoader.getValue(AppState.res("tree_part_block_2_-1.png"))
-                lg.setImage(t, positionX, positionY, sizeX * 5f, sizeY * 5f)
+                lg.setImage(t, positionX, positionY, sizeX * 5f, sizeY * 5f, renderConfig.flipX)
             }
             2 -> {
                 val t = gameController.coreController.spriteLoader.getValue(AppState.res("tree_part_block_2_+1.png"))
-                lg.setImage(t, positionX, positionY, sizeX * 5f, sizeY * 5f)
+                lg.setImage(t, positionX, positionY, sizeX * 5f, sizeY * 5f, renderConfig.flipX)
             }
             3 -> {
                 var t = gameController.coreController.spriteLoader.getValue("tree_part_block_2_-1.png")
-                lg.setImage(t, positionX, positionY, sizeX * 5f, sizeY * 5f)
+                lg.setImage(t, positionX, positionY, sizeX * 5f, sizeY * 5f, renderConfig.flipX)
 
                 t = gameController.coreController.spriteLoader.getValue("tree_part_block_2_+1.png")
-                lg.setImage(t, positionX, positionY, sizeX * 5f, sizeY * 5f)
+                lg.setImage(t, positionX, positionY, sizeX * 5f, sizeY * 5f, renderConfig.flipX)
             }
         }
     }
@@ -195,8 +196,8 @@ class TreePartType() : AbstractTileType() {
         gameController: GameController
     ) {
         var texture = gameController.coreController.spriteLoader.getValue(AppState.res("tree_part_block_3_1.png"))
-        lg.setImage(texture, positionX, positionY, sizeX * 6f, sizeY * 6f)
+        lg.setImage(texture, positionX, positionY, sizeX * 6f, sizeY * 6f, renderConfig.flipX)
         texture = gameController.coreController.spriteLoader.getValue(AppState.res("tree_part_block_3.png"))
-        lg.setImage(texture, positionX, positionY, sizeX, sizeY)
+        lg.setImage(texture, positionX, positionY, sizeX, sizeY, renderConfig.flipX)
     }
 }

@@ -13,7 +13,7 @@ import la.vok.Game.GameContent.Tiles.System.TileRenderConfig
 import la.vok.Game.GameController.CollisionType
 import la.vok.Game.GameSystems.WorldSystems.Map.TilePlaceType
 import la.vok.Game.GameContent.TileData.AbstractTileData
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionType
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.v
@@ -27,10 +27,9 @@ class FrameTileType : AbstractTileType() {
     override val blockStrength = 0
     override val maxHp = 1
     override val drop: DropEntry = SingleDrop(ItemsList.frame)
-    override val tags: Set<String> = setOf(BlockTags.NO_SHADOW)
     override val placeType = TilePlaceType.NEAR_TILE_OR_ON_WALL
 
-    override val renderConfig = TileRenderConfig(useSquareRender = true, sizeMultiplier = 1.2f, renderWallsBehind = true)
+    override val renderConfig = TileRenderConfig(useSquareRender = true, sizeMultiplier = 1.2f, renderWallsBehind = true, AOShadow = false)
 
     init {
         addInteractionReaction(BlockInteractionType.RIGHT) {

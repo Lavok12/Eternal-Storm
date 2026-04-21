@@ -1,11 +1,7 @@
 package la.vok.Game.GameContent.Tiles.System
 
-import la.vok.Game.GameContent.Items.Other.Item
-import la.vok.Game.GameContent.Map.MapController
 import la.vok.LavokLibrary.Vectors.*
-import la.vok.Game.GameContent.ContentList.TilesList
 import la.vok.State.AppState
-import la.vok.Game.GameSystems.WorldSystems.Dimensions.Dimensions.AbstractDimension
 
 class BigTestBlockType : AbstractTileType() {
     override val tag: String = la.vok.Game.GameContent.ContentList.TilesList.big_test_block
