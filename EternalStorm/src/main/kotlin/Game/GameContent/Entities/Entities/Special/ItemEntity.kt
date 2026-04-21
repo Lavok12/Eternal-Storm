@@ -28,12 +28,12 @@ open class ItemEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.ItemEnti
         inventory = MobInventory(this, 1)
         hpBody = null
         hasCollisionDetector = false
-        hasDownTrigger = false
+        hasDownTrigger = true
     }
 
     override fun spawn() {
         super.spawn()
-        rigidBody?.blockFriction = 0.8f
+        rigidBody?.blockFriction = 0.2f
     }
 
     val item: Item?

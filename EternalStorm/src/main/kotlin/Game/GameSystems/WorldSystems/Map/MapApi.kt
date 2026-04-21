@@ -19,11 +19,65 @@ import la.vok.Game.GameContent.TileData.AbstractTileData
 import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionContext
 import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionType
 import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameController.UpdatePhase
 import la.vok.LavokLibrary.Vectors.p
 
 class MapApi(var gameCycle: GameCycle) {
     val gameController: GameController get() = gameCycle.gameController
     val objectRegistration: ObjectRegistration get() = gameController.coreController.objectRegistration
+
+    fun dispatchLogicalUpdate(phase: UpdatePhase) {
+        gameCycle.dimensionsController.dimensions.values.forEach { 
+            it.mapSystem.dispatchLogicalUpdate(phase)
+        }
+    }
+
+    fun dispatchSecondUpdate(phase: UpdatePhase) {
+        gameCycle.dimensionsController.dimensions.values.forEach { 
+            it.mapSystem.dispatchSecondUpdate(phase)
+        }
+    }
+
+    fun dispatchMinuteUpdate(phase: UpdatePhase) {
+        gameCycle.dimensionsController.dimensions.values.forEach { 
+            it.mapSystem.dispatchMinuteUpdate(phase)
+        }
+    }
+
+    /**
+     * Update specific dimension
+     */
+    fun dispatchLogicalUpdate(dimension: AbstractDimension, phase: UpdatePhase) {
+        dimension.mapSystem.dispatchLogicalUpdate(phase)
+    }
+
+    fun dispatchSecondUpdate(dimension: AbstractDimension, phase: UpdatePhase) {
+        dimension.mapSystem.dispatchSecondUpdate(phase)
+    }
+
+    fun dispatchMinuteUpdate(dimension: AbstractDimension, phase: UpdatePhase) {
+        dimension.mapSystem.dispatchMinuteUpdate(phase)
+    }
+
+    fun dispatchPhysicsUpdate(phase: UpdatePhase) {
+        gameCycle.dimensionsController.dimensions.values.forEach { 
+            it.mapSystem.dispatchPhysicsUpdate(phase)
+        }
+    }
+
+    fun dispatchPhysicsUpdate(dimension: AbstractDimension, phase: UpdatePhase) {
+        dimension.mapSystem.dispatchPhysicsUpdate(phase)
+    }
+
+    fun dispatchRenderUpdate(phase: UpdatePhase) {
+        gameCycle.dimensionsController.dimensions.values.forEach { 
+            it.mapSystem.dispatchRenderUpdate(phase)
+        }
+    }
+
+    fun dispatchRenderUpdate(dimension: AbstractDimension, phase: UpdatePhase) {
+        dimension.mapSystem.dispatchRenderUpdate(phase)
+    }
 
     fun getTileData(dimension: AbstractDimension, x: Int, y: Int): AbstractTileData? {
         val rawTile = dimension.mapSystem.getTileType(x, y)
@@ -32,7 +86,7 @@ class MapApi(var gameCycle: GameCycle) {
         return dimension.mapSystem.getTileData(cx, cy)
     }
 
-    fun setTileData(dimension: AbstractDimension, x: Int, y: Int, data: AbstractTileData?) {
+    fun setTileData(dimension: AbstractDimension, x: Int, y: Int, data: la.vok.Game.GameContent.TileData.AbstractTileData?) {
         val rawTile = dimension.mapSystem.getTileType(x, y)
         val cx = if (rawTile != null && rawTile.isDummy) x + rawTile.masterOffset.x else x
         val cy = if (rawTile != null && rawTile.isDummy) y + rawTile.masterOffset.y else y
@@ -41,6 +95,15 @@ class MapApi(var gameCycle: GameCycle) {
 
     fun hasTileData(dimension: AbstractDimension, x: Int, y: Int): Boolean =
         getTileData(dimension, x, y) != null
+
+    fun getWallData(dimension: AbstractDimension, x: Int, y: Int): la.vok.Game.GameContent.WallData.AbstractWallData? =
+        dimension.mapSystem.getWallData(x, y)
+
+    fun setWallData(dimension: AbstractDimension, x: Int, y: Int, data: la.vok.Game.GameContent.WallData.AbstractWallData?) =
+        dimension.mapSystem.setWallData(x, y, data)
+
+    fun hasWallData(dimension: AbstractDimension, x: Int, y: Int): Boolean =
+        getWallData(dimension, x, y) != null
 
     private fun markDirtyFootprint(dimension: AbstractDimension, x: Int, y: Int) {
         if (!isInsideMap(dimension, x, y)) return
@@ -256,6 +319,28 @@ class MapApi(var gameCycle: GameCycle) {
                 deleteTile(dimension, x, y)
     }
 
+    fun moveTile(dimension: AbstractDimension, fromX: Int, fromY: Int, toX: Int, toY: Int) {
+        if (!isInsideMap(dimension, fromX, fromY) || !isInsideMap(dimension, toX, toY)) return
+        markDirtyFootprint(dimension, fromX, fromY)
+        markDirtyFootprint(dimension, toX, toY)
+        dimension.mapSystem.deactivateTile(toX, toY, "moved_here")
+        dimension.mapSystem.swapTiles(fromX, fromY, toX, toY)
+    }
+
+    fun copyTile(dimension: AbstractDimension, fromX: Int, fromY: Int, toX: Int, toY: Int) {
+        if (!isInsideMap(dimension, fromX, fromY) || !isInsideMap(dimension, toX, toY)) return
+        markDirtyFootprint(dimension, fromX, fromY)
+        markDirtyFootprint(dimension, toX, toY)
+        dimension.mapSystem.copyTile(fromX, fromY, toX, toY)
+    }
+
+    fun swapTiles(dimension: AbstractDimension, x1: Int, y1: Int, x2: Int, y2: Int) {
+        if (!isInsideMap(dimension, x1, y1) || !isInsideMap(dimension, x2, y2)) return
+        markDirtyFootprint(dimension, x1, y1)
+        markDirtyFootprint(dimension, x2, y2)
+        dimension.mapSystem.swapTiles(x1, y1, x2, y2)
+    }
+
     fun getRegisteredTileType(tag: String): AbstractTileType =
         objectRegistration.tiles[tag] ?: error("Tile $tag not found")
 
@@ -350,6 +435,28 @@ class MapApi(var gameCycle: GameCycle) {
         for (x in 0 until dimension.mapSystem.width)
             for (y in 0 until dimension.mapSystem.height)
                 deleteWall(dimension, x, y)
+    }
+
+    fun moveWall(dimension: AbstractDimension, fromX: Int, fromY: Int, toX: Int, toY: Int) {
+        if (!isInsideMap(dimension, fromX, fromY) || !isInsideMap(dimension, toX, toY)) return
+        markDirtyFootprint(dimension, fromX, fromY)
+        markDirtyFootprint(dimension, toX, toY)
+        dimension.mapSystem.deactivateWall(toX, toY, "moved_here")
+        dimension.mapSystem.swapWalls(fromX, fromY, toX, toY)
+    }
+
+    fun copyWall(dimension: AbstractDimension, fromX: Int, fromY: Int, toX: Int, toY: Int) {
+        if (!isInsideMap(dimension, fromX, fromY) || !isInsideMap(dimension, toX, toY)) return
+        markDirtyFootprint(dimension, fromX, fromY)
+        markDirtyFootprint(dimension, toX, toY)
+        dimension.mapSystem.copyWall(fromX, fromY, toX, toY)
+    }
+
+    fun swapWalls(dimension: AbstractDimension, x1: Int, y1: Int, x2: Int, y2: Int) {
+        if (!isInsideMap(dimension, x1, y1) || !isInsideMap(dimension, x2, y2)) return
+        markDirtyFootprint(dimension, x1, y1)
+        markDirtyFootprint(dimension, x2, y2)
+        dimension.mapSystem.swapWalls(x1, y1, x2, y2)
     }
 
     fun getRegisteredWallType(tag: String): AbstractWallType =

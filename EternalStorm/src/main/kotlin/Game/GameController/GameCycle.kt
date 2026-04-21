@@ -9,6 +9,7 @@ import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
 import la.vok.Game.GameSystems.WorldSystems.Particles.ParticlesApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.DimensionsController
+import la.vok.State.AppState
 
 class GameCycle(var gameController: GameController) : Controller {
     val entityApi: EntityApi = EntityApi(this)
@@ -21,6 +22,8 @@ class GameCycle(var gameController: GameController) : Controller {
     var dimensionsController = DimensionsController(this)
     val dimensionsApi get() = dimensionsController.dimensionsApi
     
+    val updateController: UpdateController = UpdateController(this)
+
     val batchApi: la.vok.Game.GameSystems.RenderSystems.BatchApi = la.vok.Game.GameSystems.RenderSystems.BatchApi(this)
 
     var collisionSystem = CollisionSystem(this)
@@ -32,14 +35,17 @@ class GameCycle(var gameController: GameController) : Controller {
     override fun logicalTick() {
         collisionSystem.logicalTick()
         dimensionsController.logicalTick()
+        updateController.logicalTick()
     }
 
     override fun physicTick() {
         collisionSystem.physicTick()
         dimensionsController.physicTick()
+        updateController.physicTick()
     }
     
     override fun renderTick() {
         dimensionsController.renderTick()
+        updateController.renderTick()
     }
 }

@@ -41,7 +41,7 @@ class SunflowerTileType : AbstractTileType() {
         dimension: AbstractDimension,
         gameController: GameController
     ) {
-        renderConfig.flipX = (pointX/3 + pointY*pointX/4+pointY / pointX) % 2 == 0
+        renderConfig.flipX = ((pointX * 374761393L xor pointY * 668265263L) shr 16).toInt() % 2 == 0
         super.render(pointX, pointY, lg, positionX, positionY, sizeX, sizeY, dimension, gameController)
         renderConfig.flipX = false
     }

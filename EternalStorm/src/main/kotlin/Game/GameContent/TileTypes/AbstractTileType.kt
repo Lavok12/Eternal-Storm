@@ -60,6 +60,8 @@ abstract class AbstractTileType : IBlockType {
         return true
     }
 
+    open fun onPositionChanged(oldX: Int, oldY: Int, newX: Int, newY: Int, dimension: AbstractDimension) {}
+
     open val width: Int = 1
     open val height: Int = 1
     open val isDummy: Boolean = false
@@ -192,7 +194,7 @@ abstract class AbstractTileType : IBlockType {
 
     open fun onMined(x: Int, y: Int, mineData: MineData, dimension: AbstractDimension, mapController: MapController) {
         val pos = mapController.dimension.gameCycle.mapApi.getBlockPos(x, y)
-        mapController.dimension.gameCycle.itemsApi.spawnDropTable(dimension, drop, pos, true)
+        mapController.dimension.gameCycle.itemsApi.spawnDropTable(dimension, drop, pos - (placeOffset.toVec()), true)
         
         // Area particles
         for (dx in 0 until width) {

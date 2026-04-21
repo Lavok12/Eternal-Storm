@@ -15,5 +15,4 @@ class GrassTileType() : AbstractTileType() {
     override val maxHp: Int = 12
     override val texture: String = AppState.res("grassTexture.jpg")
     override val drop: DropEntry = SingleDrop(ItemsList.grass_block)
-    override val renderConfig = TileRenderConfig(AOShadow = false)
 }
