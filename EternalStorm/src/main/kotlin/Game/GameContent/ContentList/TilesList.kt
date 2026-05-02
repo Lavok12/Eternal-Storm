@@ -6,6 +6,7 @@ object TilesList {
     val stone_block: String by lazy { AppState.tag("stone_block") }
     val grass_block: String by lazy { AppState.tag("grass_block") }
     val dirt_block: String by lazy { AppState.tag("dirt_block") }
+    val farmland_block: String by lazy { AppState.tag("farmland_block") }
     val plank_block: String by lazy { AppState.tag("plank_block") }
     val tree_part_block: String by lazy { AppState.tag("tree_part_block") }
     val gold_ore_block: String by lazy { AppState.tag("gold_ore_block") }
@@ -29,4 +30,5 @@ object TilesList {
     val frame_block: String by lazy { AppState.tag("frame_block") }
     val small_grass: String by lazy { AppState.tag("small_grass") }
     val sunflower: String by lazy { AppState.tag("sunflower") }
+    val wheat_block: String by lazy { AppState.tag("wheat_block") }
 }

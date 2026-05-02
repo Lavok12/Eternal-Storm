@@ -6,6 +6,8 @@ import la.vok.Game.GameContent.Items.Other.SingleDrop
 import la.vok.Game.GameContent.ContentList.ItemsList
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
 import la.vok.Game.GameContent.ContentList.TilesList
+import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Map.MapController
 import la.vok.Game.GameContent.Tiles.System.TileRenderConfig
 import la.vok.State.AppState
 
@@ -15,4 +17,5 @@ class GrassTileType() : AbstractTileType() {
     override val maxHp: Int = 12
     override val texture: String = AppState.res("grassTexture.jpg")
     override val drop: DropEntry = SingleDrop(ItemsList.grass_block)
+    override val tags: Set<String> = setOf(BlockTags.PLOWABLE)
 }

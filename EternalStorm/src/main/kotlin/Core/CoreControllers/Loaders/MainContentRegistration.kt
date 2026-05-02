@@ -13,6 +13,9 @@ import la.vok.Game.GameContent.TileTypes.*
 import la.vok.Game.GameContent.WallTypes.*
 import la.vok.Game.GameContent.Items.ItemTypes.Tiles.*
 import la.vok.Game.GameContent.Items.ItemTypes.Walls.*
+import la.vok.Game.GameContent.Items.ItemTypes.Hoes.*
+import la.vok.Game.GameContent.Items.ItemTypes.Other.WheatItemType
+import la.vok.Game.GameContent.Items.ItemTypes.Other.WheatSeedsItemType
 import la.vok.Game.GameContent.WallTypes.PlankWallType
 import la.vok.Game.GameContent.Dimensions.Dimensions.MainDimensionType
 import la.vok.Game.GameContent.Dimensions.Dimensions.BrickWorldDimensionType
@@ -46,6 +49,7 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationItemType(SpearItemType())
         objectRegistration.registrationItemType(PickaxeItemType())
         objectRegistration.registrationItemType(HummerItemType())
+        objectRegistration.registrationItemType(CopperHoeItemType())
 
         // Material Pickaxes
         objectRegistration.registrationItemType(WoodenPickaxeItemType())
@@ -107,6 +111,8 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationItemType(FrameItemType())
         objectRegistration.registrationItemType(SmallGrassTileItemType())
         objectRegistration.registrationItemType(SunflowerItemType())
+        objectRegistration.registrationItemType(WheatItemType())
+        objectRegistration.registrationItemType(WheatSeedsItemType())
     }
 
     private fun registerTiles(objectRegistration: ObjectRegistration) {
@@ -115,6 +121,8 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationTileType(StoneTileType())
         objectRegistration.registrationTileType(GoldOreTileType())
         objectRegistration.registrationTileType(DiamondOreTileType())
+        objectRegistration.registrationTileType(FarmlandTileType())
+        objectRegistration.registrationTileType(WheatTileType())
         objectRegistration.registrationTileType(PlankTileType())
         objectRegistration.registrationTileType(BigTestBlockType())
         objectRegistration.registrationTileType(MultiTileDummyType(TilesList.multi_tile_dummy, LPoint.ZERO))

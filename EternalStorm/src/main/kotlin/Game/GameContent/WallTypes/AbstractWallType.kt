@@ -140,9 +140,13 @@ abstract class AbstractWallType : IBlockType {
     }
 
     open fun onMined(x: Int, y: Int, mineData: MineData, dimension: AbstractDimension, mapController: MapController) {
-        val pos = mapController.dimension.gameCycle.mapApi.getBlockPos(x, y)
-        mapController.dimension.gameCycle.itemsApi.spawnDropTable(dimension, drop, pos, true)
+        val pos = dimension.gameCycle.mapApi.getBlockPos(x, y)
+        dimension.gameCycle.itemsApi.spawnDropTable(dimension, drop, Vec2(pos.x + 0.5f, pos.y + 0.5f), true)
     }
 
     open fun onRemoved(x: Int, y: Int, dimension: AbstractDimension, mapController: MapController, reason: Any? = null) {}
+
+    open fun onUpdate(x: Int, y: Int, dimension: AbstractDimension, mapController: MapController) {
+        dimension.mapSystem.getWallData(x, y)?.onUpdate()
+    }
 }

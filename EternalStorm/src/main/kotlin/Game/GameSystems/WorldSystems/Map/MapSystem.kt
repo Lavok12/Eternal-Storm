@@ -200,6 +200,44 @@ class MapSystem(
     fun isInside(x: Int, y: Int): Boolean =
         x in 0 until width && y in 0 until height
 
+    // --- Block Updates ---
+
+    fun updateTile(x: Int, y: Int) {
+        if (!isInside(x, y)) return
+        getTileType(x, y)?.onUpdate(x, y, mapController.dimension, mapController)
+    }
+
+    fun updateWall(x: Int, y: Int) {
+        if (!isInside(x, y)) return
+        getWallType(x, y)?.onUpdate(x, y, mapController.dimension, mapController)
+    }
+
+    fun updateBlock(x: Int, y: Int) {
+        updateTile(x, y)
+        updateWall(x, y)
+    }
+
+    fun updateTileNeighbors(x: Int, y: Int) {
+        updateTile(x + 1, y)
+        updateTile(x - 1, y)
+        updateTile(x, y + 1)
+        updateTile(x, y - 1)
+    }
+
+    fun updateWallNeighbors(x: Int, y: Int) {
+        updateWall(x + 1, y)
+        updateWall(x - 1, y)
+        updateWall(x, y + 1)
+        updateWall(x, y - 1)
+    }
+
+    fun updateNeighbors(x: Int, y: Int) {
+        updateBlock(x + 1, y)
+        updateBlock(x - 1, y)
+        updateBlock(x, y + 1)
+        updateBlock(x, y - 1)
+    }
+
     // --------------------------------------------------------
     // TILES
     // --------------------------------------------------------
@@ -213,7 +251,7 @@ class MapSystem(
     fun containsTile(x: Int, y: Int): Boolean =
         isInside(x, y) && tiles[getIndex(x, y)] != null
 
-    fun setTileType(x: Int, y: Int, type: AbstractTileType?) {
+    fun setTileType(x: Int, y: Int, type: AbstractTileType?, notify: Boolean = true) {
         if (!isInside(x, y)) return
         tiles[getIndex(x, y)] = type
         
@@ -226,21 +264,16 @@ class MapSystem(
                 setTileData(x, y, data)
             }
         }
+
+        if (notify) {
+            updateBlock(x, y)
+            updateNeighbors(x, y)
+        }
     }
 
     fun setTileHp(x: Int, y: Int, hp: Int) {
         if (!isInside(x, y)) return
         tilesHp[getIndex(x, y)] = hp
-    }
-
-    fun maxHp(x: Int, y: Int) {
-        if (!containsTile(x, y)) return
-        val idx = getIndex(x, y)
-        tilesHp[idx] = tiles[idx]?.maxHp ?: 0
-    }
-
-    fun callPlace(x: Int, y: Int, item: la.vok.Game.GameContent.Items.Other.Item) {
-        getTileType(x, y)?.place(x, y, item, mapController)
     }
 
     fun getTileData(x: Int, y: Int): la.vok.Game.GameContent.TileData.AbstractTileData? = tileDataMap[coordToKey(x, y)]
@@ -264,7 +297,7 @@ class MapSystem(
         if (old != null) unregisterBlockData(old)
     }
 
-    fun deactivateTile(x: Int, y: Int, reason: Any? = null) {
+    fun deactivateTile(x: Int, y: Int, reason: Any? = null, notify: Boolean = true) {
         if (!isInside(x, y)) return
         val tileType = getTileType(x, y) ?: return
         
@@ -276,53 +309,14 @@ class MapSystem(
         tilesHp[idx] = 0
         data?.onRemoved(reason)
         removeTileData(x, y)
-    }
 
-    fun damageTile(x: Int, y: Int, damage: Int) {
-        if (!containsTile(x, y)) return
-        val tileType = getTileType(x, y) ?: return
-
-        tileType.damage(x, y, damage, mapController.dimension, mapController)
-        val idx = getIndex(x, y)
-        tilesHp[idx] -= damage
-
-        if (tilesHp[idx] <= 0) {
-            val reason = "absolute_damage"
-            tileType.onRemoved(x, y, mapController.dimension, mapController, reason)
-            removeMultiTileParts(x, y, tileType)
-            tiles[idx] = null
-            tilesHp[idx] = 0
-            val data = getTileData(x, y)
-            data?.onDestroyed(reason)
-            data?.onRemoved(reason)
-            removeTileData(x, y)
+        if (notify) {
+            updateBlock(x, y)
+            updateNeighbors(x, y)
         }
     }
 
-    fun mineTile(x: Int, y: Int, mineData: MineData) {
-        if (!containsTile(x, y)) return
-        val tileType = getTileType(x, y) ?: return
 
-        if (mineData.power < tileType.blockStrength) return
-
-        tileType.damage(x, y, mineData.value, mapController.dimension, mapController)
-        tileType.mine(x, y, mineData, mapController.dimension, mapController)
-
-        val idx = getIndex(x, y)
-        tilesHp[idx] -= mineData.value
-
-        if (tilesHp[idx] <= 0) {
-            tileType.onMined(x, y, mineData, mapController.dimension, mapController)
-            tileType.onRemoved(x, y, mapController.dimension, mapController, mineData)
-            removeMultiTileParts(x, y, tileType)
-            tiles[idx] = null
-            tilesHp[idx] = 0
-            val data = getTileData(x, y)
-            data?.onDestroyed(mineData)
-            data?.onRemoved(mineData)
-            removeTileData(x, y)
-        }
-    }
 
     private fun removeMultiTileParts(x: Int, y: Int, tile: AbstractTileType) {
         if (tile.width > 1 || tile.height > 1) {
@@ -341,42 +335,6 @@ class MapSystem(
                 }
             }
         }
-    }
-
-    fun copyTile(fromX: Int, fromY: Int, toX: Int, toY: Int) {
-        if (!isInside(fromX, fromY) || !isInside(toX, toY)) return
-        val type = getTileType(fromX, fromY) ?: return
-        val hp = getTileHp(fromX, fromY)
-        
-        deactivateTile(toX, toY, "replaced_by_copy")
-        
-        val toIdx = getIndex(toX, toY)
-        tiles[toIdx] = type
-        tilesHp[toIdx] = hp
-        
-        // Create fresh data if needed (don't call place as per request)
-        if (!type.isDummy) {
-            val data = type.createTileData(toX, toY, mapController.dimension)
-            setTileData(toX, toY, data)
-            
-            // --- Coordinate Safety: Copy Multitile Dummies ---
-            if (type.width > 1 || type.height > 1) {
-                for (dx in 0 until type.width) {
-                    for (dy in 0 until type.height) {
-                        if (dx == 0 && dy == 0) continue
-                        val nx = toX + dx
-                        val ny = toY + dy
-                        if (isInside(nx, ny)) {
-                            deactivateTile(nx, ny, "multitile_reconstruction")
-                            tiles[getIndex(nx, ny)] = la.vok.Game.GameContent.Tiles.System.MultiTileDummyType(type.tag + "_dummy", -dx p -dy)
-                            tilesHp[getIndex(nx, ny)] = hp
-                        }
-                    }
-                }
-            }
-        }
-        
-        type.onPositionChanged(fromX, fromY, toX, toY, mapController.dimension)
     }
 
     /**
@@ -567,7 +525,7 @@ class MapSystem(
     fun containsWall(x: Int, y: Int): Boolean =
         isInside(x, y) && walls[getIndex(x, y)] != null
 
-    fun setWallType(x: Int, y: Int, type: AbstractWallType?) {
+    fun setWallType(x: Int, y: Int, type: AbstractWallType?, notify: Boolean = true) {
         if (!isInside(x, y)) return
         walls[getIndex(x, y)] = type
 
@@ -580,17 +538,16 @@ class MapSystem(
                 setWallData(x, y, data)
             }
         }
+
+        if (notify) {
+            updateBlock(x, y)
+            updateNeighbors(x, y)
+        }
     }
 
     fun setWallHp(x: Int, y: Int, hp: Int) {
         if (!isInside(x, y)) return
         wallsHp[getIndex(x, y)] = hp
-    }
-
-    fun maxHpWall(x: Int, y: Int) {
-        if (!containsWall(x, y)) return
-        val idx = getIndex(x, y)
-        wallsHp[idx] = walls[idx]?.maxHp ?: 0
     }
 
     fun getWallData(x: Int, y: Int): la.vok.Game.GameContent.WallData.AbstractWallData? = wallDataMap[coordToKey(x, y)]
@@ -612,28 +569,6 @@ class MapSystem(
         val key = coordToKey(x, y)
         val old = wallDataMap.remove(key)
         if (old != null) unregisterBlockData(old)
-    }
-
-    fun callPlaceWall(x: Int, y: Int, item: Item) {
-        getWallType(x, y)?.place(x, y, item, mapController)
-    }
-
-    fun copyWall(fromX: Int, fromY: Int, toX: Int, toY: Int) {
-        if (!isInside(fromX, fromY) || !isInside(toX, toY)) return
-        val type = getWallType(fromX, fromY) ?: return
-        val hp = getWallHp(fromX, fromY)
-        
-        deactivateWall(toX, toY, "replaced_by_copy")
-        
-        val toIdx = getIndex(toX, toY)
-        walls[toIdx] = type
-        wallsHp[toIdx] = hp
-        
-        // Data Copy
-        val data = type.createWallData(toX, toY, mapController.dimension)
-        setWallData(toX, toY, data)
-        
-        type.onPositionChanged(fromX, fromY, toX, toY, mapController.dimension)
     }
 
     private fun swapWallData(x1: Int, y1: Int, x2: Int, y2: Int) {
@@ -720,7 +655,7 @@ class MapSystem(
         }
     }
 
-    fun deactivateWall(x: Int, y: Int, reason: Any? = null) {
+    fun deactivateWall(x: Int, y: Int, reason: Any? = null, notify: Boolean = true) {
         if (!isInside(x, y)) return
         val idx = getIndex(x, y)
         val wallType = walls[idx] ?: return
@@ -730,47 +665,12 @@ class MapSystem(
         wallsHp[idx] = 0
         data?.onRemoved(reason)
         removeWallData(x, y)
-    }
 
-    fun damageWall(x: Int, y: Int, damage: Int) {
-        if (!containsWall(x, y)) return
-        val idx = getIndex(x, y)
-        val wallType = walls[idx] ?: return
-
-        wallType.damage(x, y, damage, mapController.dimension, mapController)
-        wallsHp[idx] -= damage
-
-        if (wallsHp[idx] <= 0) {
-            val reason = "absolute_damage"
-            wallType.onRemoved(x, y, mapController.dimension, mapController, reason)
-            walls[idx] = null
-            wallsHp[idx] = 0
-            val data = getWallData(x, y)
-            data?.onDestroyed(reason)
-            data?.onRemoved(reason)
-            removeWallData(x, y)
+        if (notify) {
+            updateBlock(x, y)
+            updateNeighbors(x, y)
         }
     }
 
-    fun mineWall(x: Int, y: Int, mineData: MineData) {
-        if (!containsWall(x, y)) return
-        val idx = getIndex(x, y)
-        val wallType = walls[idx] ?: return
 
-        if (mineData.power < wallType.blockStrength) return
-
-        wallType.damage(x, y, mineData.value, mapController.dimension, mapController)
-        wallsHp[idx] -= mineData.value
-
-        if (wallsHp[idx] <= 0) {
-            wallType.onMined(x, y, mineData, mapController.dimension, mapController)
-            wallType.onRemoved(x, y, mapController.dimension, mapController, mineData)
-            walls[idx] = null
-            wallsHp[idx] = 0
-            val data = getWallData(x, y)
-            data?.onDestroyed(mineData)
-            data?.onRemoved(mineData)
-            removeWallData(x, y)
-        }
-    }
 }

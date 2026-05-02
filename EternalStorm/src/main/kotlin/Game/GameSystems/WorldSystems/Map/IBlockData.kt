@@ -51,4 +51,5 @@ interface IBlockData {
     fun onDestroyed(reason: Any? = null) {}
     fun onRelocated(fromX: Int, fromY: Int, toX: Int, toY: Int) {}
     fun onPositionChanged(oldX: Int, oldY: Int, newX: Int, newY: Int) {}
+    fun onUpdate() {}
 }

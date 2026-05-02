@@ -9,7 +9,7 @@ import la.vok.LavokLibrary.Vectors.v
 class FrameTileData(x: Int, y: Int, dimension: AbstractDimension) : AbstractTileData(x, y, dimension) {
     var itemContainer = ItemContainer(dimension.gameCycle, 1)
 
-    override fun onDestroyed() {
+    override fun onDestroyed(reason: Any?) {
         dropItem()
     }
 

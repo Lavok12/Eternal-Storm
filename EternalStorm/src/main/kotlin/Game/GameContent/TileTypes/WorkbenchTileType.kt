@@ -24,8 +24,10 @@ class WorkbenchTileType : AbstractTileType() {
     override val maxHp = 50
     override val drop = SingleDrop(ItemsList.workbench)
     override val placeOffset: LPoint = -1 p 0
+    override val placeType = la.vok.Game.GameSystems.WorldSystems.Map.TilePlaceType.FULL_ON_BLOCKS
+    override val breakIfInvalid = true
 
-    override val renderConfig = TileRenderConfig(useSquareRender = true, sizeMultiplier = 1.6f, renderDelta = Vec2(0f, 0.49f), renderWallsBehind = true, AOShadow = false)
+    override val renderConfig = TileRenderConfig(useSquareRender = true, sizeMultiplier = 1.62f, renderDelta = Vec2(0f, -0.25f), renderWallsBehind = true, AOShadow = false)
 
     init {
         val reaction = { context: BlockInteractionContext ->
@@ -34,8 +36,6 @@ class WorkbenchTileType : AbstractTileType() {
             println("Interactor: ${context.interactor?.entityType?.tag ?: "Unknown"}")
         }
 
-        addInteractionReaction(BlockInteractionType.LEFT, reaction)
         addInteractionReaction(BlockInteractionType.RIGHT, reaction)
-        addInteractionReaction(BlockInteractionType.MIDDLE, reaction)
     }
 }

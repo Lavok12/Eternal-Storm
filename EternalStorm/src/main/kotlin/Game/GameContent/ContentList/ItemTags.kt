@@ -6,4 +6,5 @@ object ItemTags {
     const val PLACEABLE = "PLACEABLE"
     const val MATERIAL = "MATERIAL"
     const val PLANK = "PLANK"
+    const val HOE = "HOE"
 }

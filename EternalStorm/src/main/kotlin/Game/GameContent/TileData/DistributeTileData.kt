@@ -7,7 +7,7 @@ import la.vok.State.AppState
 import kotlin.random.Random
 
 class DistributeTileData(x: Int, y: Int, dimension: AbstractDimension) : AbstractTileData(x, y, dimension) {
-    override val wantsSecondUpdate: Boolean = true
+    override val wantsMainSecond: Boolean = true
     override fun secondUpdate() {
         val randomDirection = Random.nextInt()%4
 

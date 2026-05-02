@@ -11,6 +11,7 @@ object ItemsList {
     val wooden_pickaxe: String by lazy { AppState.tag("wooden_pickaxe") }
     val stone_pickaxe: String by lazy { AppState.tag("stone_pickaxe") }
     val copper_pickaxe: String by lazy { AppState.tag("copper_pickaxe") }
+    val copper_hoe: String by lazy { AppState.tag("copper_hoe") }
     val tin_pickaxe: String by lazy { AppState.tag("tin_pickaxe") }
     val bronze_pickaxe: String by lazy { AppState.tag("bronze_pickaxe") }
     val iron_pickaxe: String by lazy { AppState.tag("iron_pickaxe") }
@@ -59,4 +60,6 @@ object ItemsList {
     val frame: String by lazy { AppState.tag("frame") }
     val small_grass: String by lazy { AppState.tag("small_grass") }
     val sunflower: String by lazy { AppState.tag("sunflower") }
+    val wheat_seeds: String by lazy { AppState.tag("wheat_seeds") }
+    val wheat_item: String by lazy { AppState.tag("wheat_item") }
 }

@@ -21,8 +21,12 @@ class SunflowerTileType : AbstractTileType() {
     override val width: Int = 1
     override val height: Int = 3
     override val placeType = TilePlaceType.ON_TILE
+    override val breakIfInvalid = true
     override val drop: DropEntry = SingleDrop(ItemsList.sunflower)
-    
+    override val blockStrength = 0
+    override val maxHp = 1
+    override val tags: Set<String> = setOf(la.vok.Game.GameContent.ContentList.BlockTags.PLANT)
+
     override val renderConfig = TileRenderConfig(
         useSquareRender = true,
         sizeMultiplier = 3.45f,
@@ -45,6 +49,6 @@ class SunflowerTileType : AbstractTileType() {
         super.render(pointX, pointY, lg, positionX, positionY, sizeX, sizeY, dimension, gameController)
         renderConfig.flipX = false
     }
-    override val blockStrength = 0
-    override val maxHp = 1
+
+
 }

@@ -6,5 +6,6 @@ enum class TilePlaceType {
     NEAR_TILE_OR_ON_WALL,
     NEAR_WALL,
     ON_TILE,
-    NEAR_TILE
+    NEAR_TILE,
+    FULL_ON_BLOCKS
 }

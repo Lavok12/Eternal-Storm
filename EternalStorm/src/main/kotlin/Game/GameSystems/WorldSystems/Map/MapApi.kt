@@ -89,6 +89,29 @@ class MapApi(var gameCycle: GameCycle) {
         dimension.mapSystem.dispatchRenderUpdate(phase)
     }
 
+    // --- Block Updates ---
+
+    fun updateTile(dimension: AbstractDimension, x: Int, y: Int) {
+        dimension.mapSystem.updateTile(x, y)
+    }
+
+    fun updateWall(dimension: AbstractDimension, x: Int, y: Int) {
+        dimension.mapSystem.updateWall(x, y)
+    }
+
+    fun updateBlock(dimension: AbstractDimension, x: Int, y: Int) {
+        dimension.mapSystem.updateBlock(x, y)
+    }
+
+    fun updateTileNeighbors(dimension: AbstractDimension, x: Int, y: Int) {
+        dimension.mapSystem.updateTileNeighbors(x, y)
+    }
+
+    fun updateWallNeighbors(dimension: AbstractDimension, x: Int, y: Int) {
+        dimension.mapSystem.updateWallNeighbors(x, y)
+    }
+
+
     fun getTileData(dimension: AbstractDimension, x: Int, y: Int): AbstractTileData? {
         val rawTile = dimension.mapSystem.getTileType(x, y)
         val cx = if (rawTile != null && rawTile.isDummy) x + rawTile.masterOffset.x else x
@@ -176,28 +199,55 @@ class MapApi(var gameCycle: GameCycle) {
         }
     }
 
-    fun damageTile(dimension: AbstractDimension, x: Int, y: Int, damage: Int) {
+    fun damageTile(dimension: AbstractDimension, x: Int, y: Int, damage: Int, notify: Boolean = true) {
         if (!isInsideMap(dimension, x, y)) return
+        val master = getMasterPoint(dimension, x, y)
+        val masterType = getTileType(dimension, master.x, master.y) ?: return
+        
+        // High-level: call visual/logic effects (at clicked pos)
+        val clickedType = getTileType(dimension, x, y) ?: masterType
+        clickedType.damage(x, y, damage, dimension, dimension.mapController)
         markDirtyFootprint(dimension, x, y)
-        val rawTile = dimension.mapSystem.getTileType(x, y)
-        if (rawTile != null && rawTile.isDummy) {
-            dimension.mapSystem.damageTile(x + rawTile.masterOffset.x, y + rawTile.masterOffset.y, damage)
-        } else {
-            dimension.mapSystem.damageTile(x, y, damage)
+        
+        val ms = dimension.mapSystem
+        ms.setTileHp(master.x, master.y, ms.getTileHp(master.x, master.y) - damage)
+        
+        if (ms.getTileHp(master.x, master.y) <= 0) {
+            masterType.onMined(master.x, master.y, MineData(damage, 1000000, null, null, null), dimension, dimension.mapController)
+            deactivateTile(dimension, master.x, master.y, "absolute_damage", notify)
         }
     }
 
-    fun mineTile(dimension: AbstractDimension, x: Int, y: Int, mineData: MineData) {
+    fun killTile(dimension: AbstractDimension, x: Int, y: Int, notify: Boolean = true) {
+        val type = getTileType(dimension, x, y) ?: return
+        mineTile(dimension, x, y, MineData(
+            value = type.maxHp + 1000,
+            power = 1000000,
+            sourceId = null,
+            instrument = null,
+            item = null
+        ), notify)
+    }
+
+    fun mineTile(dimension: AbstractDimension, x: Int, y: Int, mineData: MineData, notify: Boolean = true) {
         if (!tileIsActive(dimension, x, y)) return
-        val tileType = getTileType(dimension, x, y) ?: return
-        if (mineData.power < tileType.blockStrength) return
+        val master = getMasterPoint(dimension, x, y)
+        val masterType = getTileType(dimension, master.x, master.y) ?: return
         
+        if (mineData.power < masterType.blockStrength) return
+        
+        // High-level: visual effects (at click position)
+        val clickedType = getTileType(dimension, x, y) ?: masterType
+        clickedType.damage(x, y, mineData.value, dimension, dimension.mapController)
+        clickedType.mine(x, y, mineData, dimension, dimension.mapController)
         markDirtyFootprint(dimension, x, y)
-        val rawTile = dimension.mapSystem.getTileType(x, y)
-        if (rawTile != null && rawTile.isDummy) {
-            dimension.mapSystem.mineTile(x + rawTile.masterOffset.x, y + rawTile.masterOffset.y, mineData)
-        } else {
-            dimension.mapSystem.mineTile(x, y, mineData)
+        
+        val ms = dimension.mapSystem
+        ms.setTileHp(master.x, master.y, ms.getTileHp(master.x, master.y) - mineData.value)
+
+        if (ms.getTileHp(master.x, master.y) <= 0) {
+            masterType.onMined(master.x, master.y, mineData, dimension, dimension.mapController)
+            deactivateTile(dimension, master.x, master.y, mineData, notify)
         }
     }
 
@@ -237,8 +287,8 @@ class MapApi(var gameCycle: GameCycle) {
 
         // Place Master
         dimension.mapSystem.setTileType(px, py, type)
-        dimension.mapSystem.setTileHp(px, py, type.maxHp)
-        dimension.mapSystem.callPlace(px, py, item)
+        maxHp(dimension, px, py)
+        type.place(px, py, item, dimension.mapController)
         markDirtyFootprint(dimension, px, py)
         
         // Place Dummies
@@ -262,6 +312,29 @@ class MapApi(var gameCycle: GameCycle) {
         return true
     }
 
+    fun updateAreaNeighbors(dimension: AbstractDimension, x: Int, y: Int, w: Int, h: Int) {
+        val ms = dimension.mapSystem
+        // Horizontal neighbors (top and bottom)
+        for (dx in 0 until w) {
+            ms.updateBlock(x + dx, y - 1)
+            ms.updateBlock(x + dx, y + h)
+        }
+        // Vertical neighbors (left and right)
+        for (dy in 0 until h) {
+            ms.updateBlock(x - 1, y + dy)
+            ms.updateBlock(x + w, y + dy)
+        }
+    }
+
+    fun updateNeighbors(dimension: AbstractDimension, x: Int, y: Int) {
+        val type = dimension.mapSystem.getTileType(x, y)
+        if (type != null && !type.isDummy) {
+            updateAreaNeighbors(dimension, x, y, type.width, type.height)
+        } else {
+            dimension.mapSystem.updateNeighbors(x, y)
+        }
+    }
+
     fun handleInteraction(dimension: AbstractDimension, x: Int, y: Int, type: BlockInteractionType, interactor: Entity?): Boolean {
         if (!isInsideMap(dimension, x, y)) return false
 
@@ -280,16 +353,21 @@ class MapApi(var gameCycle: GameCycle) {
         return false
     }
 
-    fun deactivateTile(dimension: AbstractDimension, x: Int, y: Int, reason: Any? = null) {
+    fun deactivateTile(dimension: AbstractDimension, x: Int, y: Int, reason: Any? = null, notify: Boolean = true) {
         if (!isInsideMap(dimension, x, y)) return
-        markDirtyFootprint(dimension, x, y)
-        val rawTile = dimension.mapSystem.getTileType(x, y)
-        if (rawTile != null && rawTile.isDummy) {
-            dimension.mapSystem.deactivateTile(x + rawTile.masterOffset.x, y + rawTile.masterOffset.y, reason)
-        } else {
-            dimension.mapSystem.deactivateTile(x, y, reason)
+        val rawTile = dimension.mapSystem.getTileType(x, y) ?: return
+        val type = getTileType(dimension, x, y)!!
+        val master = getMasterPoint(dimension, x, y)
+        
+        dimension.mapSystem.deactivateTile(master.x, master.y, reason, false)
+        
+        if (notify) {
+            updateAreaNeighbors(dimension, master.x, master.y, type.width, type.height)
         }
     }
+
+    fun removeTileSilent(dimension: AbstractDimension, x: Int, y: Int) =
+        deactivateTile(dimension, x, y, notify = false)
 
     fun generateTile(dimension: AbstractDimension, type: AbstractTileType?, x: Int, y: Int) {
         setTileType(dimension, type, x, y)
@@ -301,21 +379,31 @@ class MapApi(var gameCycle: GameCycle) {
         maxHp(dimension, x, y)
     }
 
-    fun setTileType(dimension: AbstractDimension, type: AbstractTileType?, x: Int, y: Int) {
+    fun setTileType(dimension: AbstractDimension, type: AbstractTileType?, x: Int, y: Int, notify: Boolean = true) {
         markDirtyFootprint(dimension, x, y)
-        dimension.mapSystem.setTileType(x, y, type)
+        dimension.mapSystem.setTileType(x, y, type, false)
+        if (notify) {
+            updateNeighbors(dimension, x, y)
+        }
     }
 
-    fun setTileType(dimension: AbstractDimension, type: String, x: Int, y: Int) {
-        markDirtyFootprint(dimension, x, y)
-        dimension.mapSystem.setTileType(x, y, getRegisteredTileType(type))
+    fun setTileTypeSilent(dimension: AbstractDimension, type: AbstractTileType?, x: Int, y: Int) =
+        setTileType(dimension, type, x, y, false)
+
+    fun setTileType(dimension: AbstractDimension, type: String, x: Int, y: Int, notify: Boolean = true) {
+        setTileType(dimension, getRegisteredTileType(type), x, y, notify)
     }
 
-    fun maxHp(dimension: AbstractDimension, x: Int, y: Int) =
-        dimension.mapSystem.maxHp(x, y)
+    fun maxHp(dimension: AbstractDimension, x: Int, y: Int) {
+        val type = getTileType(dimension, x, y) ?: return
+        val master = getMasterPoint(dimension, x, y)
+        dimension.mapSystem.setTileHp(master.x, master.y, type.maxHp)
+    }
 
-    fun deleteTile(dimension: AbstractDimension, x: Int, y: Int) =
-        dimension.mapSystem.deactivateTile(x, y)
+    fun deleteTile(dimension: AbstractDimension, x: Int, y: Int) {
+        markDirtyFootprint(dimension, x, y)
+        deactivateTile(dimension, x, y)
+    }
 
     fun fillTileRegion(dimension: AbstractDimension, type: AbstractTileType, startX: Int, startY: Int, endX: Int, endY: Int) {
         for (x in startX..endX)
@@ -335,7 +423,6 @@ class MapApi(var gameCycle: GameCycle) {
         val type = getTileType(dimension, fromX, fromY) ?: return
         if (type.width > 1 || type.height > 1) {
             val master = getMasterPoint(dimension, fromX, fromY)
-            // Use swapArea for multitiles (assuming target area is clear or will be swapped)
             swapArea(dimension, master.x, master.y, toX, toY, type.width, type.height)
             return
         }
@@ -353,17 +440,32 @@ class MapApi(var gameCycle: GameCycle) {
 
     fun copyTile(dimension: AbstractDimension, fromX: Int, fromY: Int, toX: Int, toY: Int) {
         if (!isInsideMap(dimension, fromX, fromY) || !isInsideMap(dimension, toX, toY)) return
-        
         val type = getTileType(dimension, fromX, fromY) ?: return
+        val hp = getTileHp(dimension, fromX, fromY)
+        
+        // Use high-level methods for consistency
+        deactivateTile(dimension, toX, toY, "replaced_by_copy")
+        
+        setTileType(dimension, type, toX, toY)
+        setTileHp(dimension, toX, toY, hp)
+        
+        // Multi-tile support
         if (type.width > 1 || type.height > 1) {
-            val master = getMasterPoint(dimension, fromX, fromY)
-            copyArea(dimension, master.x, master.y, toX, toY, type.width, type.height)
-            return
+            for (dx in 0 until type.width) {
+                for (dy in 0 until type.height) {
+                    if (dx == 0 && dy == 0) continue
+                    val nx = toX + dx
+                    val ny = toY + dy
+                    if (isInsideMap(dimension, nx, ny)) {
+                        deactivateTile(dimension, nx, ny, "multitile_reconstruction")
+                        dimension.mapSystem.setTileType(nx, ny, MultiTileDummyType(type.tag + "_dummy", -dx p -dy), false)
+                        dimension.mapSystem.setTileHp(nx, ny, hp)
+                    }
+                }
+            }
         }
-
-        markDirtyFootprint(dimension, fromX, fromY)
-        markDirtyFootprint(dimension, toX, toY)
-        dimension.mapSystem.copyTile(fromX, fromY, toX, toY)
+        
+        type.onPositionChanged(fromX, fromY, toX, toY, dimension)
     }
 
     fun copyArea(dimension: AbstractDimension, x1: Int, y1: Int, x2: Int, y2: Int, w: Int, h: Int) {
@@ -402,18 +504,46 @@ class MapApi(var gameCycle: GameCycle) {
         }
     }
 
-    fun damageWall(dimension: AbstractDimension, x: Int, y: Int, damage: Int) {
+    fun damageWall(dimension: AbstractDimension, x: Int, y: Int, damage: Int, notify: Boolean = true) {
         if (!isInsideMap(dimension, x, y)) return
+        val type = getWallType(dimension, x, y) ?: return
+        
+        type.damage(x, y, damage, dimension, dimension.mapController)
         markDirtyFootprint(dimension, x, y)
-        dimension.mapSystem.damageWall(x, y, damage)
+        
+        val ms = dimension.mapSystem
+        ms.setWallHp(x, y, ms.getWallHp(x, y) - damage)
+        
+        if (ms.getWallHp(x, y) <= 0) {
+            deactivateWall(dimension, x, y, "absolute_damage", notify)
+        }
     }
 
-    fun mineWall(dimension: AbstractDimension, x: Int, y: Int, mineData: MineData) {
+    fun killWall(dimension: AbstractDimension, x: Int, y: Int, notify: Boolean = true) {
+        val type = getWallType(dimension, x, y) ?: return
+        mineWall(dimension, x, y, MineData(
+            value = type.maxHp + 1000,
+            power = 1000000,
+            sourceId = null,
+            instrument = null,
+            item = null
+        ), notify)
+    }
+
+    fun mineWall(dimension: AbstractDimension, x: Int, y: Int, mineData: MineData, notify: Boolean = true) {
         if (!wallIsActive(dimension, x, y)) return
-        val wallType = getWallType(dimension, x, y) ?: return
-        if (mineData.power < wallType.blockStrength) return
+        val type = getWallType(dimension, x, y) ?: return
+        if (mineData.power < type.blockStrength) return
+        
+        type.damage(x, y, mineData.value, dimension, dimension.mapController)
         markDirtyFootprint(dimension, x, y)
-        dimension.mapSystem.mineWall(x, y, mineData)
+        
+        val ms = dimension.mapSystem
+        ms.setWallHp(x, y, ms.getWallHp(x, y) - mineData.value)
+        if (ms.getWallHp(x, y) <= 0) {
+            type.onMined(x, y, mineData, dimension, dimension.mapController)
+            deactivateWall(dimension, x, y, mineData, notify)
+        }
     }
 
     fun repairWall(dimension: AbstractDimension, x: Int, y: Int, amount: Int) {
@@ -427,9 +557,10 @@ class MapApi(var gameCycle: GameCycle) {
         if (wallIsActive(dimension, x, y)) return false
         if (!isInsideMap(dimension, x, y)) return false
         if (!canPlaceWall(dimension, type, x, y)) return false
+        
         dimension.mapSystem.setWallType(x, y, type)
-        dimension.mapSystem.setWallHp(x, y, type.maxHp)
-        dimension.mapSystem.callPlaceWall(x, y, item)
+        maxHpWall(dimension, x, y)
+        type.place(x, y, item, dimension.mapController)
         markDirtyFootprint(dimension, x, y)
         if (consumed) item.count--
         return true
@@ -445,23 +576,39 @@ class MapApi(var gameCycle: GameCycle) {
         maxHpWall(dimension, x, y)
     }
 
-    fun setWallType(dimension: AbstractDimension, type: AbstractWallType?, x: Int, y: Int) {
+    fun setWallType(dimension: AbstractDimension, type: AbstractWallType?, x: Int, y: Int, notify: Boolean = true) {
         markDirtyFootprint(dimension, x, y)
-        dimension.mapSystem.setWallType(x, y, type)
+        dimension.mapSystem.setWallType(x, y, type, notify)
     }
 
-    fun setWallType(dimension: AbstractDimension, type: String, x: Int, y: Int) {
+    fun setWallTypeSilent(dimension: AbstractDimension, type: AbstractWallType?, x: Int, y: Int) =
+        setWallType(dimension, type, x, y, false)
+
+    fun setWallType(dimension: AbstractDimension, type: String, x: Int, y: Int, notify: Boolean = true) {
         markDirtyFootprint(dimension, x, y)
-        dimension.mapSystem.setWallType(x, y, getRegisteredWallType(type))
+        dimension.mapSystem.setWallType(x, y, getRegisteredWallType(type), notify)
     }
 
-    fun maxHpWall(dimension: AbstractDimension, x: Int, y: Int) =
-        dimension.mapSystem.maxHpWall(x, y)
-
-    fun deleteWall(dimension: AbstractDimension, x: Int, y: Int) {
-        markDirtyFootprint(dimension, x, y)
-        dimension.mapSystem.deactivateWall(x, y)
+    fun maxHpWall(dimension: AbstractDimension, x: Int, y: Int) {
+        val type = getWallType(dimension, x, y) ?: return
+        dimension.mapSystem.setWallHp(x, y, type.maxHp)
     }
+
+    fun deactivateWall(dimension: AbstractDimension, x: Int, y: Int, reason: Any? = null, notify: Boolean = true) {
+        if (!isInsideMap(dimension, x, y)) return
+        dimension.mapSystem.deactivateWall(x, y, reason, false)
+        if (notify) {
+            dimension.mapSystem.updateNeighbors(x, y)
+        }
+    }
+
+    fun deleteWall(dimension: AbstractDimension, x: Int, y: Int, notify: Boolean = true) {
+        markDirtyFootprint(dimension, x, y)
+        deactivateWall(dimension, x, y, null, notify)
+    }
+
+    fun removeWallSilent(dimension: AbstractDimension, x: Int, y: Int) =
+        deleteWall(dimension, x, y, false)
 
     fun fillWallRegion(dimension: AbstractDimension, type: AbstractWallType, startX: Int, startY: Int, endX: Int, endY: Int) {
         for (x in startX..endX)
@@ -485,9 +632,17 @@ class MapApi(var gameCycle: GameCycle) {
 
     fun copyWall(dimension: AbstractDimension, fromX: Int, fromY: Int, toX: Int, toY: Int) {
         if (!isInsideMap(dimension, fromX, fromY) || !isInsideMap(dimension, toX, toY)) return
+        val type = getWallType(dimension, fromX, fromY) ?: return
+        val hp = getWallHp(dimension, fromX, fromY)
+        
         markDirtyFootprint(dimension, fromX, fromY)
         markDirtyFootprint(dimension, toX, toY)
-        dimension.mapSystem.copyWall(fromX, fromY, toX, toY)
+        
+        deleteWall(dimension, toX, toY, false)
+        setWallType(dimension, type, toX, toY)
+        setWallHp(dimension, toX, toY, hp)
+        
+        type.onPositionChanged(fromX, fromY, toX, toY, dimension)
     }
 
     fun swapWalls(dimension: AbstractDimension, x1: Int, y1: Int, x2: Int, y2: Int) {
@@ -531,6 +686,59 @@ class MapApi(var gameCycle: GameCycle) {
         )
     }
 
+    fun checkStability(dimension: AbstractDimension, type: AbstractTileType, x: Int, y: Int): Boolean {
+        if (type.placeType == TilePlaceType.FREE) return true
+
+        if (type.placeType == TilePlaceType.FULL_ON_BLOCKS) {
+            val masterPoint = LPoint(x, y)
+            for (dx in 0 until type.width) {
+                val cx = x + dx
+                val cy = y - 1
+                if (!tileIsActive(dimension, cx, cy)) return false
+                if (getMasterPoint(dimension, cx, cy) == masterPoint) return false
+            }
+            return true
+        }
+
+        var satisfied = false
+        val masterPoint = LPoint(x, y)
+        
+        for (dx in 0 until type.width) {
+            for (dy in 0 until type.height) {
+                val nx = x + dx
+                val ny = y + dy
+
+                val matches = when (type.placeType) {
+                    TilePlaceType.FREE -> true
+                    TilePlaceType.ON_TILE -> {
+                        val checkX = nx
+                        val checkY = ny - 1
+                        tileIsActive(dimension, checkX, checkY) && getMasterPoint(dimension, checkX, checkY) != masterPoint
+                    }
+                    TilePlaceType.NEAR_TILE -> {
+                        hasNearTile(dimension, nx, ny) // This might need refinement but usually NEAR means horizontal
+                    }
+                    TilePlaceType.NEAR_WALL -> hasNearWall(dimension, nx, ny)
+                    TilePlaceType.NEAR_TILE_OR_ON_WALL -> {
+                        (hasNearTile(dimension, nx, ny) && !isSameStructure(dimension, nx, ny, nx + 1, ny) && !isSameStructure(dimension, nx, ny, nx - 1, ny)) || 
+                        wallIsActive(dimension, nx, ny)
+                    }
+                    TilePlaceType.CUSTOM -> {
+                        type.canPlace(nx, ny, dimension, dimension.mapController)
+                    }
+                    else -> false
+                }
+                if (matches) {
+                    satisfied = true
+                    break
+                }
+            }
+            if (satisfied) break
+        }
+
+        return satisfied
+    }
+
     fun canPlaceTile(dimension: AbstractDimension, type: AbstractTileType, x: Int, y: Int): Boolean {
         // Enforce area-wide freedom
         for (dx in 0 until type.width) {
@@ -545,33 +753,7 @@ class MapApi(var gameCycle: GameCycle) {
         }
 
         // Check adjacency requirements across the whole footprint
-        if (type.placeType == TilePlaceType.FREE) return true
-
-        var satisfied = false
-        for (dx in 0 until type.width) {
-            for (dy in 0 until type.height) {
-                val nx = x + dx
-                val ny = y + dy
-
-                val matches = when (type.placeType) {
-                    TilePlaceType.FREE -> true
-                    TilePlaceType.ON_TILE -> tileIsActive(dimension, nx, ny - 1)
-                    TilePlaceType.NEAR_TILE -> hasNearTile(dimension, nx, ny)
-                    TilePlaceType.NEAR_WALL -> hasNearWall(dimension, nx, ny)
-                    TilePlaceType.NEAR_TILE_OR_ON_WALL -> hasNearTile(dimension, nx, ny) || wallIsActive(dimension, nx, ny)
-                    TilePlaceType.CUSTOM -> {
-                        type.canPlace(nx, ny, dimension, dimension.mapController)
-                    }
-                }
-                if (matches) {
-                    satisfied = true
-                    break
-                }
-            }
-            if (satisfied) break
-        }
-
-        return satisfied
+        return checkStability(dimension, type, x, y)
     }
 
     fun canPlaceWall(dimension: AbstractDimension, type: AbstractWallType, x: Int, y: Int): Boolean {
@@ -596,10 +778,14 @@ class MapApi(var gameCycle: GameCycle) {
     }
 
     private fun hasNearTile(dimension: AbstractDimension, x: Int, y: Int): Boolean {
-        return tileIsActive(dimension, x + 1, y) ||
-                tileIsActive(dimension, x - 1, y) ||
-                tileIsActive(dimension, x, y + 1) ||
-                tileIsActive(dimension, x, y - 1)
+        val master = getMasterPoint(dimension, x, y)
+        fun check(nx: Int, ny: Int) = tileIsActive(dimension, nx, ny) && getMasterPoint(dimension, nx, ny) != master
+
+        return check(x + 1, y) || check(x - 1, y) || check(x, y + 1) || check(x, y - 1)
+    }
+
+    fun isSameStructure(dimension: AbstractDimension, x1: Int, y1: Int, x2: Int, y2: Int): Boolean {
+        return getMasterPoint(dimension, x1, y1) == getMasterPoint(dimension, x2, y2)
     }
 
     private fun hasNearWall(dimension: AbstractDimension, x: Int, y: Int): Boolean {

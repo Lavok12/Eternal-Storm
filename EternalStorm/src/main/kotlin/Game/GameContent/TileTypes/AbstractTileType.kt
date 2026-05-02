@@ -73,6 +73,7 @@ abstract class AbstractTileType : IBlockType {
     open val renderConfig: TileRenderConfig = TileRenderConfig()
 
     open val placeType: TilePlaceType = TilePlaceType.NEAR_TILE_OR_ON_WALL
+    open val breakIfInvalid: Boolean = false
 
     open fun canPlace(x: Int, y: Int, dimension: AbstractDimension, mapController: MapController): Boolean = true
 
@@ -193,13 +194,14 @@ abstract class AbstractTileType : IBlockType {
     }
 
     open fun onMined(x: Int, y: Int, mineData: MineData, dimension: AbstractDimension, mapController: MapController) {
-        val pos = mapController.dimension.gameCycle.mapApi.getBlockPos(x, y)
-        mapController.dimension.gameCycle.itemsApi.spawnDropTable(dimension, drop, pos - (placeOffset.toVec()), true)
+        val pos = dimension.gameCycle.mapApi.getBlockPos(x, y)
+        val spawnPos = Vec2(pos.x + 0.5f, pos.y + 0.5f) - (placeOffset.toVec())
+        dimension.gameCycle.itemsApi.spawnDropTable(dimension, drop, spawnPos, true)
         
         // Area particles
         for (dx in 0 until width) {
             for (dy in 0 until height) {
-                mapController.dimension.gameCycle.particlesApi.buildTile(dimension, this)
+                dimension.gameCycle.particlesApi.buildTile(dimension, this)
                     .atBlock(x + dx, y + dy)
                     .count(3)
                     .randomSpeed(1f)
@@ -215,5 +217,28 @@ abstract class AbstractTileType : IBlockType {
         mapController: MapController,
         reason: Any? = null
     ) {
+    }
+
+    open fun onUpdate(x: Int, y: Int, dimension: AbstractDimension, mapController: MapController) {
+        if (isDummy) {
+            val masterX = x + masterOffset.x
+            val masterY = y + masterOffset.y
+            dimension.mapSystem.updateBlock(masterX, masterY)
+            return
+        }
+        
+        if (breakIfInvalid) {
+            if (!dimension.gameCycle.mapApi.checkStability(dimension, this, x, y)) {
+                dimension.gameCycle.mapApi.mineTile(dimension, x, y, MineData(
+                    value = maxHp + 1000,
+                    power = 1000000,
+                    sourceId = null,
+                    instrument = null,
+                    item = null
+                ))
+                return
+            }
+        }
+        dimension.mapSystem.getTileData(x, y)?.onUpdate()
     }
 }

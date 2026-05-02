@@ -5,7 +5,7 @@ import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
 data class ItemRenderConfig(
-    var worldSize: Vec2 = 1f v 1f,
+    var worldSize: Vec2 = 0.333f v 0.333f,
     var sizeInSlot: Vec2 = 1f v 1f,
     var worldDelta: Vec2 = 0f v 0f,
     var slotDelta: Vec2 = 0f v 0f,
