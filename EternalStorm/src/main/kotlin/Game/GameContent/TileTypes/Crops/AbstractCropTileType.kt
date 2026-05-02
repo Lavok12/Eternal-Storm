@@ -25,6 +25,9 @@ abstract class AbstractCropTileType(val config: CropConfig) : AbstractTileType()
     override val breakIfInvalid = true
     override val tags: Set<String> = setOf(BlockTags.PLANT)
     override val renderConfig = TileRenderConfig(AOShadow = false)
+    
+    // Provide a fallback texture for particles (uses the 1st stage of growth)
+    override val texture: String = AppState.res("${config.texturePrefix}1.png")
 
     override fun createTileData(x: Int, y: Int, dimension: AbstractDimension): AbstractTileData? {
         return CropTileData(x, y, dimension, config)
