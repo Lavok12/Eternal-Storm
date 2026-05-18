@@ -40,6 +40,22 @@ abstract class AbstractEntityType {
         }
     }
 
+    object BlockEntityType : AbstractEntityType() {
+        override val baseHp = 0
+        override val baseSize = 1 v 1
+        override val tags = arrayOf(EntityTags.entity)
+        override fun createEntity(gameCycle: GameCycle) = EmptyEntity(gameCycle)
+        override val imgPreview = ""
+    }
+
+    object FallingBlockEntityType : AbstractEntityType() {
+        override val baseHp = 0
+        override val baseSize = 1 v 1
+        override val tags = arrayOf(EntityTags.entity)
+        override fun createEntity(gameCycle: GameCycle) = EmptyEntity(gameCycle)
+        override val imgPreview = ""
+    }
+
     open val tag: String = ""
     open val baseHp: Int = 0
     open val baseSize: Vec2 = 1 v 1

@@ -12,6 +12,9 @@ import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.State.AppState
 import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Entities.Entities.Special.BlockEntity
+import la.vok.Game.GameContent.Entities.Entities.Special.FallingBlockEntity
+import la.vok.Game.GameSystems.WorldSystems.Map.IBlockType
 
 class EntityApi(var gameCycle: GameCycle) {
     val gameController: GameController get() = gameCycle.gameController
@@ -242,6 +245,20 @@ class EntityApi(var gameCycle: GameCycle) {
         spawnEntity(dimension, projectile, pos)
         projectile.launch(direction, speed)
         return projectile
+    }
+
+    fun spawnFallingBlock(dimension: AbstractDimension, blockType: IBlockType, pos: Vec2): FallingBlockEntity {
+        val entity = FallingBlockEntity(blockType, gameCycle)
+        addInSystem(dimension, entity, pos)
+        initEntity(dimension, entity)
+        return entity
+    }
+
+    fun spawnBlockEntity(dimension: AbstractDimension, blockType: IBlockType, pos: Vec2): BlockEntity {
+        val entity = BlockEntity(blockType, AbstractEntityType.BlockEntityType, gameCycle)
+        addInSystem(dimension, entity, pos)
+        initEntity(dimension, entity)
+        return entity
     }
 
     fun showDimensionEntity(abstractDimension: AbstractDimension) {

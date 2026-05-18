@@ -9,4 +9,6 @@ class DirtTileItemType : BaseTileItemType() {
     override val tag: String = ItemsList.dirt_block
     override val texture: String = AppState.res("dirtTexture.jpg")
     override val usingVariants = UsingVariants.PlaceTile(TilesList.dirt_block)
+
+
 }

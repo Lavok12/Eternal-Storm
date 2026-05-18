@@ -63,7 +63,7 @@ abstract class AbstractWallType : IBlockType {
 
     open fun canPlace(x: Int, y: Int, dimension: AbstractDimension, mapController: MapController): Boolean = true
 
-    open fun render(
+    override open fun render(
         pointX: Int,
         pointY: Int,
         lg: LGraphics,

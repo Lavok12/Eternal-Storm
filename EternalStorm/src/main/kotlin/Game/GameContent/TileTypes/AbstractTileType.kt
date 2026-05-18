@@ -74,10 +74,11 @@ abstract class AbstractTileType : IBlockType {
 
     open val placeType: TilePlaceType = TilePlaceType.NEAR_TILE_OR_ON_WALL
     open val breakIfInvalid: Boolean = false
+    open val hasGravity: Boolean = false
 
     open fun canPlace(x: Int, y: Int, dimension: AbstractDimension, mapController: MapController): Boolean = true
 
-    open fun render(
+    override open fun render(
         pointX: Int,
         pointY: Int,
         lg: LGraphics,
@@ -225,6 +226,21 @@ abstract class AbstractTileType : IBlockType {
             val masterY = y + masterOffset.y
             dimension.mapSystem.updateBlock(masterX, masterY)
             return
+        }
+
+        if (hasGravity) {
+            val mapApi = dimension.gameCycle.mapApi
+            var hasSupport = false
+            for (dx in 0 until width) {
+                if (mapApi.tileIsActive(dimension, x + dx, y - 1)) {
+                    hasSupport = true
+                    break
+                }
+            }
+            if (!hasSupport) {
+                mapApi.convertBlockToPhysics(dimension, x, y, falling = true, notify = true)
+                return
+            }
         }
         
         if (breakIfInvalid) {

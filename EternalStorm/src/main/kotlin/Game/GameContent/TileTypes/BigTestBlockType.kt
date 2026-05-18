@@ -16,6 +16,7 @@ class BigTestBlockType : AbstractTileType() {
     override val width: Int = 3 
     override val height: Int = 3
     override val placeOffset: LPoint = -1 p -1
+    override val hasGravity: Boolean = true
 
     override val renderConfig = TileRenderConfig()
 }

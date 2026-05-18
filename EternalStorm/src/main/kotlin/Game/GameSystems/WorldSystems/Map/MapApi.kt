@@ -359,6 +359,7 @@ class MapApi(var gameCycle: GameCycle) {
         val type = getTileType(dimension, x, y)!!
         val master = getMasterPoint(dimension, x, y)
         
+        markDirtyFootprint(dimension, master.x, master.y)
         dimension.mapSystem.deactivateTile(master.x, master.y, reason, false)
         
         if (notify) {
@@ -596,6 +597,7 @@ class MapApi(var gameCycle: GameCycle) {
 
     fun deactivateWall(dimension: AbstractDimension, x: Int, y: Int, reason: Any? = null, notify: Boolean = true) {
         if (!isInsideMap(dimension, x, y)) return
+        markDirtyFootprint(dimension, x, y)
         dimension.mapSystem.deactivateWall(x, y, reason, false)
         if (notify) {
             dimension.mapSystem.updateNeighbors(x, y)
@@ -793,5 +795,45 @@ class MapApi(var gameCycle: GameCycle) {
                 wallIsActive(dimension, x - 1, y) ||
                 wallIsActive(dimension, x, y + 1) ||
                 wallIsActive(dimension, x, y - 1)
+    }
+
+    fun convertBlockToPhysics(
+        dimension: AbstractDimension,
+        x: Int,
+        y: Int,
+        falling: Boolean = true,
+        notify: Boolean = true
+    ): la.vok.Game.GameContent.Entities.Entities.Special.BlockEntity? {
+        val master = getMasterPoint(dimension, x, y)
+        val tileType = getTileType(dimension, master.x, master.y)
+        if (tileType != null) {
+            val centerPos = Vec2(
+                master.x + (tileType.width - 1) / 2f,
+                master.y + (tileType.height - 1) / 2f
+            )
+            removeTileSilent(dimension, master.x, master.y)
+            if (notify) {
+                updateAreaNeighbors(dimension, master.x, master.y, tileType.width, tileType.height)
+            }
+            return if (falling) {
+                gameCycle.entityApi.spawnFallingBlock(dimension, tileType, centerPos)
+            } else {
+                gameCycle.entityApi.spawnBlockEntity(dimension, tileType, centerPos)
+            }
+        }
+        val wallType = getWallType(dimension, x, y)
+        if (wallType != null) {
+            val centerPos = Vec2(x.toFloat(), y.toFloat())
+            removeWallSilent(dimension, x, y)
+            if (notify) {
+                dimension.mapSystem.updateNeighbors(x, y)
+            }
+            return if (falling) {
+                gameCycle.entityApi.spawnFallingBlock(dimension, wallType, centerPos)
+            } else {
+                gameCycle.entityApi.spawnBlockEntity(dimension, wallType, centerPos)
+            }
+        }
+        return null
     }
 }

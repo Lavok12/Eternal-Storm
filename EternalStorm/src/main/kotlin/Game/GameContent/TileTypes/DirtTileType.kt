@@ -15,4 +15,5 @@ class DirtTileType() : AbstractTileType() {
     override val texture: String = AppState.res("dirtTexture.jpg")
     override val drop: DropEntry = SingleDrop(ItemsList.dirt_block)
     override val tags: Set<String> = setOf(BlockTags.PLOWABLE)
+    override val hasGravity: Boolean = true
 }
