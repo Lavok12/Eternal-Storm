@@ -9,7 +9,6 @@ import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
 import la.vok.Game.GameSystems.WorldSystems.Particles.ParticlesApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.DimensionsController
-import la.vok.State.AppState
 
 class GameCycle(var gameController: GameController) : Controller {
     val entityApi: EntityApi = EntityApi(this)
@@ -20,6 +19,8 @@ class GameCycle(var gameController: GameController) : Controller {
     var craftApi = CraftApi(this)
 
     var dimensionsController = DimensionsController(this)
+    val globalSystemsController: GlobalSystemsController = GlobalSystemsController(this)
+
     val dimensionsApi get() = dimensionsController.dimensionsApi
     
     val updateController: UpdateController = UpdateController(this)
@@ -33,18 +34,21 @@ class GameCycle(var gameController: GameController) : Controller {
     }
 
     override fun logicalTick() {
+        globalSystemsController.logicalTick()
         collisionSystem.logicalTick()
         dimensionsController.logicalTick()
         updateController.logicalTick()
     }
 
     override fun physicTick() {
+        globalSystemsController.physicTick()
         collisionSystem.physicTick()
         dimensionsController.physicTick()
         updateController.physicTick()
     }
     
     override fun renderTick() {
+        globalSystemsController.renderTick()
         dimensionsController.renderTick()
         updateController.renderTick()
     }

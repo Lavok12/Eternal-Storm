@@ -21,6 +21,13 @@ class GameLoader(var gameController: GameController) : Controller {
         create()
     }
 
+    fun init() {
+
+    }
+    fun initWorldSystems() {
+        gameCycle.globalSystemsController.clearSystems()
+    }
+
     fun load() {
         AppState.logger.info("Load Game")
 

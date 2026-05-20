@@ -8,11 +8,8 @@ import la.vok.Game.ClientContent.Windows.WGamePanel
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameController.GameLoader
 import la.vok.Game.GameController.PlayerControl
-import la.vok.Game.GameSystems.RenderSystems.EffectLayers.AOTiles
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.v
-import la.vok.Menu.MenuContent.Windows.WMenuPanel
-import la.vok.Menu.MenuController.MenuController
 import la.vok.State.AppState
 
 class GameController(var coreController: CoreController) : SceneController {
@@ -29,7 +26,6 @@ class GameController(var coreController: CoreController) : SceneController {
     init {
         create()
     }
-
 
     var wGamePanel: WGamePanel? = null
     var wDevPanel: WDevPanel? = null
@@ -78,6 +74,7 @@ class GameController(var coreController: CoreController) : SceneController {
 
 
     override fun start() {
+        gameLoader.initWorldSystems()
         gameLoader.load()
     }
 }

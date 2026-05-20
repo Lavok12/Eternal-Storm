@@ -11,7 +11,6 @@ class EntityController(var dimension: AbstractDimension) : Controller {
 
 
     override fun logicalTick() {
-        dimension.gameCycle.collisionSystem.rebuildGrid(dimension)
         entitySystem.entities.forEach { it.logicalUpdate() }
         entitySystem.flushBuffers()
     }

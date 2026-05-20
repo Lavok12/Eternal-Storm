@@ -13,10 +13,12 @@ class CollisionSystem(var gameCycle: GameCycle) : Controller {
         val spatialGrid = HashMap<Long, MutableList<HitboxComponent>>()
         val listPool = mutableListOf<MutableList<HitboxComponent>>()
         var poolIndex = 0
+        var lastRebuildTick = -1L
 
-        fun prepareRebuild() {
+        fun prepareRebuild(tick: Long) {
             spatialGrid.clear()
             poolIndex = 0
+            lastRebuildTick = tick
         }
 
         fun getListFromPool(): MutableList<HitboxComponent> {
@@ -31,17 +33,36 @@ class CollisionSystem(var gameCycle: GameCycle) : Controller {
     private val uniqueCandidates = HashSet<HitboxComponent>()
     private val current = HashSet<HitboxComponent>()
     
+    private var currentTick = 0L
+
     init { create() }
 
-    override fun logicalTick() {}
+    override fun logicalTick() {
+        currentTick++
+    }
+
+    override fun physicTick() {
+        currentTick++
+    }
 
     private fun getGridFor(dimension: AbstractDimension): DimensionGrid {
         return grids.getOrPut(dimension) { DimensionGrid() }
     }
 
+    fun requestRebuild(dimension: AbstractDimension) {
+        getGridFor(dimension).lastRebuildTick = -1L
+    }
+
+    private fun ensureGridUpdated(dimension: AbstractDimension) {
+        val grid = getGridFor(dimension)
+        if (grid.lastRebuildTick != currentTick) {
+            rebuildGrid(dimension)
+        }
+    }
+
     fun rebuildGrid(dimension: AbstractDimension) {
         val grid = getGridFor(dimension)
-        grid.prepareRebuild()
+        grid.prepareRebuild(currentTick)
         
         val entities = gameCycle.entityApi.getActiveEntities(dimension)
         
@@ -63,6 +84,7 @@ class CollisionSystem(var gameCycle: GameCycle) : Controller {
     }
 
     fun updateDetector(detector: CollisionDetector) {
+        ensureGridUpdated(detector.entity.dimension)
         val grid = getGridFor(detector.entity.dimension)
         val hitbox = detector.hitboxComponent
         
