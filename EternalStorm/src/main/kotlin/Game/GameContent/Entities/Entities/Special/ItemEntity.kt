@@ -10,6 +10,7 @@ import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.Collision.CollisionDetector
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
+import la.vok.Game.GameSystems.EntityComponents.HpBody
 import la.vok.Game.GameSystems.EntityComponents.MobInventory
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
 import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
@@ -26,7 +27,7 @@ open class ItemEntity(gameCycle: GameCycle) : Entity(AbstractEntityType.ItemEnti
 
     init {
         inventory = MobInventory(this, 1)
-        hpBody = null
+        removeComponent<HpBody>()
         hasCollisionDetector = false
         hasDownTrigger = true
     }

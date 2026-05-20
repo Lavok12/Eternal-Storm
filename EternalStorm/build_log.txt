@@ -1,0 +1,4 @@
+﻿> Task :checkKotlinGradlePluginConfigurationErrors SKIPPED
+
+> Task :compileKotlin FAILED
+1 actionable task: 1 executed

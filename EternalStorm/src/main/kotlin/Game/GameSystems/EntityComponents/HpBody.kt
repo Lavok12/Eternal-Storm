@@ -7,11 +7,22 @@ class HpBody(entity: Entity) : EntityComponent(entity) {
     var rawMaxHp: Int = 0
     val maxHp: Int get() = (rawMaxHp * entity.buffController.maxHpMultiplier).toInt()
 
+    override fun onSpawn() {
+        fullHp()
+    }
+
+    override fun onEvent(event: EntityEvent) {
+        if (event is EntityEvent.Damage) {
+            // Damage handling logic could be moved here if we want components to be self-sufficient
+        }
+    }
+
     fun fullHp() {
         this.hp = maxHp
     }
 
     fun percentageOfHp() : Float {
-        return hp/maxHp.toFloat()
+        if (maxHp <= 0) return 0f
+        return hp / maxHp.toFloat()
     }
 }

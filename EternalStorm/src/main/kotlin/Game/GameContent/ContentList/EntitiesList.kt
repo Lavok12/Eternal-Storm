@@ -7,4 +7,8 @@ object EntitiesList {
     val slime: String by lazy { AppState.tag("Slime") }
     val projectile: String by lazy { AppState.tag("Projectile") }
     val boss: String by lazy { AppState.tag("Boss") }
+    val item: String by lazy { AppState.tag("Item") }
+    val empty: String by lazy { AppState.tag("Empty") }
+    val fallingBlock: String by lazy { AppState.tag("FallingBlock") }
+    val damage: String by lazy { AppState.tag("Damage") }
 }

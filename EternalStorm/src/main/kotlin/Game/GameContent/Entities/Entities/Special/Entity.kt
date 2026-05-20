@@ -11,13 +11,10 @@ import la.vok.Game.GameContent.Entities.EntityRender.HpRender
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.BuffController
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
-import la.vok.Game.GameSystems.EntityComponents.GravityComponent
+import la.vok.Game.GameSystems.EntityComponents.*
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
 import la.vok.Game.GameSystems.EntityComponents.Collision.CollisionDetector
-import la.vok.Game.GameSystems.EntityComponents.MobInventory
-import la.vok.Game.GameSystems.EntityComponents.HpBody
-import la.vok.Game.GameSystems.EntityComponents.RigidBody
 import la.vok.Game.GameSystems.WorldSystems.Particles.Particles.EntityParticle
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
@@ -27,6 +24,29 @@ import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 @Suppress("UNCHECKED_CAST")
 open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) {
     var dimension: AbstractDimension = gameCycle.dimensionsApi.getMainDimension()
+
+    // ─── Component System ───────────────────────────────────────────────────
+
+    @PublishedApi
+    internal val components = mutableListOf<IEntityComponent>()
+
+    fun addComponent(component: IEntityComponent): Entity {
+        components.add(component)
+        component.onAttach(this)
+        return this
+    }
+
+    inline fun <reified T : IEntityComponent> getComponent(): T? {
+        return components.find { it is T } as? T
+    }
+
+    inline fun <reified T : IEntityComponent> removeComponent() {
+        components.removeAll { it is T }
+    }
+
+    fun sendEvent(event: EntityEvent) {
+        components.forEach { it.onEvent(event) }
+    }
 
     // ─── References ──────────────────────────────────────────────────────────
 
@@ -54,19 +74,47 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
         facing = newFacing
     }
 
-    // ─── Components ──────────────────────────────────────────────────────────
+    // ─── Render ──────────────────────────────────────────────────────────────
+
+    fun getRenderLayer(): LayersRenderContainer =
+        gameController.gameRender.renderLayer
+
+    open var renderEntity: RenderObjectInterface? = BaseRenderEntity(getRenderLayer())
+    open var hpRender: HpRender? = null
+
+    // ─── Legacy Components (Soon to be migrated) ──────────────────────────
 
     open var ai: AbstractAI? = null
     open var inventory: MobInventory? = null
 
-    var rigidBody: RigidBody? = RigidBody(this)
-    var gravityComponent: GravityComponent? = GravityComponent(this, rigidBody!!, -0.035f)
-    var hpBody: HpBody? = HpBody(this)
+    // ─── Core Components (Stored as components, accessible via properties for compatibility) ──────────────────
+
+    var rigidBody: RigidBody? = null
+        get() = getComponent<PhysicsComponent>()?.rigidBody ?: field
+    
+    var gravityComponent: GravityComponent? = null
+        get() = getComponent<GravityComponent>() ?: field
+    
+    var hpBody: HpBody? = null
+        get() = getComponent<HpBody>() ?: field
+
     var buffController: BuffController = BuffController(this)
 
-    open fun useBuffs() {
-
+    init {
+        // Initialize legacy components as new modular components
+        val rb = RigidBody(this)
+        addComponent(PhysicsComponent(this, rb))
+        addComponent(GravityComponent(this, rb, -0.035f))
+        addComponent(HpBody(this))
+        
+        // hpRender is still legacy for now as it's tied to rendering layers deeply
+        if (getComponent<HpBody>() != null) {
+            hpRender = HpRender(getRenderLayer(), getComponent<HpBody>()!!, 0 v -1)
+        }
     }
+
+    open fun useBuffs() {}
+    
     // ─── Hitboxes ────────────────────────────────────────────────────────────
 
     var collisionDetector: CollisionDetector? = null
@@ -115,20 +163,9 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     open fun isAnyPhysicBlockCollision(): Boolean =
         hitboxes.values.any { it.hitboxType == HitboxTypes.COLLISION && it.blocksCollision } || downTrigger?.blocksCollision ?: false
 
-    // ─── Render ──────────────────────────────────────────────────────────────
-
-    fun getRenderLayer(): LayersRenderContainer =
-        gameController.gameRender.renderLayer
-
-    open var renderEntity: RenderObjectInterface? = BaseRenderEntity(getRenderLayer())
-    open var hpRender: HpRender? = null
-
-    init {
-        if (hpBody != null) hpRender = HpRender(getRenderLayer(), hpBody!!, 0 v -1)
-    }
 
     // ─── Spawn / Setup ───────────────────────────────────────────────────────
-
+    
     open fun spawn() {
         hpBody?.let { hp ->
             hp.rawMaxHp = entityType.baseHp
@@ -139,11 +176,19 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
         createDownTrigger()
         createCustomHitboxes()
         ai?.spawn()
+
+        components.forEach { it.onSpawn() }
+        sendEvent(EntityEvent.Spawned)
     }
 
     open fun createBaseHitbox() {
         addHitbox("main").size = size.copy()
-        if (hasCollisionDetector) createBaseCollisionDetector()
+        if (hasCollisionDetector) {
+            createBaseCollisionDetector()
+            getComponent<PhysicsComponent>()?.hasCollisionDetector = true
+        } else {
+            getComponent<PhysicsComponent>()?.hasCollisionDetector = false
+        }
     }
 
     open fun createDownTrigger() {
@@ -168,15 +213,16 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
         if (invulnerabilityTicks > 0) invulnerabilityTicks--
         ai?.physicUpdate()
         inventory?.physicUpdate()
-        hitboxes.values.forEach { it.resetBlockCollision() }
-        gravityComponent?.useGravity()
-        updateHitboxes()
-        updateMoving(hasCollisionDetector)
+        
+        // Most logic now in components!
+        components.forEach { it.onPhysicUpdate() }
     }
 
     open fun logicalUpdate() {
         logicalTicks++
         inventory?.logicalUpdate()
+        
+        components.forEach { it.onLogicalUpdate() }
     }
 
     open fun renderUpdate() {
@@ -188,8 +234,13 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
         }
         hpRender?.update()
         if (AppState.hitboxDebug) updateRenderHitboxes()
+        
+        components.forEach { it.onRenderUpdate() }
     }
 
+    /**
+     * Legacy method for manual movement, now mostly handled by PhysicsComponent.
+     */
     open fun updateMoving(updateDetector: Boolean = false) {
         val rb = rigidBody ?: return
         rb.useSpeed()
@@ -205,6 +256,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     }
 
     open fun updateHitboxes() {
+        hitboxes.values.forEach { it.resetBlockCollision() }
         hitboxes.values.forEach { it.hitboxUpdate() }
     }
 
@@ -248,6 +300,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     open fun takeDamage(damage: DamageData, hitboxComponent: HitboxComponent): Boolean {
         if (isDead) return false
         if (invulnerabilityTicks > 0) return false
+        sendEvent(EntityEvent.Damage(damage, hitboxComponent))
         gameCycle.entityApi.absoluteDamage(dimension!!, this, damage)
         return true
     }
@@ -280,6 +333,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     }
 
     open fun die() {
+        sendEvent(EntityEvent.Death)
         spawnDieParticles()
         ai?.die()
         isDead = true

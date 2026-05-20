@@ -9,7 +9,9 @@ import la.vok.Game.GameContent.ContentList.EntityTags
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
-import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
+import la.vok.Game.GameSystems.EntityComponents.LifetimeComponent
+import la.vok.Game.GameSystems.EntityComponents.ContactDamageComponent
+import la.vok.Game.GameSystems.EntityComponents.HpBody
 import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
@@ -23,9 +25,10 @@ open class ProjectileEntity(
     open var knockBack = 0.1f
     open var upKnockBack = 0.1f
     open var moveOverBlocks = false
-    open var maxLifeTime = 200f
+    open var maxLifeTime = 200
 
     open var targetTags: List<String> = listOf(EntityTags.enemy)
+    
     override var renderEntity: RenderObjectInterface? = object : BaseRenderEntity(getRenderLayer()) {
         override fun draw(lg: LGraphics, pos: Vec2, size: Vec2, camera: Camera) {
             lg.fill(255f, 30f)
@@ -40,63 +43,37 @@ open class ProjectileEntity(
         }
     }
 
-    override var hpRender: HpRender?
-        get() = null
-        set(value) {}
+    override var hpRender: HpRender? = null
 
     init {
         rigidBody?.friction = 0f
         rigidBody?.blockFriction = 0f
         hasDownTrigger = false
         hasCollisionDetector = true
+        removeComponent<HpBody>()
+        hpRender = null
+        
+        // Add components
+        addComponent(LifetimeComponent(this, maxLifeTime))
+        addComponent(ContactDamageComponent(this, damage, knockBack, upKnockBack, source, targetTags))
     }
-
 
     override fun createCustomHitboxes() {
         mainHitbox!!.ignoreCollision = true
         mainHitbox!!.hitboxType = HitboxTypes.ONLY_TRIGGER
 
         collisionDetector!!.tagFilter = TagFilter.HasAny(targetTags)
-        collisionDetector!!.onContactStart = { hitbox -> onHit(hitbox) }
     }
 
     override fun moveStep(updateDetector: Boolean) {
         super.moveStep(updateDetector)
-        if (!moveOverBlocks) {
-            if (mainHitbox!!.blocksCollision) {
-                blockCollision()
-            }
+        if (!moveOverBlocks && mainHitbox!!.blocksCollision) {
+            blockCollision()
         }
     }
 
     open fun blockCollision() {
         gameCycle.entityApi.killInSystem(dimension!!, systemId)
-    }
-
-
-    override fun physicUpdate() {
-        super.physicUpdate()
-        if (physicTicks > maxLifeTime) {
-            gameCycle.entityApi.killInSystem(dimension!!, systemId)
-        }
-    }
-
-    open fun onHit(hitbox: HitboxComponent) {
-        if (isDead) return
-        val target = hitbox.entity
-        if (!target.isDead) {
-            target.takeDamage(DamageData(
-                damage,
-                (rigidBody?.speed?.normalized() ?: (Vec2.ZERO)) * knockBack + (0 v upKnockBack),
-                source,
-                null
-                ), hitbox)
-            gameCycle.entityApi.killInSystem(dimension!!, systemId)
-        }
-    }
-
-    override fun takeDamage(damage: DamageData, hitboxComponent: HitboxComponent): Boolean {
-        return false
     }
 
     fun launch(direction: Vec2, speed: Float) {

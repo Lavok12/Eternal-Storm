@@ -14,6 +14,7 @@ import la.vok.LavokLibrary.Vectors.v
 
 abstract class AbstractEntityType {
     object EmptyEntityType : AbstractEntityType() {
+        override val tag = EntitiesList.empty
         override val baseHp = 0
         override val baseSize = Vec2.ZERO
         override val tags = arrayOf(EntityTags.entity)
@@ -22,6 +23,7 @@ abstract class AbstractEntityType {
     }
 
     object ItemEntityType : AbstractEntityType() {
+        override val tag = EntitiesList.item
         override val baseHp = 0
         override val baseSize = 1 v 1
         override val tags = arrayOf(EntityTags.item)
@@ -32,7 +34,7 @@ abstract class AbstractEntityType {
     object ProjectileEntityType : AbstractEntityType() {
         override val tag: String = EntitiesList.projectile
         override val baseHp: Int = 1
-        override val baseSize: Vec2 = 1f v 1f
+        override val baseSize: Vec2 = 1 v 1
         override val tags = arrayOf(EntityTags.projectile)
 
         override fun createEntity(gameCycle: GameCycle) : Entity {
@@ -49,6 +51,16 @@ abstract class AbstractEntityType {
     }
 
     object FallingBlockEntityType : AbstractEntityType() {
+        override val tag = EntitiesList.fallingBlock
+        override val baseHp = 0
+        override val baseSize = 1 v 1
+        override val tags = arrayOf(EntityTags.entity)
+        override fun createEntity(gameCycle: GameCycle) = EmptyEntity(gameCycle)
+        override val imgPreview = ""
+    }
+
+    object DamageEntityType : AbstractEntityType() {
+        override val tag = EntitiesList.damage
         override val baseHp = 0
         override val baseSize = 1 v 1
         override val tags = arrayOf(EntityTags.entity)

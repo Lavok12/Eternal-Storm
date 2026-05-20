@@ -8,6 +8,7 @@ import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.Entities.EntityRender.BossRenderEntity
 import la.vok.Game.GameContent.ContentList.EntityTags
 import la.vok.Game.GameController.GameCycle
+import la.vok.Game.GameSystems.EntityComponents.*
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
@@ -25,20 +26,18 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
     override var renderEntity: RenderObjectInterface? = BossRenderEntity(getRenderLayer())
     override var bodyDamage = 25
     override var bodyKnockBack = 0.3f
-    var next: BossEntity? = null
-    var prev: BossEntity? = null
-    var last: BossEntity? = null
+    
+    // Links (still useful to keep as references, but logic moved to components)
     var first: BossEntity = this
 
     var rotate = 0f
-    var bossPart = 1
-    var bossParts = 15
+    var bossPart = 1 // 1=Head, 0=Body, -1=Tail
+    var bossPartsCount = 15
     var number = 0
     private val segmentLength = 2f
-    override var baseBackResistance = 0.2f
 
     init {
-        gravityComponent = null
+        removeComponent<GravityComponent>()
         hasCollisionDetector = true
         rigidBody?.friction = 0.01f
         baseBackResistance = 0.95f
@@ -46,108 +45,103 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
 
     override fun spawn() {
         super.spawn()
-        var leader = this 
         if (bossPart == 1) {
-            this.ai = BossAi(this, gameCycle)
-            for (i in 0 until bossParts) {
-                val entityApi: EntityApi = gameCycle.entityApi
-                val entity = entityApi.getRegisteredEntity(this.entityType.tag) as BossEntity
-
-                entity.next = leader   
-                leader.prev = entity   
-                entity.first = this
-
-                entity.bossPart = 0
-                entity.number = i + 1
-                if (i == bossParts - 1) {
-                    entity.bossPart = -1
-                    last = entity
-                }
-
-                entityApi.spawnEntity(dimension!!, entity, position)
-                entity.hpBody = this.hpBody
-                entity.renderEntity?.changeLayer(RenderLayers.Main.B5, i * 2)
-                entity.hpRender?.hpBody = entity.hpBody!!
-
-                leader = entity
-            }
+            setupAsHead()
         }
     }
 
-    private var wasTouchingBlocks = false
-    private var lastTouchPos = Vec2.ZERO
+    private fun setupAsHead() {
+        this.ai = BossAi(this, gameCycle)
+        val deathLink = LinkedDeathComponent(this)
+        addComponent(deathLink)
+
+        var leader: Entity = this
+        for (i in 0 until bossPartsCount) {
+            val segment = gameCycle.entityApi.getRegisteredEntity(this.entityType.tag) as BossEntity
+            segment.number = i + 1
+            segment.first = this
+            
+            // Shared HP pool
+            segment.hpBody = this.hpBody
+            segment.hpRender = null // Hide HP for segments
+            
+            // Boss Part identification
+            segment.bossPart = if (i == bossPartsCount - 1) -1 else 0 
+            
+            // Visuals
+            segment.renderEntity?.changeLayer(RenderLayers.Main.B5, i * 2)
+            
+            // Positioning & Logic Components
+            segment.addComponent(ChainFollowComponent(segment, leader, segmentLength))
+            segment.addComponent(DamageRedirectComponent(segment, this))
+            
+            deathLink.linkedEntities.add(segment)
+            
+            gameCycle.entityApi.spawnEntity(dimension!!, segment, position)
+            leader = segment
+        }
+    }
+
+    private var wasTouching = false
 
     override fun physicUpdate() {
-        if (bossPart == 1) {
-            val point = gameCycle.mapApi.getPointFromPos(position)
-            val isTouching = gameCycle.mapApi.tileIsActive(dimension!!, point.x, point.y)
-
-            if (last?.mainHitbox?.blocksCollision == false) {
-                rigidBody?.addForce(0f v -0.02f)
-            }
-
-            if (isTouching) {
-                rigidBody?.addForce(0f v 0.01f)
-                rigidBody?.useFriction()
-                lastTouchPos = Vec2(position.x, position.y) 
-            }
-
-            if (isTouching != wasTouchingBlocks) {
-                spawnParticleBurst(position, 150) 
-            }
-
-            wasTouchingBlocks = isTouching
-            rotate = atan2(rigidBody!!.speed.x, rigidBody!!.speed.y)
-            updateChainPositions()
-        }
-
         super.physicUpdate()
+        
+        if (bossPart == 1) {
+            handleHeadPhysics()
+        }
+        
+        // Rotation sync for render
+        getComponent<ChainFollowComponent>()?.let { 
+            this.rotate = it.rotation 
+        } ?: run {
+            if (rigidBody!!.speed.length() > 0.01f) {
+                rotate = atan2(rigidBody!!.speed.x, rigidBody!!.speed.y)
+            }
+        }
     }
 
-    private fun spawnParticleBurst(pos2: Vec2, count: Int) {
-        val map = gameCycle.mapApi
-        val dim = dimension ?: return
+    private fun handleHeadPhysics() {
+        val point = gameCycle.mapApi.getPointFromPos(position)
+        val isTouching = gameCycle.mapApi.tileIsActive(dimension!!, point.x, point.y)
 
-        for(i in 0 until count) {
-            val randOffset = AppState.main.random(-1f, 1f) v  AppState.main.random(-1f, 1f)
-            val pos = map.getPointFromPos(pos2 + randOffset)
-            val type = map.getTileType(dim, pos.x, pos.y) ?: continue
+        // Find linked death component to get segments (lazy way to find segments)
+        val linkedDeath = getComponent<LinkedDeathComponent>()
+        val lastSegment = linkedDeath?.linkedEntities?.lastOrNull()
+        
+        if (lastSegment?.mainHitbox?.blocksCollision == false) {
+            rigidBody?.addForce(0f v -0.02f)
+        }
+
+        if (isTouching) {
+            rigidBody?.addForce(0f v 0.01f)
+            rigidBody?.useFriction()
+        }
+
+        // Particle burst on Enter/Exit (Splash effect)
+        if (isTouching != wasTouching) {
+            val api = gameCycle.mapApi
+            // Search for tile to use for particles
+            val tile = api.getTileType(dimension!!, point.x, point.y)
+                ?: api.getTileType(dimension!!, point.x, point.y + 1)
+                ?: api.getTileType(dimension!!, point.x, point.y - 1)
+                ?: api.getTileType(dimension!!, point.x + 1, point.y)
+                ?: api.getTileType(dimension!!, point.x - 1, point.y)
             
-            gameCycle.particlesApi.buildTile(dim, type)
-                .at(map.getBlockPos(pos.x, pos.y) + Vec2(AppState.main.random(-0.5f, 0.5f), AppState.main.random(-0.5f, 0.5f)))
-                .speed(Vec2(AppState.main.random(-0.1f, 0.1f), AppState.main.random(0.05f, 0.1f)).normalize() * AppState.main.random(0.1f, 0.3f))
-                .spawn()
+            if (tile != null) {
+                val moveDir = rigidBody?.speed ?: (0f v 0f)
+                val splashDir = if (isTouching) -moveDir else moveDir
+                
+                gameCycle.particlesApi.buildTile(dimension!!, tile)
+                    .at(position)
+                    .count(60) // Even more particles
+                    .randomOffset(2.0f) // Wider side spread
+                    .speed(splashDir * 0.1f + (0f v 0.2f))
+                    .randomSpeed(4.0f) // More chaotic spread
+                    .spawn()
+            }
+            wasTouching = isTouching
         }
-    }
-
-    private fun updateChainPositions() {
-        val allSegments = mutableListOf<BossEntity>()
-        var current: BossEntity? = last
-        while (current != null && current != this) {
-            allSegments.add(current)
-            current = current.next
-        }
-
-        for (i in allSegments.indices.reversed()) {
-            allSegments[i].correctSegmentPosition()
-        }
-    }
-
-    private fun correctSegmentPosition() {
-        val target = next ?: return
-        val dx = position.x - target.position.x
-        val dy = position.y - target.position.y
-        val distSq = dx * dx + dy * dy
-
-        if (distSq < 0.000001f) return
-
-        val dist = kotlin.math.sqrt(distSq)
-        val nx = dx / dist
-        val ny = dy / dist
-
-        position.x = target.position.x + nx * segmentLength
-        position.y = target.position.y + ny * segmentLength
-        rotate = atan2(nx, ny) + PI.toFloat()
     }
 
     override fun renderUpdate() {
@@ -164,20 +158,21 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
     }
 
     override fun spawnDieParticles() {
+        val sprite = when(bossPart) {
+            1 -> "xHead.png"
+            0 -> "xBody.png"
+            -1 -> "xTail.png"
+            else -> ""
+        }
+        if (sprite.isEmpty()) return
+        
         repeat(1) {
-            var randomDir = Vec2(AppState.main.random(-1f, 1f), AppState.main.random(-1f, 1f)).normalize()
+            val randomDir = Vec2(AppState.main.random(-1f, 1f), AppState.main.random(-1f, 1f)).normalize()
             gameCycle.particlesApi.addParticle(
                 dimension!!,
                 EntityParticle(
                     gameCycle,
-                    coreController.spriteLoader.getValue(
-                        when(bossPart) {
-                            1 -> "xHead.png"
-                            0 -> "xBody.png"
-                            -1 -> "xTail.png"
-                            else ->  ""
-                        }
-                    ),
+                    coreController.spriteLoader.getValue(sprite),
                     position + randomDir * size / 2f,
                     randomDir * AppState.main.random(0.01f, 0.03f),
                     size / 1f
@@ -186,30 +181,18 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
         }
     }
 
+    // takeDamage is now handled by DamageRedirectComponent for segments, 
+    // but the head still needs its logic to apply to first (self)
     override fun takeDamage(damage: DamageData, hitboxComponent: HitboxComponent): Boolean {
-        if (isDead) return false
-        if (invulnerabilityTicks > 0) return false
-        gameCycle.entityApi.absoluteDamage(dimension!!, first!!, damage)
-        return true
-    }
-    override fun die() {
-        super.die()
-
-        var current: BossEntity? = first.prev
-        while (current != null) {
-            val nextSeg = current.prev
-            current.isDead = true
-            current?.spawnDieParticles()
-            gameCycle.entityApi.hideEntity(dimension!!, current)
-            gameCycle.entityApi.deleteInSystem(dimension!!, current)
-            current = nextSeg
-        }
-
-        if (first !== this && !first.isDead) {
-            first.isDead = true
-            first.spawnDieParticles()
-            gameCycle.entityApi.hideEntity(dimension!!, first)
-            gameCycle.entityApi.deleteInSystem(dimension!!, first)
+        if (isDead || invulnerabilityTicks > 0) return false
+        
+        if (bossPart == 1) {
+            return super.takeDamage(damage, hitboxComponent)
+        } else {
+            // Segments only notify components (to trigger redirection) 
+            // but return false to prevent base class from applying damage again
+            sendEvent(EntityEvent.Damage(damage, hitboxComponent))
+            return false
         }
     }
 

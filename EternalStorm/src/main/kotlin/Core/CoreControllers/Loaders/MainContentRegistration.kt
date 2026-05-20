@@ -169,6 +169,12 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationEntityType(PlayerEntityType())
         objectRegistration.registrationEntityType(SlimeEntityType())
         objectRegistration.registrationEntityType(BossEntityType())
+        
+        objectRegistration.registrationEntityType(AbstractEntityType.ItemEntityType)
+        objectRegistration.registrationEntityType(AbstractEntityType.ProjectileEntityType)
+        objectRegistration.registrationEntityType(AbstractEntityType.EmptyEntityType)
+        objectRegistration.registrationEntityType(AbstractEntityType.FallingBlockEntityType)
+        objectRegistration.registrationEntityType(AbstractEntityType.DamageEntityType)
     }
 
     private fun registerDimensions(objectRegistration: ObjectRegistration) {

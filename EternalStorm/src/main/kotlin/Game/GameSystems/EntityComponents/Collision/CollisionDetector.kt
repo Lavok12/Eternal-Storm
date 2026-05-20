@@ -5,6 +5,7 @@ import la.vok.Game.GameController.CollisionSystem
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
 import la.vok.Game.GameSystems.EntityComponents.EntityComponent
+import la.vok.Game.GameSystems.EntityComponents.EntityEvent
 
 class CollisionDetector(
     entity: Entity,
@@ -23,10 +24,16 @@ class CollisionDetector(
     fun update() { collisionSystem.updateDetector(this) }
 
     fun startContact(other: HitboxComponent) {
-        if (activeContacts.add(other)) onContactStart?.invoke(other)
+        if (activeContacts.add(other)) {
+            onContactStart?.invoke(other)
+            entity.sendEvent(EntityEvent.ContactStart(other))
+        }
     }
 
     fun endContact(other: HitboxComponent) {
-        if (activeContacts.remove(other)) onContactEnd?.invoke(other)
+        if (activeContacts.remove(other)) {
+            onContactEnd?.invoke(other)
+            entity.sendEvent(EntityEvent.ContactEnd(other))
+        }
     }
 }
