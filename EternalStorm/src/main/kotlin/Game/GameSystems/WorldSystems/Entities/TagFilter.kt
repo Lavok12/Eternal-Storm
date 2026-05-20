@@ -1,58 +1,31 @@
 package la.vok.Game.GameSystems.WorldSystems.Entities
 
 sealed class TagFilter {
-
-    abstract fun matches(tags: Collection<String>): Boolean
+    abstract fun matches(tags: List<String>): Boolean
 
     object Any : TagFilter() {
-        override fun matches(tags: Collection<String>) = true
+        override fun matches(tags: List<String>): Boolean = true
     }
 
-    data class HasAny(val required: Collection<String>) : TagFilter() {
-        override fun matches(tags: Collection<String>) = required.any { it in tags }
-
-        override fun toString(): String {
-            return required.toString()
-        }
+    data class Single(val tag: String) : TagFilter() {
+        override fun matches(tags: List<String>): Boolean = tags.contains(tag)
     }
 
-    data class HasAll(val required: Collection<String>) : TagFilter() {
-        override fun matches(tags: Collection<String>) = required.all { it in tags }
-
-        override fun toString(): String {
-            return required.toString()
-        }
+    data class HasAny(val requiredTags: List<String>) : TagFilter() {
+        override fun matches(tags: List<String>): Boolean = requiredTags.any { tags.contains(it) }
     }
 
-    data class HasNone(val excluded: Collection<String>) : TagFilter() {
-        override fun matches(tags: Collection<String>) = excluded.none { it in tags }
-
-        override fun toString(): String {
-            return excluded.toString()
-        }
+    data class HasAll(val requiredTags: List<String>) : TagFilter() {
+        override fun matches(tags: List<String>): Boolean = tags.containsAll(requiredTags)
     }
-
-    data class HasNotAll(val required: Collection<String>) : TagFilter() {
-        override fun matches(tags: Collection<String>) = !required.all { it in tags }
-
-        override fun toString(): String {
-            return required.toString()
-        }
-    }
-
-    data class And(val filters: Collection<TagFilter>) : TagFilter() {
-        override fun matches(tags: Collection<String>) = filters.all { it.matches(tags) }
-
-        override fun toString(): String {
-            return filters.toString()
-        }
-    }
-
-    data class Or(val filters: Collection<TagFilter>) : TagFilter() {
-        override fun matches(tags: Collection<String>) = filters.any { it.matches(tags) }
-
-        override fun toString(): String {
-            return filters.toString()
-        }
+    
+    data class Exclude(val excludedTag: String) : TagFilter() {
+        override fun matches(tags: List<String>): Boolean = !tags.contains(excludedTag)
     }
 }
+
+/**
+ * Extension to quickly convert a String to a Single TagFilter.
+ * Usage: "player".toTagFilter()
+ */
+fun String.toTagFilter() = TagFilter.Single(this)

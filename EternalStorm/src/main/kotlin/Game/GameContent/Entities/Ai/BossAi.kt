@@ -2,9 +2,11 @@ package la.vok.Game.GameContent.Entities.Ai
 
 import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.ContentList.EntitiesList
+import la.vok.Game.GameContent.ContentList.EntityTags
 import la.vok.Game.GameController.GameCycle
 import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.LavokLibrary.Vectors.Vec2
+import la.vok.Game.GameSystems.WorldSystems.Entities.toTagFilter
 import la.vok.LavokLibrary.Vectors.v
 
 open class BossAi(entity: Entity, gameCycle: GameCycle) : AbstractAI(entity, gameCycle) {
@@ -170,7 +172,7 @@ open class BossAi(entity: Entity, gameCycle: GameCycle) : AbstractAI(entity, gam
     // =====================================================================
 
      fun getTarget(): Entity? {
-        return gameCycle.entityApi.getNearestEntity(entity.dimension!!, entity.position, 500f, EntitiesList.player)
+        return gameCycle.entityApi.getNearestEntity(entity.dimension!!, entity.position, 500f, EntityTags.player.toTagFilter())
     }
 
     override fun physicUpdate() {

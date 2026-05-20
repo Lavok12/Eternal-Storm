@@ -15,36 +15,41 @@ abstract class AbstractDimension(var gameCycle: GameCycle) {
 
     abstract var skyColor: LColor
 
-    val mapController by lazy { MapController(this) }
-    val mapSystem get() = mapController.mapSystem
+    var mapController: MapController? = null
+    var entityController: EntityController? = null
+    var particleController: ParticleController? = null
+    var vfxObjectsController: VfxObjectsController? = null
 
-    val entityController by lazy { EntityController(this) }
-    val entitySystem get() = entityController.entitySystem
-
-    val particleController by lazy { ParticleController(this) }
-    val particleSystem get() = particleController.particleSystem
-
-    val vfxObjectsController by lazy { VfxObjectsController(this) }
-    val vfxObjectsSystem get() = vfxObjectsController.vfxObjectsSystem
+    val mapSystem get() = mapController!!.mapSystem
+    val entitySystem get() = entityController!!.entitySystem
+    val particleSystem get() = particleController!!.particleSystem
+    val vfxObjectsSystem get() = vfxObjectsController!!.vfxObjectsSystem
 
     abstract fun generateMap()
 
+    open fun initialize() {
+        mapController = MapController(this)
+        entityController = EntityController(this)
+        particleController = ParticleController(this)
+        vfxObjectsController = VfxObjectsController(this)
+    }
+
     open fun physicTick() {
-        mapController.physicTick()
-        entityController.physicTick()
-        particleController.physicTick()
-        vfxObjectsController.physicTick()
+        mapController?.physicTick()
+        entityController?.physicTick()
+        particleController?.physicTick()
+        vfxObjectsController?.physicTick()
     }
 
     open fun logicalTick() {
-        mapController.logicalTick()
-        entityController.logicalTick()
-        vfxObjectsController.logicalTick()
+        mapController?.logicalTick()
+        entityController?.logicalTick()
+        vfxObjectsController?.logicalTick()
     }
 
     open fun renderTick() {
-        mapController.renderTick()
-        entityController.renderTick()
-        vfxObjectsController.renderTick()
+        mapController?.renderTick()
+        entityController?.renderTick()
+        vfxObjectsController?.renderTick()
     }
 }

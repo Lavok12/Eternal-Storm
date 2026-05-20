@@ -58,7 +58,7 @@ class GameRender(val gameController: GameController) : Controller {
 
         lg.bg(dim.skyColor)
         val mapApi = gameController.gameCycle.mapApi
-        val mapSystem = dim.mapController.mapSystem
+        val mapSystem = dim.mapController!!.mapSystem
 
         // Pre-calculate visible area in world coordinates
         val p1 = mapApi.getPointFromPos(camera.toWorldPos(gameController.wGamePanel!!.frameLeftBottom))
@@ -172,7 +172,7 @@ class GameRender(val gameController: GameController) : Controller {
             }
         }
 
-        dim.particleSystem.render(lg, camera)
+        dim.particleSystem!!.render(lg, camera)
         highlightRender.render(lg, camera)
 
         // Draw foreground layers

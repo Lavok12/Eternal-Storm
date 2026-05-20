@@ -13,6 +13,7 @@ class DimensionsApi(val dimensionsController: DimensionsController) {
 
     fun registerDimension(dimension: AbstractDimension) {
         dimensionsController.dimensions[dimension.dimensionTag] = dimension
+        dimension.initialize()
         dimension.generateMap()
     }
     fun changeRenderDimension(oldDim: AbstractDimension, newDim: AbstractDimension) {

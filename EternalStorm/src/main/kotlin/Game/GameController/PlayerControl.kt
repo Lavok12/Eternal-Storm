@@ -13,9 +13,11 @@ import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionType
 import la.vok.LavokLibrary.Vectors.Vec2
 
 class PlayerControl(var gameController: GameController) : Controller {
-    val entityApi: EntityApi get() = gameController.gameCycle.entityApi
-    val mapApi: MapApi get() = gameController.gameCycle.mapApi
-    val playerId: Long get() = gameController.playerId
+    val playerApi get() = gameCycle.playerApi
+    val gameCycle get() = gameController.gameCycle
+    val entityApi get() = gameCycle.entityApi
+    val mapApi get() = gameCycle.mapApi
+    val playerId get() = gameController.playerId
 
     var isInventoryOpen = false
         private set
@@ -43,9 +45,7 @@ class PlayerControl(var gameController: GameController) : Controller {
         gameController.mainCamera.setCameraPos(player.position)
     }
     fun getPlayerEntity() : PlayerEntity? {
-        if (!entityApi.containsEntityByIdAcrossDimensions(playerId)) return null
-        if (entityApi.getByIdAcrossDimensions(playerId) !is PlayerEntity) return null
-        return entityApi.getByIdAcrossDimensions(playerId) as PlayerEntity
+        return playerApi.getPlayer(playerId)
     }
     fun isControl() : Boolean {
         return getPlayerEntity() != null

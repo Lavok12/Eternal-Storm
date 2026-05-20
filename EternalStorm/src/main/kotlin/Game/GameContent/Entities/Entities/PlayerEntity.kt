@@ -44,6 +44,8 @@ class PlayerEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entit
 
     override fun spawn() {
         super.spawn()
+        gameCycle.playerApi.registerPlayer(systemId, this)
+        
         inventory?.itemContainer?.addItem(gameCycle.itemsApi.getRegisteredItem(ItemsList.axe))
         inventory?.itemContainer?.addItem(gameCycle.itemsApi.getRegisteredItem(ItemsList.spear))
         inventory?.itemContainer?.addItem(gameCycle.itemsApi.getRegisteredItem(ItemsList.pickaxe))

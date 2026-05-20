@@ -206,14 +206,14 @@ class MapApi(var gameCycle: GameCycle) {
         
         // High-level: call visual/logic effects (at clicked pos)
         val clickedType = getTileType(dimension, x, y) ?: masterType
-        clickedType.damage(x, y, damage, dimension, dimension.mapController)
+        clickedType.damage(x, y, damage, dimension, dimension.mapController!!)
         markDirtyFootprint(dimension, x, y)
         
         val ms = dimension.mapSystem
         ms.setTileHp(master.x, master.y, ms.getTileHp(master.x, master.y) - damage)
         
         if (ms.getTileHp(master.x, master.y) <= 0) {
-            masterType.onMined(master.x, master.y, MineData(damage, 1000000, null, null, null), dimension, dimension.mapController)
+            masterType.onMined(master.x, master.y, MineData(damage, 1000000, null, null, null), dimension, dimension.mapController!!)
             deactivateTile(dimension, master.x, master.y, "absolute_damage", notify)
         }
     }
@@ -238,15 +238,15 @@ class MapApi(var gameCycle: GameCycle) {
         
         // High-level: visual effects (at click position)
         val clickedType = getTileType(dimension, x, y) ?: masterType
-        clickedType.damage(x, y, mineData.value, dimension, dimension.mapController)
-        clickedType.mine(x, y, mineData, dimension, dimension.mapController)
+        clickedType.damage(x, y, mineData.value, dimension, dimension.mapController!!)
+        clickedType.mine(x, y, mineData, dimension, dimension.mapController!!)
         markDirtyFootprint(dimension, x, y)
         
         val ms = dimension.mapSystem
         ms.setTileHp(master.x, master.y, ms.getTileHp(master.x, master.y) - mineData.value)
 
         if (ms.getTileHp(master.x, master.y) <= 0) {
-            masterType.onMined(master.x, master.y, mineData, dimension, dimension.mapController)
+            masterType.onMined(master.x, master.y, mineData, dimension, dimension.mapController!!)
             deactivateTile(dimension, master.x, master.y, mineData, notify)
         }
     }
@@ -288,7 +288,7 @@ class MapApi(var gameCycle: GameCycle) {
         // Place Master
         dimension.mapSystem.setTileType(px, py, type)
         maxHp(dimension, px, py)
-        type.place(px, py, item, dimension.mapController)
+        type.place(px, py, item, dimension.mapController!!)
         markDirtyFootprint(dimension, px, py)
         
         // Place Dummies
@@ -509,7 +509,7 @@ class MapApi(var gameCycle: GameCycle) {
         if (!isInsideMap(dimension, x, y)) return
         val type = getWallType(dimension, x, y) ?: return
         
-        type.damage(x, y, damage, dimension, dimension.mapController)
+        type.damage(x, y, damage, dimension, dimension.mapController!!)
         markDirtyFootprint(dimension, x, y)
         
         val ms = dimension.mapSystem
@@ -536,13 +536,13 @@ class MapApi(var gameCycle: GameCycle) {
         val type = getWallType(dimension, x, y) ?: return
         if (mineData.power < type.blockStrength) return
         
-        type.damage(x, y, mineData.value, dimension, dimension.mapController)
+        type.damage(x, y, mineData.value, dimension, dimension.mapController!!)
         markDirtyFootprint(dimension, x, y)
         
         val ms = dimension.mapSystem
         ms.setWallHp(x, y, ms.getWallHp(x, y) - mineData.value)
         if (ms.getWallHp(x, y) <= 0) {
-            type.onMined(x, y, mineData, dimension, dimension.mapController)
+            type.onMined(x, y, mineData, dimension, dimension.mapController!!)
             deactivateWall(dimension, x, y, mineData, notify)
         }
     }
@@ -561,7 +561,7 @@ class MapApi(var gameCycle: GameCycle) {
         
         dimension.mapSystem.setWallType(x, y, type)
         maxHpWall(dimension, x, y)
-        type.place(x, y, item, dimension.mapController)
+        type.place(x, y, item, dimension.mapController!!)
         markDirtyFootprint(dimension, x, y)
         if (consumed) item.count--
         return true
@@ -726,7 +726,7 @@ class MapApi(var gameCycle: GameCycle) {
                         wallIsActive(dimension, nx, ny)
                     }
                     TilePlaceType.CUSTOM -> {
-                        type.canPlace(nx, ny, dimension, dimension.mapController)
+                        type.canPlace(nx, ny, dimension, dimension.mapController!!)
                     }
                     else -> false
                 }
@@ -774,7 +774,7 @@ class MapApi(var gameCycle: GameCycle) {
                 hasNearTile(dimension, x, y) || hasNearWall(dimension, x, y)
 
             WallPlaceType.CUSTOM -> {
-                type.canPlace(x, y, dimension, dimension.mapController)
+                type.canPlace(x, y, dimension, dimension.mapController!!)
             }
         }
     }

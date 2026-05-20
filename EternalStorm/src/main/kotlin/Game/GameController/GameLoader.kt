@@ -25,7 +25,7 @@ class GameLoader(var gameController: GameController) : Controller {
 
     }
     fun initWorldSystems() {
-        gameCycle.globalSystemsController.clearSystems()
+        gameCycle.worldSimulationManager.clearSystems()
     }
 
     fun load() {

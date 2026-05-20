@@ -51,7 +51,7 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
             this.ai = BossAi(this, gameCycle)
             for (i in 0 until bossParts) {
                 val entityApi: EntityApi = gameCycle.entityApi
-                val entity = entityApi.getRegisteredEntityByType(this.entityType) as BossEntity
+                val entity = entityApi.getRegisteredEntity(this.entityType.tag) as BossEntity
 
                 entity.next = leader   
                 leader.prev = entity   

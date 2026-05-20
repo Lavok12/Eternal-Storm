@@ -3,6 +3,7 @@ package la.vok.Game.GameController
 import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.Map.MapApi
+import la.vok.Game.GameSystems.RenderSystems.BatchApi
 import la.vok.Game.GameSystems.WorldSystems.Crafts.CraftApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
@@ -10,46 +11,57 @@ import la.vok.Game.GameSystems.WorldSystems.Particles.ParticlesApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.DimensionsController
 
-class GameCycle(var gameController: GameController) : Controller {
-    val entityApi: EntityApi = EntityApi(this)
-    val mapApi: MapApi = MapApi(this)
-    val particlesApi: ParticlesApi = ParticlesApi(this)
-    val vfxObjectsApi: VfxObjectsApi = VfxObjectsApi(this)
-    var itemsApi = ItemsApi(this)
-    var craftApi = CraftApi(this)
+class GameCycle(val gameController: GameController) : Controller {
+    val gameContext = GameContext(gameController, this)
 
-    var dimensionsController = DimensionsController(this)
-    val globalSystemsController: GlobalSystemsController = GlobalSystemsController(this)
+    val entityApi = EntityApi(this)
+    val mapApi = MapApi(this)
+    val particlesApi = ParticlesApi(this)
+    val vfxObjectsApi = VfxObjectsApi(this)
+    val itemsApi = ItemsApi(this)
+    val craftApi = CraftApi(this)
+    val playerApi = la.vok.Game.GameSystems.WorldSystems.Players.PlayerApi(this)
+    val batchApi = BatchApi(this)
+
+    val dimensionsController = DimensionsController(this)
+    val worldSimulationManager = WorldSimulationManager(this)
+    val updateController = UpdateController(this)
+
+    val collisionSystem = CollisionSystem(this)
 
     val dimensionsApi get() = dimensionsController.dimensionsApi
-    
-    val updateController: UpdateController = UpdateController(this)
 
-    val batchApi: la.vok.Game.GameSystems.RenderSystems.BatchApi = la.vok.Game.GameSystems.RenderSystems.BatchApi(this)
-
-    var collisionSystem = CollisionSystem(this)
+    private val systems = mutableListOf<Controller>()
 
     init {
+        gameContext.apply {
+            entityApi = this@GameCycle.entityApi
+            mapApi = this@GameCycle.mapApi
+            particlesApi = this@GameCycle.particlesApi
+            vfxObjectsApi = this@GameCycle.vfxObjectsApi
+            itemsApi = this@GameCycle.itemsApi
+            craftApi = this@GameCycle.craftApi
+            dimensionsApi = this@GameCycle.dimensionsApi
+            playerApi = this@GameCycle.playerApi
+        }
+
+        systems.add(worldSimulationManager)
+        systems.add(collisionSystem)
+        systems.add(dimensionsController)
+        systems.add(updateController)
+
         create()
     }
 
     override fun logicalTick() {
-        globalSystemsController.logicalTick()
-        collisionSystem.logicalTick()
-        dimensionsController.logicalTick()
-        updateController.logicalTick()
+        systems.forEach { it.logicalTick() }
     }
 
     override fun physicTick() {
-        globalSystemsController.physicTick()
-        collisionSystem.physicTick()
-        dimensionsController.physicTick()
-        updateController.physicTick()
+        systems.forEach { it.physicTick() }
     }
-    
+
     override fun renderTick() {
-        globalSystemsController.renderTick()
-        dimensionsController.renderTick()
-        updateController.renderTick()
+        systems.forEach { it.renderTick() }
     }
 }

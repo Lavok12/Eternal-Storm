@@ -3,6 +3,7 @@ package la.vok.Core.GameControllers
 import la.vok.Core.CoreContent.Camera.SoftCamera
 import la.vok.Core.CoreControllers.CoreController
 import la.vok.Core.CoreControllers.Interfaces.SceneController
+import la.vok.Core.CoreControllers.Intergaces.Controller
 import la.vok.Game.ClientContent.Windows.WDevPanel
 import la.vok.Game.ClientContent.Windows.WGamePanel
 import la.vok.Game.GameController.GameCycle
@@ -23,7 +24,13 @@ class GameController(var coreController: CoreController) : SceneController {
     val playerControl = PlayerControl(this)
     val playerDimension get() = playerControl.getPlayerEntity()?.dimension
 
+    private val systems = mutableListOf<Controller>()
+
     init {
+        systems.add(playerControl)
+        systems.add(gameCycle)
+        systems.add(effectLayersController)
+        systems.add(gameRender)
         create()
     }
 
@@ -48,24 +55,16 @@ class GameController(var coreController: CoreController) : SceneController {
 
     }
     override fun logicalTick() {
-        playerControl.logicalTick()
-        gameCycle.logicalTick()
-        effectLayersController.logicalTick()
-        gameRender.logicalTick()
-
+        systems.forEach { it.logicalTick() }
         mainCamera.updateCamera()
     }
 
     override fun physicTick() {
-        playerControl.physicTick()
-        gameCycle.physicTick()
-        effectLayersController.physicTick()
-        gameRender.physicTick()
+        systems.forEach { it.physicTick() }
     }
 
     override fun renderTick() {
-        gameCycle.renderTick()
-        gameRender.renderTick()
+        systems.forEach { it.renderTick() }
     }
     fun render(lg: LGraphics) {
         lg.noStroke()
