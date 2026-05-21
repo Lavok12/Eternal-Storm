@@ -1,7 +1,7 @@
-package la.vok.Game.ClientContent.Windows
+package la.vok.Game.Windows.GameUI.Modules
 
+import la.vok.Core.CoreContent.Windows.Modules.IUiModule
 import la.vok.Core.CoreContent.Windows.WindowsStorage.Templates.AbstractWindow
-import la.vok.Core.CoreControllers.CoreContent.Windows.ElementsStrorage.WindowElement
 import la.vok.Core.FrameLimiter
 import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.Windows.InventoryCell
@@ -14,12 +14,14 @@ import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
 
-class InventoryPanelController(
-    val window: AbstractWindow,
+class InventoryModule(
     val playerControl: PlayerControl
-) {
+) : IUiModule {
+    override val id: String = "inventory"
+    override var isEnabled: Boolean = true
+
     // =====================================================================
-    // НАСТРОЙКИ
+    // НАСТРОЙКИ (перенесены из InventoryPanelController)
     // =====================================================================
 
     val cellSize = 55.1 v 55.1
@@ -35,14 +37,14 @@ class InventoryPanelController(
     private fun hotbarClosedPos(i: Int) = ((i - 4.5f) * cellSpacing) v 0f
     private val hotbarClosedAlign = 0 v -1
 
-    private fun hotbarOpenPos(i: Int): Vec2 {
+    private fun hotbarOpenPos(window: AbstractWindow, i: Int): Vec2 {
         val x = -window.logicalSize.x / 2f + inventoryMargin + cellSize.x / 2f + i * cellSpacing
         val y = window.logicalSize.y / 2f - inventoryMargin - cellSize.y / 2f - 4 * cellSpacing - 10f
         return x v y
     }
     private val hotbarOpenAlign = Vec2.ZERO
 
-    private fun inventoryOpenPos(idx: Int): Vec2 {
+    private fun inventoryOpenPos(window: AbstractWindow, idx: Int): Vec2 {
         val col = idx % 10
         val row = idx / 10
         val x = -window.logicalSize.x / 2f + inventoryMargin + cellSize.x / 2f + col * cellSpacing
@@ -51,12 +53,11 @@ class InventoryPanelController(
     }
     private val inventoryOpenAlign = Vec2.ZERO
 
-    private val inventoryClosedPos: Vec2
-        get() {
-            val x = -window.logicalSize.x / 2f + inventoryMargin - cellSize.x * 3f
-            val y = -window.logicalSize.y / 2f + inventoryMargin - cellSize.y * 3f
-            return x v y
-        }
+    private fun inventoryClosedPos(window: AbstractWindow): Vec2 {
+        val x = -window.logicalSize.x / 2f + inventoryMargin - cellSize.x * 3f
+        val y = -window.logicalSize.y / 2f + inventoryMargin - cellSize.y * 3f
+        return x v y
+    }
     private val inventoryClosedAlign = Vec2.ZERO
 
     // =====================================================================
@@ -85,13 +86,17 @@ class InventoryPanelController(
         return ((t - start) / (end - start)).coerceIn(0f, 1f)
     }
 
-    // =====================================================================
-    // ПОСТРОЕНИЕ
-    // =====================================================================
+    override fun onAttach(window: AbstractWindow) {
+        build(window)
+    }
 
-    fun build(windowElements: ArrayList<WindowElement>) {
-        AppState.logger.info("InventoryPanelController build cells")
-        windowElements.clear()
+    fun build(window: AbstractWindow) {
+        AppState.logger.info("InventoryModule build cells")
+        
+        // Remove old cells if any
+        hotbarCells.forEach { window.windowElements.remove(it.first) }
+        inventoryCells.forEach { window.windowElements.remove(it.first) }
+        
         hotbarCells.clear()
         inventoryCells.clear()
 
@@ -106,54 +111,47 @@ class InventoryPanelController(
                 leftClick = { playerControl.chooseSlot(i) }
             )
             hotbarCells += cell to hotbarClosedPos(i)
-            windowElements += cell
+            window.windowElements += cell
         }
 
-        for (x in 0..9) {
-            for (y in 0..3) {
-                val idx = y * 10 + x
-                val cell = InventoryCell(
-                    window, inventoryClosedPos, cellSize,
-                    inventoryClosedAlign,
-                    slot = player.inventory?.itemContainer?.getSlot(10 + idx),
-                    cellType = InventoryCellType.INVENTORY,
-                    leftClick = { playerControl.chooseSlot(10 + idx) }
-                )
-                inventoryCells += cell to inventoryOpenPos(idx)
-                windowElements += cell
-            }
+        for (idx in 0..39) {
+            val cell = InventoryCell(
+                window, inventoryClosedPos(window), cellSize,
+                inventoryClosedAlign,
+                slot = player.inventory?.itemContainer?.getSlot(10 + idx),
+                cellType = InventoryCellType.INVENTORY,
+                leftClick = { playerControl.chooseSlot(10 + idx) }
+            )
+            inventoryCells += cell to inventoryOpenPos(window, idx)
+            window.windowElements += cell
         }
 
-        updateCellPositions()
+        updateCellPositions(window)
     }
 
-    // =====================================================================
-    // АНИМАЦИЯ
-    // =====================================================================
-
-    fun updateCellPositions() {
+    fun updateCellPositions(window: AbstractWindow) {
         hotbarCells.forEachIndexed { i, (cell, _) ->
             val cellT  = hotbarAnim.evaluate(remapProgress(animProgress, i, 10, hotbarWaveOverlap))
             val cellTY = hotbarAnimY.evaluate(remapProgress(animProgress, i, 10, hotbarWaveOverlap))
             cell.align    = lerpVec(hotbarClosedAlign, hotbarOpenAlign, cellT v cellTY)
-            cell.position = lerpVec(hotbarClosedPos(i), hotbarOpenPos(i), cellT v cellTY)
+            cell.position = lerpVec(hotbarClosedPos(i), hotbarOpenPos(window, i), cellT v cellTY)
             cell.markDirty()
         }
 
         val invT = inventoryAnim.evaluate(animProgress)
         inventoryCells.forEachIndexed { i, (cell, openPos) ->
             cell.align    = inventoryOpenAlign
-            cell.position = lerpVec(inventoryClosedPos, openPos, invT)
+            cell.position = lerpVec(inventoryClosedPos(window), openPos, invT)
             cell.isVisible = animProgress > 0f
             cell.markDirty()
         }
     }
 
-    fun update() {
+    override fun update(window: AbstractWindow) {
         if (!animating) return
         val dt = FrameLimiter.logicDeltaTime
         animProgress = (animProgress + dt * inventoryAnimSpeed * animDir).coerceIn(0f, 1f)
-        updateCellPositions()
+        updateCellPositions(window)
         if (animProgress <= 0f || animProgress >= 1f) animating = false
     }
 
@@ -164,10 +162,13 @@ class InventoryPanelController(
         animating = true
     }
 
-    // =====================================================================
-    // DRAG & DROP
-    // =====================================================================
+    override fun postDraw(window: AbstractWindow, lg: LGraphics) {
+        val dragged = draggedCell ?: return
+        val item = dragged.slot?.item ?: return
+        item.cellDragRender(lg, dragMousePos, dragged.size, dragged)
+    }
 
+    // Drag-and-drop logic (moved from WGamePanel for modularity)
     fun startDrag(cell: InventoryCell, position: Vec2) {
         if (cell.slot?.item == null) return
         draggedCell = cell
@@ -203,11 +204,5 @@ class InventoryPanelController(
                 slot.item = null
             }
         }
-    }
-
-    fun renderDragged(lg: LGraphics) {
-        val dragged = draggedCell ?: return
-        val item = dragged.slot?.item ?: return
-        item.cellDragRender(lg, dragMousePos, dragged.size, dragged)
     }
 }

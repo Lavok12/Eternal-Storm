@@ -19,7 +19,7 @@ class LiquidSystem(val dimension: AbstractDimension) {
     private var activeCount = 0
     private var nextActiveCells = IntArray(size)
     private var nextActiveCount = 0
-    
+
     private var currentActiveFlags = BooleanArray(size)
     private var nextActiveFlags = BooleanArray(size)
 
@@ -29,20 +29,17 @@ class LiquidSystem(val dimension: AbstractDimension) {
     fun setLiquid(x: Int, y: Int, typeId: Byte, amount: Int) {
         if (!isInside(x, y)) return
         val idx = getIndex(x, y)
-        
+
         amounts[idx] = amount.toByte()
         types[idx] = if (amount > 0) typeId else 0
-        
+
         nextAmounts[idx] = amount.toByte()
         nextTypes[idx] = if (amount > 0) typeId else 0
-        
-        // Always activate the cell and its neighbors when changed
+
+        // Активируем только текущий тик — не трогаем next-буферы вне update(),
+        // иначе nextActiveCount/nextActiveFlags загрязняются до первого swap.
         activate(x, y)
         activateNeighbors(x, y)
-        
-        // Also ensure they are active for the NEXT tick if update is running
-        activateNext(idx)
-        activateNextNeighbors(x, y)
     }
 
     fun getAmount(x: Int, y: Int): Int = if (isInside(x, y)) amounts[getIndex(x, y)].toInt() and 0xFF else 0
@@ -73,7 +70,7 @@ class LiquidSystem(val dimension: AbstractDimension) {
 
         System.arraycopy(amounts, 0, nextAmounts, 0, size)
         System.arraycopy(types, 0, nextTypes, 0, size)
-        
+
         nextActiveCount = 0
         nextActiveFlags.fill(false)
 
@@ -94,9 +91,9 @@ class LiquidSystem(val dimension: AbstractDimension) {
         val tempActive = activeCells
         activeCells = nextActiveCells
         nextActiveCells = tempActive
-        
+
         activeCount = nextActiveCount
-        
+
         // Swap flags
         val tempFlags = currentActiveFlags
         currentActiveFlags = nextActiveFlags
@@ -109,7 +106,7 @@ class LiquidSystem(val dimension: AbstractDimension) {
 
         val typeId = types[idx]
         val type = dimension.gameCycle.gameController.coreController.objectRegistration.getLiquidType(typeId) ?: return
-        
+
         if (type.viscosity > 1) {
             if (dimension.gameCycle.physicTicks % type.viscosity != 0L) {
                 activateNext(idx)
@@ -131,12 +128,13 @@ class LiquidSystem(val dimension: AbstractDimension) {
                         moveLiquid(idx, belowIdx, flow, typeId)
                         activateNextNeighbors(x, y)
                         activateNextNeighbors(x, y - 1)
-                        if (getAmount(x, y) <= 0) return
+                        // FIX: читаем из nextAmounts, а не из amounts (старый буфер)
+                        if ((nextAmounts[idx].toInt() and 0xFF) <= 0) return
                     }
                 }
             } else {
-                // If blocked by reaction, amount might have changed to 0
-                if (getAmount(x, y) <= 0) return
+                // FIX: читаем из nextAmounts, а не из amounts (старый буфер)
+                if ((nextAmounts[idx].toInt() and 0xFF) <= 0) return
             }
         }
 
@@ -145,43 +143,45 @@ class LiquidSystem(val dimension: AbstractDimension) {
     }
 
     private fun flowSides(x: Int, y: Int, idx: Int, typeId: Byte) {
+        // FIX: всегда читаем из nextAmounts — единственный актуальный буфер во время обновления
         val currentAmount = nextAmounts[idx].toInt() and 0xFF
         if (currentAmount <= 5) return
 
         val leftX = x - 1
         val rightX = x + 1
-        
+
+        // FIX: передаём currentAmount (из nextAmounts) в обоих вызовах canFlowInto,
+        // ранее rightCan ошибочно использовал getAmount(x, y) — старый буфер amounts[]
         val leftCan = isInside(leftX, y) && canFlowInto(leftX, y, x, y, typeId, currentAmount)
-        val rightCan = isInside(rightX, y) && canFlowInto(rightX, y, x, y, typeId, getAmount(x, y))
-        
+        val rightCan = isInside(rightX, y) && canFlowInto(rightX, y, x, y, typeId, currentAmount)
+
         if (!leftCan && !rightCan) return
-        
-        // Update current amount after potential side reactions
-        val remainingAfterLeft = getAmount(x, y) 
 
         val leftIdx = if (leftCan) getIndex(leftX, y) else -1
         val rightIdx = if (rightCan) getIndex(rightX, y) else -1
-        
+
         val leftAmount = if (leftCan) nextAmounts[leftIdx].toInt() and 0xFF else 255
         val rightAmount = if (rightCan) nextAmounts[rightIdx].toInt() and 0xFF else 255
-        
-        var remaining = remainingAfterLeft
-        
+
+        // FIX: remaining берётся из nextAmounts, ранее был getAmount(x, y) — старый буфер.
+        // После каждого moveLiquid перечитываем из nextAmounts, чтобы diff был корректным.
+        var remaining = currentAmount
+
         if (leftCan && leftAmount < remaining - 1) {
             val diff = (remaining - leftAmount) / 2
             if (diff > 0) {
                 moveLiquid(idx, leftIdx, diff, typeId)
-                remaining -= diff
+                // Перечитываем после переноса — nextAmounts[idx] уже изменился
+                remaining = nextAmounts[idx].toInt() and 0xFF
                 activateNextNeighbors(x, y)
                 activateNextNeighbors(leftX, y)
             }
         }
-        
+
         if (rightCan && rightAmount < remaining - 1) {
             val diff = (remaining - rightAmount) / 2
             if (diff > 0) {
                 moveLiquid(idx, rightIdx, diff, typeId)
-                remaining -= diff
                 activateNextNeighbors(x, y)
                 activateNextNeighbors(rightX, y)
             }
@@ -191,7 +191,7 @@ class LiquidSystem(val dimension: AbstractDimension) {
     private fun canFlowInto(x: Int, y: Int, srcX: Int, srcY: Int, sourceId: Byte, sourceAmount: Int): Boolean {
         val tile = dimension.mapSystem.getTileType(x, y)
         if (tile != null && tile.collisionType == CollisionType.FULL) return false
-        
+
         val idx = getIndex(x, y)
         val targetId = nextTypes[idx]
         if (targetId != 0.toByte() && targetId != sourceId) {
@@ -215,10 +215,10 @@ class LiquidSystem(val dimension: AbstractDimension) {
 
         nextAmounts[fromIdx] = (srcAmount - flow).toByte()
         nextAmounts[toIdx] = (dstAmount + flow).toByte()
-        
+
         if (nextAmounts[fromIdx].toInt() == 0) nextTypes[fromIdx] = 0
         nextTypes[toIdx] = typeId
-        
+
         activateNext(fromIdx)
         activateNext(toIdx)
     }

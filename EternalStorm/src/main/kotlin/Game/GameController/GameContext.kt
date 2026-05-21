@@ -36,4 +36,5 @@ class GameContext(
     lateinit var craftApi: CraftApi
     lateinit var dimensionsApi: DimensionsApi
     lateinit var liquidApi: la.vok.Game.GameSystems.WorldSystems.Liquid.LiquidApi
+    lateinit var uiApi: la.vok.Game.GameSystems.WorldSystems.UI.UiApi
 }

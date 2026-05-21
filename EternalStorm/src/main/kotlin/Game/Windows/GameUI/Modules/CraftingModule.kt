@@ -1,5 +1,6 @@
-package la.vok.Game.ClientContent.Windows
+package la.vok.Game.Windows.GameUI.Modules
 
+import la.vok.Core.CoreContent.Windows.Modules.IUiModule
 import la.vok.Core.CoreContent.Windows.WindowsStorage.Templates.AbstractWindow
 import la.vok.Core.CoreControllers.CoreContent.Windows.ElementsStrorage.WindowElement
 import la.vok.Core.FrameLimiter
@@ -9,14 +10,17 @@ import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameController.PlayerControl
 import la.vok.LLibs.AnimationType
 import la.vok.LLibs.FloatAnimation
+import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 
-class CraftPanelController(
-    val window: AbstractWindow,
+class CraftingModule(
     val playerControl: PlayerControl,
     val gameCycle: GameCycle
-) {
+) : IUiModule {
+    override val id: String = "crafting"
+    override var isEnabled: Boolean = true
+
     // =====================================================================
     // НАСТРОЙКИ
     // =====================================================================
@@ -59,7 +63,7 @@ class CraftPanelController(
         return result
     }
 
-    private fun openPos(idx: Int): Vec2 {
+    private fun openPos(window: AbstractWindow, idx: Int): Vec2 {
         val col = idx % craftsPerRow
         val row = idx / craftsPerRow
         val x = -window.logicalSize.x / 2f + inventoryMargin + cellSize.x / 2f + col * cellSpacing
@@ -83,12 +87,12 @@ class CraftPanelController(
         playerControl.getPlayerEntity()?.inventory?.itemContainer
     )
 
-    private fun doCraft(craft: CraftType, windowElements: ArrayList<WindowElement>) {
+    private fun doCraft(window: AbstractWindow, craft: CraftType) {
         val container = getContainers().firstOrNull() ?: return
         val entity = playerControl.getPlayerEntity() ?: return
         val success = gameCycle.craftApi.craft(container, craft, entity, 1)
         if (success) {
-            refresh(windowElements)
+            refresh(window)
             updatePositions()
         }
     }
@@ -97,8 +101,8 @@ class CraftPanelController(
     // ПОСТРОЕНИЕ
     // =====================================================================
 
-    fun build(windowElements: ArrayList<WindowElement>) {
-        clear(windowElements)
+    fun build(window: AbstractWindow) {
+        clear(window)
         val sorted = sortedByPercent()
 
         sorted.forEachIndexed { idx, (craft, percent) ->
@@ -109,17 +113,17 @@ class CraftPanelController(
                 align = Vec2.ZERO,
                 craft = craft,
                 completionPercent = percent,
-                leftClick = { doCraft(craft, windowElements) }
+                leftClick = { doCraft(window, craft) }
             )
             cell.isVisible = false
-            craftCells += cell to openPos(idx)
-            windowElements += cell
+            craftCells += cell to openPos(window, idx)
+            window.windowElements += cell
         }
 
         updatePositions()
     }
 
-    fun refresh(windowElements: ArrayList<WindowElement>) {
+    fun refresh(window: AbstractWindow) {
         val sorted = sortedByPercent()
 
         while (craftCells.size < sorted.size) {
@@ -127,21 +131,21 @@ class CraftPanelController(
             val (craft, percent) = sorted[idx]
             val cell = CraftCell(
                 window = window,
-                position = if (animProgress > 0f) openPos(idx) else closedPos,
+                position = if (animProgress > 0f) openPos(window, idx) else closedPos,
                 size = cellSize,
                 align = Vec2.ZERO,
                 craft = craft,
                 completionPercent = percent,
-                leftClick = { doCraft(craft, windowElements) }
+                leftClick = { doCraft(window, craft) }
             )
             cell.isVisible = animProgress > 0f
-            craftCells += cell to openPos(idx)
-            windowElements += cell
+            craftCells += cell to openPos(window, idx)
+            window.windowElements += cell
         }
 
         while (craftCells.size > sorted.size) {
             val (cell, _) = craftCells.removeLast()
-            windowElements.remove(cell)
+            window.windowElements.remove(cell)
         }
 
         craftCells.forEachIndexed { idx, (cell, _) ->
@@ -151,8 +155,8 @@ class CraftPanelController(
         }
     }
 
-    fun clear(windowElements: ArrayList<WindowElement>) {
-        craftCells.forEach { (cell, _) -> windowElements.remove(cell) }
+    fun clear(window: AbstractWindow) {
+        craftCells.forEach { (cell, _) -> window.windowElements.remove(cell) }
         craftCells.clear()
     }
 
@@ -161,6 +165,7 @@ class CraftPanelController(
     // =====================================================================
 
     private fun updatePositions() {
+        if (craftCells.isEmpty()) return
         val totalRows = ((craftCells.size - 1) / craftsPerRow + 1).coerceAtLeast(1)
 
         craftCells.forEachIndexed { idx, (cell, open) ->
@@ -173,7 +178,7 @@ class CraftPanelController(
         }
     }
 
-    fun update(windowElements: ArrayList<WindowElement>) {
+    override fun update(window: AbstractWindow) {
         if (animating) {
             val dt = FrameLimiter.logicDeltaTime
             animProgress = (animProgress + dt * animSpeed * animDir).coerceIn(0f, 1f)
@@ -185,32 +190,29 @@ class CraftPanelController(
             ticksSinceUpdate++
             if (ticksSinceUpdate >= updateInterval) {
                 ticksSinceUpdate = 0
-                refresh(windowElements)
+                refresh(window)
                 updatePositions()
             }
         }
 
         if (animProgress <= 0f && animDir == -1 && !animating) {
-            onInventoryClosed(windowElements)
+            onInventoryClosed(window)
         }
     }
 
-    fun isMouseOverAnyCraft(position: Vec2): Boolean =
-        craftCells.any { (cell, _) -> cell.isVisible && cell.inside(position) }
-
-    fun show(windowElements: ArrayList<WindowElement>) {
-        if (craftCells.isEmpty()) build(windowElements)
+    fun show(window: AbstractWindow) {
+        if (craftCells.isEmpty()) build(window)
         animDir = 1
         animating = true
     }
 
-    fun hide(windowElements: ArrayList<WindowElement>) {
+    fun hide(window: AbstractWindow) {
         animDir = -1
         animating = true
     }
 
-    fun onInventoryClosed(windowElements: ArrayList<WindowElement>) {
-        clear(windowElements)
+    fun onInventoryClosed(window: AbstractWindow) {
+        clear(window)
         animProgress = 0f
         animDir = 0
         animating = false

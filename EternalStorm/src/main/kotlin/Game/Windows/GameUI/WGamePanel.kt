@@ -1,6 +1,7 @@
 package la.vok.Game.ClientContent.Windows
 
 import la.vok.Core.CoreContent.Input.KeyCode
+import la.vok.Core.CoreContent.Windows.Modules.WindowModuleManager
 import la.vok.Core.CoreContent.Windows.WindowsStorage.Templates.WStandartPanel
 import la.vok.Core.CoreControllers.MainRender
 import la.vok.Core.CoreControllers.WindowsManager
@@ -10,6 +11,9 @@ import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.Game.GameContent.ContentList.DimensionsList
 import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionType
+import la.vok.Game.Windows.GameUI.Modules.CraftingModule
+import la.vok.Game.Windows.GameUI.Modules.InventoryModule
+import la.vok.Game.Windows.GameUI.Modules.StatsModule
 import la.vok.State.AppState
 
 class WGamePanel(windowsManager: WindowsManager, var gameController: GameController) : WStandartPanel(windowsManager) {
@@ -18,8 +22,16 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
     override var padding: Vec2 = 10 v 10
     override var tags: Array<String> = arrayOf("game")
 
-    val inventory = InventoryPanelController(this, playerControl)
-    val crafts = CraftPanelController(this, playerControl, gameController.gameCycle)
+    val moduleManager = WindowModuleManager(this)
+
+    init {
+        moduleManager.addModule(InventoryModule(playerControl))
+        moduleManager.addModule(CraftingModule(playerControl, gameController.gameCycle))
+        moduleManager.addModule(StatsModule(playerControl))
+    }
+
+    private val inventory get() = moduleManager.getModule<InventoryModule>("inventory")!!
+    private val crafts get() = moduleManager.getModule<CraftingModule>("crafting")!!
 
 // --- Рендер ---
 
@@ -27,42 +39,34 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
         super.draw(mainRender)
         lg.bg(0f)
         gameController.render(lg)
+        moduleManager.draw(lg)
     }
 
     override fun postDraw(mainRender: MainRender) {
         super.postDraw(mainRender)
-        inventory.renderDragged(lg)
-    }
-
-    // --- Построение ---
-
-    fun buildInventoryButtons() {
-        inventory.build(windowElements)
+        moduleManager.postDraw(lg)
     }
 
     // --- Обновление ---
 
     override fun update() {
         super.update()
-        inventory.update()
-        crafts.update(windowElements)
-
-        // Чистим крафты когда анимация закрытия завершилась
-        if (crafts.animProgress <= 0f && crafts.animDir == -1 && !crafts.animating) {
-            crafts.onInventoryClosed(windowElements)
-        }
+        moduleManager.update()
     }
 
     // --- Утилиты ---
 
-    fun insideUxElement(position: Vec2) = windowElements.any { it.inside(position) }
+    fun insideUxElement(position: Vec2) = windowElements.any { it.isVisible && it.inside(position) }
 
     // --- Ввод ---
 
     override fun leftPressed(position: Vec2) {
         super.leftPressed(position)
-        val cell = inventory.allCells().map { it.first }.firstOrNull { it.inside(position) }
-        if (cell != null) { inventory.startDrag(cell, position); return }
+        if (insideUxElement(position)) {
+             val cell = inventory.allCells().map { it.first }.firstOrNull { it.inside(position) }
+             if (cell != null) { inventory.startDrag(cell, position) }
+             return
+        }
         playerControl.leftPressed(position)
         playerControl.interact(position, BlockInteractionType.LEFT)
     }
@@ -102,9 +106,9 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
             KeyCode.TAB -> {
                 inventory.toggleInventory()
                 if (playerControl.isInventoryOpen) {
-                    crafts.show(windowElements)
+                    crafts.show(this)
                 } else {
-                    crafts.hide(windowElements)
+                    crafts.hide(this)
                 }
             }
             KeyCode.NUM_1 -> playerControl.chooseSlot(0)
