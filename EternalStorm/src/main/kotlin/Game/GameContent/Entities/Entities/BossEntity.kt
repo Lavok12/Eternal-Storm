@@ -26,8 +26,7 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
     override var renderEntity: RenderObjectInterface? = BossRenderEntity(getRenderLayer())
     override var bodyDamage = 25
     override var bodyKnockBack = 0.3f
-    
-    // Links (still useful to keep as references, but logic moved to components)
+
     var first: BossEntity = this
 
     var rotate = 0f
@@ -60,17 +59,16 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
             val segment = gameCycle.entityApi.getRegisteredEntity(this.entityType.tag) as BossEntity
             segment.number = i + 1
             segment.first = this
-            
-            // Shared HP pool
+
             segment.hpBody = this.hpBody
-            segment.hpRender = null // Hide HP for segments
-            
+            segment.hpRender = null
+
             // Boss Part identification
             segment.bossPart = if (i == bossPartsCount - 1) -1 else 0 
-            
+
             // Visuals
             segment.renderEntity?.changeLayer(RenderLayers.Main.B5, i * 2)
-            
+
             // Positioning & Logic Components
             segment.addComponent(ChainFollowComponent(segment, leader, segmentLength))
             segment.addComponent(DamageRedirectComponent(segment, this))
@@ -118,10 +116,8 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
             rigidBody?.useFriction()
         }
 
-        // Particle burst on Enter/Exit (Splash effect)
         if (isTouching != wasTouching) {
             val api = gameCycle.mapApi
-            // Search for tile to use for particles
             val tile = api.getTileType(dimension!!, point.x, point.y)
                 ?: api.getTileType(dimension!!, point.x, point.y + 1)
                 ?: api.getTileType(dimension!!, point.x, point.y - 1)
@@ -134,10 +130,10 @@ class BossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(
                 
                 gameCycle.particlesApi.buildTile(dimension!!, tile)
                     .at(position)
-                    .count(60) // Even more particles
-                    .randomOffset(2.0f) // Wider side spread
+                    .count(60)
+                    .randomOffset(2.0f)
                     .speed(splashDir * 0.1f + (0f v 0.2f))
-                    .randomSpeed(4.0f) // More chaotic spread
+                    .randomSpeed(4.0f)
                     .spawn()
             }
             wasTouching = isTouching

@@ -6,6 +6,7 @@ import la.vok.Game.GameSystems.WorldSystems.Entities.EntityController
 import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
 import la.vok.Game.GameSystems.WorldSystems.Particles.ParticleController
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsController
+import la.vok.Game.GameSystems.WorldSystems.Liquid.LiquidController
 import la.vok.LavokLibrary.Vectors.LColor
 
 abstract class AbstractDimension(var gameCycle: GameCycle) {
@@ -19,6 +20,7 @@ abstract class AbstractDimension(var gameCycle: GameCycle) {
     var entityController: EntityController? = null
     var particleController: ParticleController? = null
     var vfxObjectsController: VfxObjectsController? = null
+    var liquidController: LiquidController? = null
 
     val mapSystem get() = mapController!!.mapSystem
     val entitySystem get() = entityController!!.entitySystem
@@ -32,6 +34,7 @@ abstract class AbstractDimension(var gameCycle: GameCycle) {
         entityController = EntityController(this)
         particleController = ParticleController(this)
         vfxObjectsController = VfxObjectsController(this)
+        liquidController = LiquidController(this)
     }
 
     open fun physicTick() {
@@ -39,6 +42,7 @@ abstract class AbstractDimension(var gameCycle: GameCycle) {
         entityController?.physicTick()
         particleController?.physicTick()
         vfxObjectsController?.physicTick()
+        liquidController?.physicTick()
     }
 
     open fun logicalTick() {

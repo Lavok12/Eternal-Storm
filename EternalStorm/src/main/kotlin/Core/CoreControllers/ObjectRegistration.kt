@@ -9,6 +9,8 @@ import la.vok.Game.GameContent.Items.Other.AbstractItemType
 import la.vok.Game.GameContent.Tiles.System.AbstractTileType
 import la.vok.Game.GameContent.Tiles.System.AbstractWallType
 import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimensionType
+import la.vok.Game.GameContent.LiquidTypes.AbstractLiquidType
+import la.vok.Game.GameContent.LiquidTypes.AbstractLiquidInteraction
 import la.vok.State.AppState
 import la.vok.State.AppState.main
 
@@ -18,6 +20,10 @@ class ObjectRegistration(var coreController: CoreController) : Controller {
     var entities = HashMap<String, AbstractEntityType>()
     var items = HashMap<String, AbstractItemType>()
     var dimensions = HashMap<String, AbstractDimensionType>()
+    var liquids = HashMap<String, AbstractLiquidType>()
+    var liquidById = arrayOfNulls<AbstractLiquidType>(256)
+    var liquidInteractions = ArrayList<AbstractLiquidInteraction>()
+    
     var crafts = ArrayList<CraftType>()
     val craftsByPriority = HashMap<Int, ArrayList<CraftType>>()
 
@@ -37,6 +43,9 @@ class ObjectRegistration(var coreController: CoreController) : Controller {
         entities.clear()
         items.clear()
         dimensions.clear()
+        liquids.clear()
+        liquidById.fill(null)
+        liquidInteractions.clear()
         crafts.clear()
         craftsByPriority.clear()
     }
@@ -66,6 +75,17 @@ class ObjectRegistration(var coreController: CoreController) : Controller {
         dimensions[dimensionType.tag] = dimensionType
     }
 
+    fun registrationLiquidType(liquidType: AbstractLiquidType) {
+        AppState.logger.debug("Registration liquid type: ${liquidType.tag}")
+        liquids[liquidType.tag] = liquidType
+        liquidById[liquidType.id.toInt() and 0xFF] = liquidType
+    }
+
+    fun registrationLiquidInteraction(interaction: AbstractLiquidInteraction) {
+        AppState.logger.debug("Registration liquid interaction: ${interaction.liquid1} + ${interaction.liquid2}")
+        liquidInteractions.add(interaction)
+    }
+
     fun registrationCraft(craftType: CraftType) {
         AppState.logger.debug("Registration craft: ${craftType.result.tag} (priority: ${craftType.priority})")
         craftType.resolve(this)
@@ -91,4 +111,10 @@ class ObjectRegistration(var coreController: CoreController) : Controller {
 
     fun getDimensionType(tag: String): AbstractDimensionType =
         dimensions[tag] ?: error("DimensionType not found: $tag")
+
+    fun getLiquidType(tag: String): AbstractLiquidType =
+        liquids[tag] ?: error("LiquidType not found: $tag")
+
+    fun getLiquidType(id: Byte): AbstractLiquidType? =
+        liquidById[id.toInt() and 0xFF]
 }

@@ -11,6 +11,7 @@ import la.vok.Game.GameSystems.WorldSystems.Entities.TeleportService
 import la.vok.Game.GameSystems.WorldSystems.Entities.WorldQuery
 import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
 import la.vok.Game.GameSystems.WorldSystems.Particles.ParticlesApi
+import la.vok.Game.GameSystems.WorldSystems.Players.PlayerApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
 
 /**
@@ -26,7 +27,7 @@ class GameContext(
     lateinit var damageSystem: DamageSystem
     lateinit var worldQuery: WorldQuery
     lateinit var teleportService: TeleportService
-    lateinit var playerApi: la.vok.Game.GameSystems.WorldSystems.Players.PlayerApi
+    lateinit var playerApi: PlayerApi
     
     lateinit var mapApi: MapApi
     lateinit var particlesApi: ParticlesApi
@@ -34,4 +35,5 @@ class GameContext(
     lateinit var itemsApi: ItemsApi
     lateinit var craftApi: CraftApi
     lateinit var dimensionsApi: DimensionsApi
+    lateinit var liquidApi: la.vok.Game.GameSystems.WorldSystems.Liquid.LiquidApi
 }

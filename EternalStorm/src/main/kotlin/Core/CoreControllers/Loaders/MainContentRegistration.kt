@@ -3,6 +3,7 @@ package Core.CoreControllers.Loaders
 import Core.CoreControllers.ObjectRegistration
 import la.vok.Game.GameContent.TileTypes.GrassTileType
 import la.vok.Core.CoreControllers.CoreController
+import la.vok.Game.GameContent.ContentList.LiquidList
 import la.vok.Game.GameContent.Crafts.CraftRegistrator
 import la.vok.Game.GameContent.Entities.EntitiTypes.*
 import la.vok.Game.GameContent.Items.ItemTypes.Blocks.*
@@ -32,6 +33,8 @@ import la.vok.LavokLibrary.Vectors.LPoint
 import la.vok.Game.GameContent.Items.ItemTypes.Other.TeleporterItemType
 import la.vok.Game.GameContent.Items.ItemTypes.Other.*
 import la.vok.Game.GameContent.TileTypes.WorkbenchTileType
+import la.vok.Game.GameContent.LiquidTypes.*
+import la.vok.Game.GameContent.Items.ItemTypes.Liquid.*
 
 class MainContentRegistration(var coreController: CoreController) {
     fun regObjects(objectRegistration: ObjectRegistration) {
@@ -40,6 +43,7 @@ class MainContentRegistration(var coreController: CoreController) {
         registerWalls(objectRegistration)
         registerEntities(objectRegistration)
         registerDimensions(objectRegistration)
+        registerLiquids(objectRegistration)
         registerCrafts(objectRegistration)
     }
 
@@ -113,6 +117,10 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationItemType(SunflowerItemType())
         objectRegistration.registrationItemType(WheatItemType())
         objectRegistration.registrationItemType(WheatSeedsItemType())
+
+        objectRegistration.registrationItemType(WaterBucketItemType())
+        objectRegistration.registrationItemType(LavaBucketItemType())
+        objectRegistration.registrationItemType(AcidBucketItemType())
     }
 
     private fun registerTiles(objectRegistration: ObjectRegistration) {
@@ -145,6 +153,7 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationTileType(FrameTileType())
         objectRegistration.registrationTileType(SmallGrassTileType())
         objectRegistration.registrationTileType(SunflowerTileType())
+        objectRegistration.registrationTileType(ObsidianTileType())
     }
 
     private fun registerWalls(objectRegistration: ObjectRegistration) {
@@ -181,6 +190,41 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationDimensionType(MainDimensionType())
         objectRegistration.registrationDimensionType(BrickWorldDimensionType())
         objectRegistration.registrationDimensionType(StoneWorldDimensionType())
+    }
+
+    private fun registerLiquids(objectRegistration: ObjectRegistration) {
+        objectRegistration.registrationLiquidType(WaterLiquidType())
+        objectRegistration.registrationLiquidType(LavaLiquidType())
+        objectRegistration.registrationLiquidType(AcidLiquidType())
+
+        // Interactions: All pairs result in stone for now
+        objectRegistration.registrationLiquidInteraction(
+            TileReaction(
+                LiquidList.WATER_ID, 
+                LiquidList.LAVA_ID, 
+                minAmount1 = 50, 
+                minAmount2 = 50, 
+                resultTileTag = TilesList.stone_block
+            )
+        )
+        objectRegistration.registrationLiquidInteraction(
+            TileReaction(
+                LiquidList.WATER_ID,
+                LiquidList.ACID_ID, 
+                minAmount1 = 50, 
+                minAmount2 = 50, 
+                resultTileTag = TilesList.stone_block
+            )
+        )
+        objectRegistration.registrationLiquidInteraction(
+            TileReaction(
+                LiquidList.LAVA_ID, 
+                LiquidList.ACID_ID, 
+                minAmount1 = 50, 
+                minAmount2 = 50, 
+                resultTileTag = TilesList.stone_block
+            )
+        )
     }
 
     private fun registerCrafts(objectRegistration: ObjectRegistration) {

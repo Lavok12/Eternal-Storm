@@ -108,6 +108,23 @@ class GameRender(val gameController: GameController) : Controller {
                 }
             }
         }
+    
+        // 1.5 Render Liquids
+        if (gameController.playerDimension?.liquidController != null) {
+            val liquidSystem = gameController.playerDimension!!.liquidController!!.liquidSystem
+            forEachInArea(p1, p2, 1) { ix, iy ->
+                val typeId = liquidSystem.getTypeId(ix, iy)
+                if (typeId == 0.toByte()) return@forEachInArea
+                
+                val type = gameController.coreController.objectRegistration.getLiquidType(typeId) ?: return@forEachInArea
+                val amount = liquidSystem.getAmount(ix, iy)
+                
+                val cx = camera.useCameraPosX(ix.toFloat())
+                val cy = camera.useCameraPosY(iy.toFloat())
+                
+                type.render(lg, cx, cy, blockSizeX, blockSizeY, amount, dim, gameController)
+            }
+        }
 
         // Draw background layers
         renderLayer.drawLayer(RenderLayers.Main.B1, lg, camera)

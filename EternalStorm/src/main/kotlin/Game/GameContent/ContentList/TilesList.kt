@@ -13,6 +13,7 @@ object TilesList {
     val diamond_ore_block: String by lazy { AppState.tag("diamond_ore_block") }
     val big_test_block: String by lazy { AppState.tag("big_test_block") }
     val multi_tile_dummy: String by lazy { AppState.tag("multi_tile_dummy") }
+    val obsidian_block: String by lazy { AppState.tag("obsidian_block") }
  
     val wooden_brick_tile: String by lazy { AppState.tag("wooden_brick_tile") }
     val stone_brick_tile: String by lazy { AppState.tag("stone_brick_tile") }

@@ -364,6 +364,7 @@ class MapApi(var gameCycle: GameCycle) {
         
         if (notify) {
             updateAreaNeighbors(dimension, master.x, master.y, type.width, type.height)
+            gameCycle.liquidApi.activate(dimension, master.x, master.y)
         }
     }
 
@@ -385,6 +386,7 @@ class MapApi(var gameCycle: GameCycle) {
         dimension.mapSystem.setTileType(x, y, type, false)
         if (notify) {
             updateNeighbors(dimension, x, y)
+            gameCycle.liquidApi.activate(dimension, x, y)
         }
     }
 
@@ -580,6 +582,7 @@ class MapApi(var gameCycle: GameCycle) {
     fun setWallType(dimension: AbstractDimension, type: AbstractWallType?, x: Int, y: Int, notify: Boolean = true) {
         markDirtyFootprint(dimension, x, y)
         dimension.mapSystem.setWallType(x, y, type, notify)
+        gameCycle.liquidApi.activate(dimension, x, y)
     }
 
     fun setWallTypeSilent(dimension: AbstractDimension, type: AbstractWallType?, x: Int, y: Int) =
@@ -601,6 +604,7 @@ class MapApi(var gameCycle: GameCycle) {
         dimension.mapSystem.deactivateWall(x, y, reason, false)
         if (notify) {
             dimension.mapSystem.updateNeighbors(x, y)
+            gameCycle.liquidApi.activate(dimension, x, y)
         }
     }
 

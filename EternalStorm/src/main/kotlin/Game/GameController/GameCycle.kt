@@ -10,9 +10,14 @@ import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
 import la.vok.Game.GameSystems.WorldSystems.Particles.ParticlesApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
 import la.vok.Game.GameSystems.WorldSystems.Dimensions.DimensionsController
+import la.vok.Game.GameSystems.WorldSystems.Liquid.LiquidApi
+import la.vok.Game.GameSystems.WorldSystems.Players.PlayerApi
 
 class GameCycle(val gameController: GameController) : Controller {
     val gameContext = GameContext(gameController, this)
+    var logicalTicks: Long = 0L
+    var physicTicks: Long = 0L
+    var renderTicks: Long = 0L
 
     val entityApi = EntityApi(this)
     val mapApi = MapApi(this)
@@ -20,8 +25,9 @@ class GameCycle(val gameController: GameController) : Controller {
     val vfxObjectsApi = VfxObjectsApi(this)
     val itemsApi = ItemsApi(this)
     val craftApi = CraftApi(this)
-    val playerApi = la.vok.Game.GameSystems.WorldSystems.Players.PlayerApi(this)
+    val playerApi = PlayerApi(this)
     val batchApi = BatchApi(this)
+    val liquidApi = LiquidApi(this)
 
     val dimensionsController = DimensionsController(this)
     val worldSimulationManager = WorldSimulationManager(this)
@@ -43,6 +49,7 @@ class GameCycle(val gameController: GameController) : Controller {
             craftApi = this@GameCycle.craftApi
             dimensionsApi = this@GameCycle.dimensionsApi
             playerApi = this@GameCycle.playerApi
+            liquidApi = this@GameCycle.liquidApi
         }
 
         systems.add(worldSimulationManager)
@@ -54,14 +61,17 @@ class GameCycle(val gameController: GameController) : Controller {
     }
 
     override fun logicalTick() {
+        logicalTicks++
         systems.forEach { it.logicalTick() }
     }
 
     override fun physicTick() {
+        physicTicks++
         systems.forEach { it.physicTick() }
     }
 
     override fun renderTick() {
+        renderTicks++
         systems.forEach { it.renderTick() }
     }
 }

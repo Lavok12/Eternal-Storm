@@ -62,4 +62,8 @@ object ItemsList {
     val sunflower: String by lazy { AppState.tag("sunflower") }
     val wheat_seeds: String by lazy { AppState.tag("wheat_seeds") }
     val wheat_item: String by lazy { AppState.tag("wheat_item") }
+
+    val water_bucket: String by lazy { AppState.tag("water_bucket") }
+    val lava_bucket: String by lazy { AppState.tag("lava_bucket") }
+    val acid_bucket: String by lazy { AppState.tag("acid_bucket") }
 }
