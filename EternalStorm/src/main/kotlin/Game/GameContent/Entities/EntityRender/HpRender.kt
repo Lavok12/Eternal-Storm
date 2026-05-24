@@ -15,7 +15,7 @@ import la.vok.LavokLibrary.Vectors.v
 
 class HpRender(layersRenderContainer: LayersRenderContainer, var hpBody: HpBody, var delta: Vec2 = 0 v -0.5f) : BaseRenderObject(layersRenderContainer) {
     override var layerData: RenderLayerData = RenderLayerData(
-        RenderLayers.Main.A4,
+        RenderLayers.Main.C1,
         1000
     )
 

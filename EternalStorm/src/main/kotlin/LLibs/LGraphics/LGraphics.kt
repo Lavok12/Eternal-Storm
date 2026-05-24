@@ -726,4 +726,26 @@ class LGraphics() : FrameRect {
         pivot: Vec2,
         flipX: Boolean
     ) = setRotateImageAround(image, pos.x, pos.y, size.x, size.y, rotate, pivot.x, pivot.y, flipX)
+
+
+    fun setBlendMode(mode: LBlendMode) {
+        pg.blendMode(mode.processingMode)
+    }
+
+    fun resetBlendMode() {
+        pg.blendMode(PApplet.BLEND)
+    }
+}
+
+enum class LBlendMode(val processingMode: Int) {
+    BLEND(PApplet.BLEND),
+    ADD(PApplet.ADD),
+    SUBTRACT(PApplet.SUBTRACT),
+    DARKEST(PApplet.DARKEST),
+    LIGHTEST(PApplet.LIGHTEST),
+    DIFFERENCE(PApplet.DIFFERENCE),
+    EXCLUSION(PApplet.EXCLUSION),
+    MULTIPLY(PApplet.MULTIPLY),
+    SCREEN(PApplet.SCREEN),
+    REPLACE(PApplet.REPLACE)
 }

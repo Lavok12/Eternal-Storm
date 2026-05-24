@@ -1,6 +1,6 @@
 package la.vok.Game.GameContent.Entities.EntitiTypes
 
-import la.vok.Game.GameContent.Entities.Entities.Special.ProjectileEntity
+import la.vok.Game.GameContent.Entities.Entities.Projectiles.ProjectileEntity
 import la.vok.Game.GameContent.Entities.Entities.Special.EmptyEntity
 import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.Entities.Entities.Special.ItemEntity

@@ -24,7 +24,6 @@ class VfxObjectsApi(var gameCycle: GameCycle) {
             this.dimension = dimension
             this.vfxObjectsSystem = dimension.vfxObjectsSystem
             create() })
-
     }
 
     fun addInSystem(dimension: AbstractDimension, vfx: AbstractVfxObject, pos: Vec2, size: Vec2 = 1 v 1, speed: Vec2 = Vec2.ZERO) {
@@ -33,7 +32,7 @@ class VfxObjectsApi(var gameCycle: GameCycle) {
         vfx.dimension = dimension
         vfx.vfxObjectsSystem = dimension.vfxObjectsSystem
         vfx.speed = speed
-        vfx.create()
+        vfx.create() // Инициализация происходит здесь, когда ВСЕ поля (включая speed) уже на месте
         dimension.vfxObjectsSystem.add(vfx)
     }
 
@@ -43,9 +42,23 @@ class VfxObjectsApi(var gameCycle: GameCycle) {
         addInSystem(dimension, vfxd, pos, 1 v 1, 0 v 0.02f)
     }
 
+    // Старый метод (оставляем для обратной совместимости, если где-то используется)
     fun spawn(dimension: AbstractDimension, pos: Vec2, size: Vec2 = 1 v 1, vfxFactory: () -> AbstractVfxObject): AbstractVfxObject {
         val vfx = vfxFactory()
         addInSystem(dimension, vfx, pos, size)
+        return vfx
+    }
+
+    // НОВЫЙ МЕТОД: поддерживает передачу скорости и предотвращает зануление параметров
+    fun spawn(
+        dimension: AbstractDimension,
+        pos: Vec2,
+        size: Vec2 = 1 v 1,
+        speed: Vec2 = Vec2.ZERO,
+        vfxFactory: () -> AbstractVfxObject
+    ): AbstractVfxObject {
+        val vfx = vfxFactory()
+        addInSystem(dimension, vfx, pos, size, speed)
         return vfx
     }
 

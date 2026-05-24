@@ -15,7 +15,8 @@ class ContactDamageComponent(
     var knockback: Float,
     var upKnockback: Float,
     var sourceId: Long,
-    var targetTags: List<String>
+    var targetTags: List<String>,
+    var deleteProjectile: Boolean = true,
 ) : EntityComponent(entity) {
 
     override fun onEvent(event: EntityEvent) {
@@ -30,7 +31,9 @@ class ContactDamageComponent(
                 ), event.otherHitbox)
                 
                 // Kill self after hit (typical for projectiles)
-                entityApi.killInSystem(entity.dimension!!, entity.systemId)
+                if (deleteProjectile) {
+                    entityApi.killInSystem(entity.dimension!!, entity.systemId)
+                }
             }
         }
     }

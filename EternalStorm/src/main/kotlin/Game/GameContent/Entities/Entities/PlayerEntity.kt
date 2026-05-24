@@ -47,7 +47,7 @@ class PlayerEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entit
         gameCycle.playerApi.registerPlayer(systemId, this)
         
         inventory?.itemContainer?.addItem(gameCycle.itemsApi.getRegisteredItem(ItemsList.axe))
-        inventory?.itemContainer?.addItem(gameCycle.itemsApi.getRegisteredItem(ItemsList.spear))
+        inventory?.itemContainer?.addItem(gameCycle.itemsApi.getRegisteredItem(ItemsList.sin_gun))
         inventory?.itemContainer?.addItem(gameCycle.itemsApi.getRegisteredItem(ItemsList.pickaxe))
         inventory?.itemContainer?.addItem(gameCycle.itemsApi.getRegisteredItem(ItemsList.grass_block, 10))
         inventory?.itemContainer?.addItem(gameCycle.itemsApi.getRegisteredItem(ItemsList.stone_block, 1230))

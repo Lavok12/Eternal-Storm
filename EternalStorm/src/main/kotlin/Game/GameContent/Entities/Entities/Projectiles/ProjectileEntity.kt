@@ -1,21 +1,20 @@
-package la.vok.Game.GameContent.Entities.Entities.Special
+package la.vok.Game.GameContent.Entities.Entities.Projectiles
 
 import la.vok.Core.CoreContent.Camera.Camera
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderObjectInterface
+import la.vok.Game.GameContent.ContentList.EntityTags
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameContent.Entities.EntityRender.BaseRenderEntity
 import la.vok.Game.GameContent.Entities.EntityRender.HpRender
-import la.vok.Game.GameContent.ContentList.EntityTags
 import la.vok.Game.GameController.GameCycle
-import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
-import la.vok.Game.GameSystems.EntityComponents.LifetimeComponent
 import la.vok.Game.GameSystems.EntityComponents.ContactDamageComponent
 import la.vok.Game.GameSystems.EntityComponents.HpBody
+import la.vok.Game.GameSystems.EntityComponents.LifetimeComponent
 import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
-import la.vok.LavokLibrary.Vectors.v
 
 open class ProjectileEntity(
     gameCycle: GameCycle,
@@ -26,9 +25,10 @@ open class ProjectileEntity(
     open var upKnockBack = 0.1f
     open var moveOverBlocks = false
     open var maxLifeTime = 200
+    open var deleteProjectileOnContact = true
 
-    open var targetTags: List<String> = listOf(EntityTags.enemy)
-    
+    open var targetTags: List<String> = listOf(EntityTags.projectile)
+
     override var renderEntity: RenderObjectInterface? = object : BaseRenderEntity(getRenderLayer()) {
         override fun draw(lg: LGraphics, pos: Vec2, size: Vec2, camera: Camera) {
             lg.fill(255f, 30f)
@@ -52,10 +52,10 @@ open class ProjectileEntity(
         hasCollisionDetector = true
         removeComponent<HpBody>()
         hpRender = null
-        
+
         // Add components
         addComponent(LifetimeComponent(this, maxLifeTime))
-        addComponent(ContactDamageComponent(this, damage, knockBack, upKnockBack, source, targetTags))
+        addComponent(ContactDamageComponent(this, damage, knockBack, upKnockBack, source, targetTags, deleteProjectileOnContact))
     }
 
     override fun createCustomHitboxes() {

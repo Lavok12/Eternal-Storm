@@ -5,7 +5,7 @@ import la.vok.Core.GameControllers.GameController
 import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Entities.Entities.Special.DamageEntity
 import la.vok.Game.GameContent.Entities.Entities.Special.Entity
-import la.vok.Game.GameContent.Entities.Entities.Special.ProjectileEntity
+import la.vok.Game.GameContent.Entities.Entities.Projectiles.ProjectileEntity
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxComponent
 import la.vok.LavokLibrary.Vectors.LPoint

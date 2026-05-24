@@ -24,6 +24,7 @@ import la.vok.Game.GameContent.Dimensions.Dimensions.StoneWorldDimensionType
 import la.vok.Game.GameContent.Tiles.System.BigTestBlockType
 import la.vok.Game.GameContent.Tiles.System.MultiTileDummyType
 import la.vok.Game.GameContent.ContentList.TilesList
+import la.vok.Game.GameContent.HandItems.List.SinGunHandItem
 import la.vok.Game.GameContent.Items.ItemTypes.Other.AxeItemType
 import la.vok.Game.GameContent.Items.ItemTypes.Other.HummerItemType
 import la.vok.Game.GameContent.Items.ItemTypes.Other.MostCommonStickItemType
@@ -35,6 +36,7 @@ import la.vok.Game.GameContent.Items.ItemTypes.Other.*
 import la.vok.Game.GameContent.TileTypes.WorkbenchTileType
 import la.vok.Game.GameContent.LiquidTypes.*
 import la.vok.Game.GameContent.Items.ItemTypes.Liquid.*
+import la.vok.Game.GameContent.Items.Items.SinGunItem
 
 class MainContentRegistration(var coreController: CoreController) {
     fun regObjects(objectRegistration: ObjectRegistration) {
@@ -109,6 +111,8 @@ class MainContentRegistration(var coreController: CoreController) {
 
         // Other
         objectRegistration.registrationItemType(MostCommonStickItemType())
+        objectRegistration.registrationItemType(SinGunItemType())
+
         objectRegistration.registrationItemType(TeleporterItemType())
         objectRegistration.registrationItemType(WorkbenchItemType())
         objectRegistration.registrationItemType(CzechFlagItemType())

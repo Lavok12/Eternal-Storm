@@ -1,7 +1,8 @@
-package la.vok.Game.GameContent.HandItems.Weapons
+package la.vok.Game.GameContent.HandItems.List
 
-import la.vok.Game.GameContent.Entities.Entities.Projectiles.ProjectileEntity
 import la.vok.Game.GameContent.ContentList.EntityTags
+import la.vok.Game.GameContent.Entities.Entities.Projectiles.ProjectileEntity
+import la.vok.Game.GameContent.Entities.Entities.Projectiles.SinWave
 import la.vok.Game.GameContent.HandItems.AnimationType
 import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.HandItems.HandItemDescriptor
@@ -11,14 +12,14 @@ import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
 import la.vok.LavokLibrary.Vectors.v
 
-class MostCommonStickHandItem(item: Item, component: HandItemComponent) : HandItem(
+class SinGunHandItem(item: Item, component: HandItemComponent) : HandItem(
     item,
     component,
     HandItemDescriptor(
         speedType = SpeedMultiplierType.Ranged,
-        spriteName = "most_common_stick.png",
+        spriteName = "sin_gun.png",
         spriteSize = 3 v 3,
-        useDuration = 6f,
+        useDuration = 10f,
         autoRepeat = true,
         animationType = AnimationType.DirectionalThrust(1.4f, 0.8f),
         changeFacingToTarget = true,
@@ -26,14 +27,14 @@ class MostCommonStickHandItem(item: Item, component: HandItemComponent) : HandIt
             onStart = {
                 gameCycle.entityApi.spawnProjectile(
                     entity.dimension!!,
-                    ProjectileEntity(
+                    SinWave(
                         gameCycle,
-                        10,
+                        30,
                         entity.systemId
                     ),
                     pos = component.getHandPos() + component.targetDirection() * 2.0f,
                     direction = component.targetDirection(),
-                    speed = 2f,
+                    speed = 1f,
                     targetTags = listOf(EntityTags.enemy),
                 )
             },

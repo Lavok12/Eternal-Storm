@@ -17,7 +17,7 @@ abstract class AbstractLiquidType {
      * @param x World X coordinate (center of the block)
      * @param y World Y coordinate (center of the block)
      */
-    open fun render(
+    open fun renderBackground(
         lg: LGraphics,
         x: Float,
         y: Float,
@@ -28,6 +28,22 @@ abstract class AbstractLiquidType {
         gameController: GameController
     ) {
         lg.fill(color)
+        val heightNormalized = amount / 255f
+        val drawY = y + (heightNormalized - 1f) * 0.5f * h
+        lg.setBlock(x, drawY, w, h * heightNormalized)
+    }
+
+    open fun renderForeground(
+        lg: LGraphics,
+        x: Float,
+        y: Float,
+        w: Float,
+        h: Float,
+        amount: Int,
+        dimension: AbstractDimension,
+        gameController: GameController
+    ) {
+        lg.fill(color.r, color.g, color.b, color.a/1.4f)
         val heightNormalized = amount / 255f
         val drawY = y + (heightNormalized - 1f) * 0.5f * h
         lg.setBlock(x, drawY, w, h * heightNormalized)

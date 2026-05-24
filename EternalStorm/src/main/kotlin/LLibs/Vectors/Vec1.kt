@@ -26,6 +26,12 @@ data class Vec1(var x: Float = 0f) {
         return if (len != 0f) Vec1(x / len) else Vec1(0f)
     }
 
+    fun perpendicular(): Vec1 =
+        Vec1(-x)
+
+    fun perpendiculared(): Vec1 =
+        Vec1(-x)
+
     // ===== Копия =====
     fun copy(): Vec1 = Vec1(x)
 

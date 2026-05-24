@@ -5,6 +5,7 @@ import la.vok.Game.GameContent.Entities.EntitiTypes.AbstractEntityType
 import la.vok.Game.GameContent.Entities.Entities.Special.*
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.Entities.Entities.Projectiles.ProjectileEntity
 import la.vok.Game.GameSystems.WorldSystems.Map.IBlockType
 import la.vok.LavokLibrary.Vectors.Vec2
 

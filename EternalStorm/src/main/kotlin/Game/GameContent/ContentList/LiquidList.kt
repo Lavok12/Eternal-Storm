@@ -11,7 +11,4 @@ object LiquidList {
     const val WATER_ID: Byte = 1
     const val LAVA_ID: Byte = 2
     const val ACID_ID: Byte = 3
-
-    // Filter tags (example usage)
-    val DANGEROUS = setOf(lava, acid)
 }

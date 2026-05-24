@@ -42,11 +42,7 @@ class GameLoader(var gameController: GameController) : Controller {
         entityApi.spawnEntity(mainDim, -1, entityApi.getRegisteredEntity(EntitiesList.player), gameController.mainCamera.pos.copy())
         gameController.playerId = -1
 
-        itemsApi.spawnItemEntity(mainDim, itemsApi.getRegisteredItem(ItemsList.pickaxe, 1), 10 v 80)
-        
         // Rebuild UI after player spawn to link cells
         gameCycle.uiApi.getModule<la.vok.Game.Windows.GameUI.Modules.InventoryModule>("inventory")?.build(gameController.wGamePanel!!)
-
-        entityApi.spawnEntity(mainDim, EntitiesList.slime, gameController.mainCamera.pos.copy() + (20 v 0))
     }
 }

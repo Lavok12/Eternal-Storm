@@ -30,6 +30,8 @@ object ItemsList {
     val gold_ore_block: String by lazy { AppState.tag("gold_ore_block") }
     val diamond_ore_block: String by lazy { AppState.tag("diamond_ore_block") }
     val most_common_stick: String by lazy { AppState.tag("most_common_stick") }
+    val sin_gun: String by lazy { AppState.tag("sin_gun") }
+
     val teleporter: String by lazy { AppState.tag("teleporter") }
     val big_test_block: String by lazy { AppState.tag("big_test_block") }
  

@@ -122,7 +122,7 @@ class GameRender(val gameController: GameController) : Controller {
                 val cx = camera.useCameraPosX(ix.toFloat())
                 val cy = camera.useCameraPosY(iy.toFloat())
                 
-                type.render(lg, cx, cy, blockSizeX, blockSizeY, amount, dim, gameController)
+                type.renderBackground(lg, cx, cy, blockSizeX, blockSizeY, amount, dim, gameController)
             }
         }
 
@@ -189,6 +189,7 @@ class GameRender(val gameController: GameController) : Controller {
             }
         }
 
+
         dim.particleSystem!!.render(lg, camera)
         highlightRender.render(lg, camera)
 
@@ -198,6 +199,22 @@ class GameRender(val gameController: GameController) : Controller {
         renderLayer.drawLayer(RenderLayers.Main.A3, lg, camera)
         renderLayer.drawLayer(RenderLayers.Main.A4, lg, camera)
         renderLayer.drawLayer(RenderLayers.Main.A5, lg, camera)
+
+        if (gameController.playerDimension?.liquidController != null) {
+            val liquidSystem = gameController.playerDimension!!.liquidController!!.liquidSystem
+            forEachInArea(p1, p2, 1) { ix, iy ->
+                val typeId = liquidSystem.getTypeId(ix, iy)
+                if (typeId == 0.toByte()) return@forEachInArea
+
+                val type = gameController.coreController.objectRegistration.getLiquidType(typeId) ?: return@forEachInArea
+                val amount = liquidSystem.getAmount(ix, iy)
+
+                val cx = camera.useCameraPosX(ix.toFloat())
+                val cy = camera.useCameraPosY(iy.toFloat())
+
+                type.renderForeground(lg, cx, cy, blockSizeX, blockSizeY, amount, dim, gameController)
+            }
+        }
 
         renderLayer.drawLayer(RenderLayers.Main.C1, lg, camera)
         renderLayer.drawLayer(RenderLayers.Main.C2, lg, camera)

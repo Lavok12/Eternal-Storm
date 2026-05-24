@@ -14,6 +14,18 @@ data class Vec2(var x: Float = 0f, var y: Float = 0f) {
     constructor(p: Float) : this(p, p)
     constructor(p: LPoint) : this(p.x.toFloat(), p.y.toFloat())
 
+    fun perpendicular(): Vec2 {
+        val tx = -y
+        val ty = x
+        x = tx
+        y = ty
+        return this
+    }
+
+    fun perpendiculared(): Vec2 =
+        Vec2(-y, x)
+
+
     // ===== Свойства-комбинации =====
     var xy: Vec2
         get() = Vec2(x, y)
