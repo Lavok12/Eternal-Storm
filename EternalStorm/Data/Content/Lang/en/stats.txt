@@ -1,0 +1,6 @@
+"stats.handItemDamage": "Damage:"
+"stats.mineDamage": "Mining Power:"
+"stats.minePower": "Dig Depth:"
+"stats.handItemUseDuration": "Cooldown:"
+"stats.count": "Count:"
+"stats.maxInStack": "Max Stack:"

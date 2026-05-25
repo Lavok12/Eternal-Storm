@@ -1,0 +1,6 @@
+"stats.handItemDamage": "Урон:"
+"stats.mineDamage": "Сила копания:"
+"stats.minePower": "Глубина копания:"
+"stats.handItemUseDuration": "Задержка:"
+"stats.count": "Количество:"
+"stats.maxInStack": "В стаке:"

@@ -15,6 +15,7 @@ import la.vok.Game.Windows.GameUI.Modules.CraftingModule
 import la.vok.Game.Windows.GameUI.Modules.InventoryModule
 import la.vok.Game.Windows.GameUI.Modules.StatsModule
 import la.vok.State.AppState
+import processing.event.MouseEvent
 
 class WGamePanel(windowsManager: WindowsManager, var gameController: GameController) : WStandartPanel(windowsManager) {
     val playerControl: PlayerControl get() = gameController.playerControl
@@ -54,6 +55,11 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
         moduleManager.update()
     }
 
+    override fun physicUpdate() {
+        super.physicUpdate()
+        moduleManager.physicUpdate()
+    }
+
     // --- Утилиты ---
 
     fun insideUxElement(position: Vec2) = windowElements.any { it.isVisible && it.inside(position) }
@@ -62,46 +68,26 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
 
     override fun leftPressed(position: Vec2) {
         super.leftPressed(position)
-        if (insideUxElement(position)) {
-             val cell = inventory.allCells().map { it.first }.firstOrNull { it.inside(position) }
-             if (cell != null) { inventory.startDrag(cell, position) }
-             return
-        }
+        moduleManager.leftPressed(position)
+        if (insideUxElement(position)) return
         playerControl.leftPressed(position)
         playerControl.interact(position, BlockInteractionType.LEFT)
     }
 
     override fun leftUpdate(position: Vec2, oldPosition: Vec2) {
         super.leftUpdate(position, oldPosition)
-        inventory.updateDrag(position)
-        if (inventory.draggedCell == null) playerControl.leftUpdate(position, oldPosition)
+        moduleManager.leftUpdate(position, oldPosition)
+        if (inventory.heldItem == null && !insideUxElement(position)) playerControl.leftUpdate(position, oldPosition)
     }
 
     override fun leftReleased(position: Vec2) {
         super.leftReleased(position)
-        if (inventory.draggedCell != null) {
-            inventory.endDrag(position) { item ->
-                val player = playerControl.getPlayerEntity() ?: return@endDrag
-                val currentDim = player.dimension
-                
-                gameController.gameCycle.itemsApi.spawnItemEntity(
-                    currentDim,
-                    item.copy().apply { count = item.count },
-                    player.position,
-                    randomVelocity = true
-                )
-
-                // Sync hand item if dropped
-                if (player.handItemComponent.currentHandItem?.item === item) {
-                    player.handItemComponent.clearHandItem()
-                }
-            }
-            return
-        }
+        moduleManager.leftReleased(position)
         playerControl.leftReleased(position)
     }
 
     override fun keyPressed(key: Int) {
+        moduleManager.keyPressed(key)
         when (key) {
             KeyCode.TAB -> {
                 inventory.toggleInventory()
@@ -141,9 +127,21 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
 
     override fun rightPressed(position: Vec2) {
         super.rightPressed(position)
+        moduleManager.rightPressed(position)
         if (insideUxElement(position)) return
         playerControl.rightPressed(position)
         playerControl.interact(position, BlockInteractionType.RIGHT)
+    }
+
+    override fun rightReleased(position: Vec2) {
+        super.rightReleased(position)
+        moduleManager.rightReleased(position)
+        playerControl.rightReleased(position)
+    }
+
+    override fun mouseWheel(position: Vec2, event: MouseEvent) {
+        super.mouseWheel(position, event)
+        moduleManager.mouseWheel(position, event)
     }
 
     override fun centerPressed(position: Vec2) {
@@ -155,10 +153,5 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
     override fun rightUpdate(position: Vec2, oldPosition: Vec2) {
         super.rightUpdate(position, oldPosition)
         playerControl.rightUpdate(position, oldPosition)
-    }
-
-    override fun rightReleased(position: Vec2) {
-        super.rightReleased(position)
-        playerControl.rightReleased(position)
     }
 }

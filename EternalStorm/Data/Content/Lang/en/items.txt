@@ -1,0 +1,17 @@
+// Tools
+"items.eternal_storm.hummer.name": "Hammer"
+"items.eternal_storm.hummer.description": "A heavy tool for building and destruction."
+
+"items.eternal_storm.axe.name": "Axe"
+"items.eternal_storm.axe.description": "A sharp blade for chopping wood."
+
+"items.eternal_storm.pickaxe.name": "Pickaxe"
+"items.eternal_storm.pickaxe.description": "Allows for efficient mining of stone and ore."
+
+// Resources
+"items.eternal_storm.most_common_stick.name": "Common Stick"
+"items.eternal_storm.most_common_stick.description": "A simple branch. Might be useful for crafting."
+
+// Other
+"items.eternal_storm.teleporter.name": "Teleporter"
+"items.eternal_storm.teleporter.description": "Instantly moves the owner to a specified point."

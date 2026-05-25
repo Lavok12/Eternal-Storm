@@ -31,58 +31,32 @@ class TooltipController(var coreController: CoreController) : Controller {
     }
 
     fun renderBuffered(lg: LGraphics = coreController.mainRender.lg) {
-        AppState.logger.trace("[TooltipController] renderBuffered()")
-
-        val tooltip = bufferedTooltip ?: run {
-            AppState.logger.trace("[TooltipController] no tooltip buffered")
-            return
-        }
-
-        var boxDelta = 0f v 0f
-        var textDelta = 0f v 0f
-        var boxAlign = 0f v 0f
+        val tooltip = bufferedTooltip ?: return
 
         var text = tooltip.text
         if (tooltip.contentKey != "") {
-            AppState.logger.trace("[TooltipController] resolving contentKey '${tooltip.contentKey}'")
             text = AppState.getLanguageValue(tooltip.contentKey)
         }
 
         val size = lg.getTextLogicalSize(text, tooltip.textSize)
-
+        
+        // Базовое позиционирование (копируем логику для boxPos)
+        var boxDelta = 0f v 0f
+        var boxAlign = 0f v 0f
         if (bufferedPos.x > 0f) {
-            lg.setTextAlign(-1, -1)
             boxDelta.x -= 20f
             boxAlign = -1f v -1f
-            textDelta.x = -size.x
         } else {
-            lg.setTextAlign(-1, -1)
             boxDelta.x += 20f
             boxAlign = 1f v -1f
         }
-
         boxDelta.y = -5f
 
         val boxPos = bufferedPos + boxDelta + size * boxAlign.halved()
         val boxSize = size + Vec2(25f, 8f)
 
-        lg.stroke(LColor(30f, 30f, 30f))
-        lg.strokeWeight(3f)
-        lg.fill(LColor(180f, 185f, 190f))
-        lg.setBlock(boxPos, boxSize)
-        lg.noStroke()
-
-        lg.fill(255f)
-        lg.setText(
-            text,
-            bufferedPos + boxDelta + textDelta
-                    - tooltip.textSize.toVec2X().halved()
-                    + tooltip.textSize.toVec2Y() * 0.20f,
-            tooltip.textSize
-        )
-
+        // Теперь контроллер не рисует стандартный бокс и текст.
+        // Отрисовка делегирована полностью в extraRender.
         tooltip.extraRender(lg, boxPos, boxSize)
-
-        AppState.logger.trace("[TooltipController] renderBuffered() done")
     }
 }

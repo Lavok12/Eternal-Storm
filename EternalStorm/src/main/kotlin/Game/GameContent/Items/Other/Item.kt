@@ -11,13 +11,80 @@ import la.vok.Game.Windows.InventoryCell
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
 import la.vok.LavokLibrary.Gradient.ShadowInfo
+import la.vok.Core.CoreControllers.Parts.Tooltip
+import la.vok.Core.CoreControllers.Parts.TooltipLine
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.p
 import la.vok.LavokLibrary.Vectors.v
+import la.vok.State.AppState
 
 @Suppress("UNCHECKED_CAST")
 open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
+    fun generateTooltip(): Tooltip {
+        val lines = getTooltipLines()
+        return Tooltip(text = "").apply {
+            extraRender = { lg, pos, _ ->
+                // Рассчитываем ширину динамически по самой длинной строке
+                val contentWidth = lines.maxOf { it.getWidth(lg) }.coerceAtLeast(180f)
+                val width = contentWidth + 30f // Отступы по краям
+                val totalHeight = lines.sumOf { it.render(lg, Vec2(-1000f, -1000f), width - 20f).toDouble() }.toFloat() + 20f
+                
+                val screen = Vec2(lg.disW.toFloat(), lg.disH.toFloat())
+                
+                // Выравнивание по Левому Верхнему углу (Top-Left) относительно pos.
+                // В LGraphics +Y это ВВЕРХ.
+                val center = pos + (width / 2f v -totalHeight / 2f)
+                
+                // Проверка границ
+                if (center.x + width / 2f > screen.x / 2f) center.x -= (width + 40f)
+                if (center.y - totalHeight / 2f < -screen.y / 2f) center.y += (totalHeight + 10f)
+                if (center.y + totalHeight / 2f > screen.y / 2f) center.y -= (totalHeight + 10f)
+
+                // Отрисовка фона
+                lg.fill(20f, 25f, 30f, 245f)
+                lg.stroke(255f, 80f)
+                lg.strokeWeight(1f)
+                lg.setBlock(center, width v totalHeight)
+                lg.noStroke()
+
+                // Текст рисуем от верхнего левого угла нашего бокса
+                val topLeft = center + (-width / 2f v totalHeight / 2f)
+                var drawY = topLeft.y - 10f
+                lines.forEach { 
+                    // render возвращает высоту строки, которую мы вычитаем для следующей строки
+                    drawY -= it.render(lg, Vec2(topLeft.x + 10f, drawY), width - 20f)
+                }
+            }
+        }
+    }
+
+    open fun getTooltipLines(): List<TooltipLine> {
+        val list = mutableListOf<TooltipLine>()
+        val fullTag = itemType.tag
+        val tag = fullTag.replace(':', '.') // Используем . вместо : для корректного поиска
+        
+        // Название (цвет зависит от редкости)
+        val nameKey = "items.$tag.name"
+        val name = try { AppState.getLanguageValue(nameKey) } catch (e: Exception) { fullTag }
+        list.add(TooltipLine.Title(name, color = itemType.rarity.color))
+        
+        // Редкость
+        list.add(TooltipLine.Stat("Редкость:", itemType.rarity.label, color = itemType.rarity.color))
+        list.add(TooltipLine.Separator)
+        
+        // Описание
+        val descKey = "items.$tag.description"
+        val desc = try { AppState.getLanguageValue(descKey) } catch (e: Exception) { null }
+        if (desc != null) {
+            list.add(TooltipLine.Description(desc))
+        }
+
+        // Тип (опционально)
+        list.add(TooltipLine.Separator)
+        
+        return list
+    }
     val consumed: Boolean = true
     val gameController: GameController get() = gameCycle.gameController
     val coreController: CoreController get() = gameController.coreController

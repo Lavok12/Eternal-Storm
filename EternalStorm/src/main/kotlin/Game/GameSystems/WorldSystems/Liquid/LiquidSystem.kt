@@ -1,6 +1,7 @@
 package la.vok.Game.GameSystems.WorldSystems.Liquid
 
 import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.LiquidTypes.AbstractLiquidInteraction
 import la.vok.Game.GameController.CollisionType
 import kotlin.math.min
 
@@ -8,6 +9,10 @@ class LiquidSystem(val dimension: AbstractDimension) {
     val width = dimension.width
     val height = dimension.height
     val size = width * height
+
+    private val registration = dimension.gameCycle.gameController.coreController.objectRegistration
+    private var interactionTable = arrayOfNulls<AbstractLiquidInteraction>(256 * 256)
+    private var interactionsInitialized = false
 
     var amounts = ByteArray(size)
     var types = ByteArray(size)
@@ -20,24 +25,48 @@ class LiquidSystem(val dimension: AbstractDimension) {
     private var nextActiveCells = IntArray(size)
     private var nextActiveCount = 0
 
-    private var currentActiveFlags = BooleanArray(size)
-    private var nextActiveFlags = BooleanArray(size)
+    // Версионные флаги для мгновенного сброса
+    private var currentActiveFlags = IntArray(size)
+    private var nextActiveFlags = IntArray(size)
+    private var tickVersion = 1
+
+    // Список измененных ячеек для разреженной синхронизации буферов
+    private var changedIndices = IntArray(size)
+    private var changedCount = 0
+    private var nextChangedIndices = IntArray(size)
+    private var nextChangedCount = 0
 
     fun isInside(x: Int, y: Int) = x in 0 until width && y in 0 until height
     fun getIndex(x: Int, y: Int) = y * width + x
+
+    private fun initInteractionTable() {
+        if (interactionsInitialized) return
+        interactionTable.fill(null)
+        for (interaction in registration.liquidInteractions) {
+            val id1 = interaction.liquid1.toInt() and 0xFF
+            val id2 = interaction.liquid2.toInt() and 0xFF
+            // Записываем оба направления, так как matches симметричен
+            interactionTable[id1 * 256 + id2] = interaction
+            interactionTable[id2 * 256 + id1] = interaction
+        }
+        interactionsInitialized = true
+    }
 
     fun setLiquid(x: Int, y: Int, typeId: Byte, amount: Int) {
         if (!isInside(x, y)) return
         val idx = getIndex(x, y)
 
-        amounts[idx] = amount.toByte()
-        types[idx] = if (amount > 0) typeId else 0
+        val bAmount = amount.toByte()
+        val bType = if (amount > 0) typeId else 0
 
-        nextAmounts[idx] = amount.toByte()
-        nextTypes[idx] = if (amount > 0) typeId else 0
+        amounts[idx] = bAmount
+        types[idx] = bType
+        nextAmounts[idx] = bAmount
+        nextTypes[idx] = bType
 
-        // Активируем только текущий тик — не трогаем next-буферы вне update(),
-        // иначе nextActiveCount/nextActiveFlags загрязняются до первого swap.
+        // Отмечаем как измененное для синхронизации
+        markChanged(idx)
+
         activate(x, y)
         activateNeighbors(x, y)
     }
@@ -48,8 +77,8 @@ class LiquidSystem(val dimension: AbstractDimension) {
     fun activate(x: Int, y: Int) {
         if (!isInside(x, y)) return
         val idx = getIndex(x, y)
-        if (!currentActiveFlags[idx]) {
-            currentActiveFlags[idx] = true
+        if (currentActiveFlags[idx] != tickVersion) {
+            currentActiveFlags[idx] = tickVersion
             if (activeCount < size) {
                 activeCells[activeCount++] = idx
             }
@@ -57,28 +86,54 @@ class LiquidSystem(val dimension: AbstractDimension) {
     }
 
     fun activateNeighbors(x: Int, y: Int) {
-        for (dx in -1..1) {
-            for (dy in -1..1) {
-                if (dx == 0 && dy == 0) continue
-                activate(x + dx, y + dy)
-            }
-        }
+        // Развертывание цикла 3x3 для скорости
+        val xMinus = x - 1
+        val xPlus = x + 1
+        val yMinus = y - 1
+        val yPlus = y + 1
+
+        activate(xMinus, yMinus)
+        activate(x, yMinus)
+        activate(xPlus, yMinus)
+        activate(xMinus, y)
+        activate(xPlus, y)
+        activate(xMinus, yPlus)
+        activate(x, yPlus)
+        activate(xPlus, yPlus)
+    }
+
+    private fun markChanged(idx: Int) {
+        changedIndices[changedCount++] = idx
     }
 
     fun update() {
         if (activeCount == 0) return
 
-        System.arraycopy(amounts, 0, nextAmounts, 0, size)
-        System.arraycopy(types, 0, nextTypes, 0, size)
+        initInteractionTable()
 
+        // 1. Синхронизируем буфер nextAmounts с изменениями из предыдущего такта
+        // Это заменяет дорогой System.arraycopy(size)
+        for (i in 0 until changedCount) {
+            val idx = changedIndices[i]
+            nextAmounts[idx] = amounts[idx]
+            nextTypes[idx] = types[idx]
+        }
+        changedCount = 0
+
+        // 2. Подготовка нового такта
+        tickVersion++
+        if (tickVersion > 2000000000) {
+            tickVersion = 1
+            currentActiveFlags.fill(0)
+            nextActiveFlags.fill(0)
+        }
         nextActiveCount = 0
-        nextActiveFlags.fill(false)
 
         for (i in 0 until activeCount) {
             processCell(activeCells[i])
         }
 
-        // Swap state buffers
+        // 3. Своп буферов данных
         val tempAmounts = amounts
         amounts = nextAmounts
         nextAmounts = tempAmounts
@@ -87,17 +142,24 @@ class LiquidSystem(val dimension: AbstractDimension) {
         types = nextTypes
         nextTypes = tempTypes
 
-        // Swap active buffers
+        // 4. Своп буферов активности
         val tempActive = activeCells
         activeCells = nextActiveCells
         nextActiveCells = tempActive
 
         activeCount = nextActiveCount
 
-        // Swap flags
         val tempFlags = currentActiveFlags
         currentActiveFlags = nextActiveFlags
         nextActiveFlags = tempFlags
+
+        // 5. Перенос накопленных изменений для синхронизации в следующем такте
+        val tempChanged = changedIndices
+        changedIndices = nextChangedIndices
+        nextChangedIndices = tempChanged
+
+        changedCount = nextChangedCount
+        nextChangedCount = 0
     }
 
     private fun processCell(idx: Int) {
@@ -105,7 +167,7 @@ class LiquidSystem(val dimension: AbstractDimension) {
         if (amount <= 0) return
 
         val typeId = types[idx]
-        val type = dimension.gameCycle.gameController.coreController.objectRegistration.getLiquidType(typeId) ?: return
+        val type = registration.getLiquidType(typeId) ?: return
 
         if (type.viscosity > 1) {
             if (dimension.gameCycle.physicTicks % type.viscosity != 0L) {
@@ -195,16 +257,15 @@ class LiquidSystem(val dimension: AbstractDimension) {
         val idx = getIndex(x, y)
         val targetId = nextTypes[idx]
         if (targetId != 0.toByte() && targetId != sourceId) {
-            val registration = dimension.gameCycle.gameController.coreController.objectRegistration
-            for (interaction in registration.liquidInteractions) {
-                if (interaction.matches(sourceId, targetId)) {
-                    val targetAmount = amounts[idx].toInt() and 0xFF
-                    if (interaction.onReact(srcX, srcY, x, y, dimension, sourceAmount, targetAmount)) {
-                        return false
-                    }
+            // Используем оптимизированную таблицу взаимодействий
+            val interaction = interactionTable[(sourceId.toInt() and 0xFF) * 256 + (targetId.toInt() and 0xFF)]
+            if (interaction != null) {
+                val targetAmount = nextAmounts[idx].toInt() and 0xFF
+                if (interaction.onReact(srcX, srcY, x, y, dimension, sourceAmount, targetAmount)) {
+                    return false
                 }
             }
-            return false
+            return false // Блокируем поток, если жидкости разные и нет реакции (или реакция не потребила их)
         }
         return true
     }
@@ -213,30 +274,50 @@ class LiquidSystem(val dimension: AbstractDimension) {
         val srcAmount = nextAmounts[fromIdx].toInt() and 0xFF
         val dstAmount = nextAmounts[toIdx].toInt() and 0xFF
 
-        nextAmounts[fromIdx] = (srcAmount - flow).toByte()
-        nextAmounts[toIdx] = (dstAmount + flow).toByte()
+        val newSrc = (srcAmount - flow).toByte()
+        val newDst = (dstAmount + flow).toByte()
 
-        if (nextAmounts[fromIdx].toInt() == 0) nextTypes[fromIdx] = 0
+        nextAmounts[fromIdx] = newSrc
+        nextAmounts[toIdx] = newDst
+
+        if (newSrc.toInt() == 0) nextTypes[fromIdx] = 0
         nextTypes[toIdx] = typeId
+
+        // Записываем изменения для синхронизации в следующем такте
+        nextChangedIndices[nextChangedCount++] = fromIdx
+        nextChangedIndices[nextChangedCount++] = toIdx
 
         activateNext(fromIdx)
         activateNext(toIdx)
     }
 
     private fun activateNext(idx: Int) {
-        if (!nextActiveFlags[idx]) {
-            nextActiveFlags[idx] = true
+        if (nextActiveFlags[idx] != tickVersion) {
+            nextActiveFlags[idx] = tickVersion
             nextActiveCells[nextActiveCount++] = idx
         }
     }
 
     private fun activateNextNeighbors(x: Int, y: Int) {
-        for (dx in -1..1) {
-            for (dy in -1..1) {
-                if (isInside(x + dx, y + dy)) {
-                    activateNext(getIndex(x + dx, y + dy))
-                }
-            }
+        val xMinus = x - 1
+        val xPlus = x + 1
+        val yMinus = y - 1
+        val yPlus = y + 1
+
+        activateNextIfInside(xMinus, yMinus)
+        activateNextIfInside(x, yMinus)
+        activateNextIfInside(xPlus, yMinus)
+        activateNextIfInside(xMinus, y)
+        activateNextIfInside(x, y)
+        activateNextIfInside(xPlus, y)
+        activateNextIfInside(xMinus, yPlus)
+        activateNextIfInside(x, yPlus)
+        activateNextIfInside(xPlus, yPlus)
+    }
+
+    private fun activateNextIfInside(x: Int, y: Int) {
+        if (x in 0 until width && y in 0 until height) {
+            activateNext(y * width + x)
         }
     }
 }

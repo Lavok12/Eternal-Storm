@@ -1,0 +1,17 @@
+// Инструменты
+"items.eternal_storm.hummer.name": "Молот"
+"items.eternal_storm.hummer.description": "Тяжелый инструмент для строительства и разрушения."
+
+"items.eternal_storm.axe.name": "Топор"
+"items.eternal_storm.axe.description": "Острое лезвие для рубки древесины."
+
+"items.eternal_storm.pickaxe.name": "Кирка"
+"items.eternal_storm.pickaxe.description": "Позволяет эффективно добывать камень и руду."
+
+// Ресурсы
+"items.eternal_storm.most_common_stick.name": "Обычная палка"
+"items.eternal_storm.most_common_stick.description": "Простая ветка. Может пригодиться в крафте."
+
+// Прочее
+"items.eternal_storm.teleporter.name": "Телепорт"
+"items.eternal_storm.teleporter.description": "Мгновенно перемещает владельца в заданную точку."

@@ -5,11 +5,13 @@ import la.vok.Game.GameContent.ContentList.ItemTags
 import la.vok.Game.GameContent.Items.Items.HummerItem
 import la.vok.Game.GameContent.Items.Other.AbstractItemType
 import la.vok.Game.GameContent.Items.Other.Item
+import la.vok.Game.GameContent.Items.Other.ItemRarity
 import la.vok.Game.GameController.GameCycle
 import la.vok.State.AppState
 
 open class HummerItemType : AbstractItemType() {
     override val tag: String = ItemsList.hummer
+    override val rarity = ItemRarity.EPIC
     override val texture: String = AppState.res("hummer.png")
     override val tags = setOf(ItemTags.TOOL)
 

@@ -16,6 +16,7 @@ data class ItemRenderConfig(
 
 abstract class AbstractItemType {
     open val tag: String = ""
+    open val rarity: ItemRarity = ItemRarity.COMMON
     open val renderConfig: ItemRenderConfig = ItemRenderConfig()
 
     open val texture = ""

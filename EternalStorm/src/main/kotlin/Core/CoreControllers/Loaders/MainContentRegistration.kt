@@ -206,7 +206,7 @@ class MainContentRegistration(var coreController: CoreController) {
             TileReaction(
                 LiquidList.WATER_ID, 
                 LiquidList.LAVA_ID, 
-                minAmount1 = 50, 
+                minAmount1 = 50,
                 minAmount2 = 50, 
                 resultTileTag = TilesList.stone_block
             )
@@ -215,7 +215,7 @@ class MainContentRegistration(var coreController: CoreController) {
             TileReaction(
                 LiquidList.WATER_ID,
                 LiquidList.ACID_ID, 
-                minAmount1 = 50, 
+                minAmount1 = 50,
                 minAmount2 = 50, 
                 resultTileTag = TilesList.stone_block
             )
@@ -224,7 +224,7 @@ class MainContentRegistration(var coreController: CoreController) {
             TileReaction(
                 LiquidList.LAVA_ID, 
                 LiquidList.ACID_ID, 
-                minAmount1 = 50, 
+                minAmount1 = 50,
                 minAmount2 = 50, 
                 resultTileTag = TilesList.stone_block
             )
