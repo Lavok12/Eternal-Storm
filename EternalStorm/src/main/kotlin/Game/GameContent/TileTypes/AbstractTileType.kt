@@ -13,7 +13,6 @@ import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionType
 import la.vok.Game.GameSystems.WorldSystems.Map.IBlockType
 import la.vok.Game.GameSystems.WorldSystems.Map.MineData
 import la.vok.Game.GameSystems.WorldSystems.Map.TilePlaceType
-import la.vok.LavokLibrary.Gradient.ShadowInfo
 import la.vok.Game.GameContent.TileData.AbstractTileData
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
@@ -148,11 +147,6 @@ abstract class AbstractTileType : IBlockType {
         val progress = breakProgress(pointX, pointY, dimension, gameController)
         val texture = getBreakProgressTexture(progress, gameController) ?: return
 
-        lg.setImage(
-            ShadowInfo(texture, 120 p 120, 10, 2, true).generate(),
-            positionX, positionY,
-            sizeX * 1.2f, sizeY * 1.2f
-        )
         lg.setTint(130f)
         lg.setImage(
             texture,

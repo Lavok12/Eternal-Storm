@@ -16,7 +16,6 @@ import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.LavokLibrary.Vectors.p
-import la.vok.LavokLibrary.Gradient.ShadowInfo
 import la.vok.State.AppState
 import processing.core.PImage
 
@@ -119,11 +118,6 @@ abstract class AbstractWallType : IBlockType {
         val progress = breakProgress(pointX, pointY, dimension, gameController)
         val texture = getBreakProgressTexture(progress, gameController) ?: return
 
-        lg.setImage(
-            ShadowInfo(texture, 120 p 120, 10, 2, true).generate(),
-            positionX, positionY,
-            sizeX * 1.2f, sizeY * 1.2f
-        )
         lg.setTint(130f)
         lg.setImage(
             texture,
