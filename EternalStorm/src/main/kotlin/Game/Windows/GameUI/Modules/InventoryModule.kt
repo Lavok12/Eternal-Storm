@@ -74,7 +74,9 @@ class InventoryModule(
     var animProgress = 0f
 
     // --- Состояние инвентаря ---
-    var heldItem: Item? = null
+    var heldItem: Item?
+        get() = playerControl.heldItem
+        set(value) { playerControl.heldItem = value }
     var dragMousePos: Vec2 = Vec2.ZERO
 
     // --- Helpers ---
@@ -140,6 +142,10 @@ class InventoryModule(
                 cell.tooltip = null
             } else if (cell.tooltip == null) {
                 cell.tooltip = item?.generateTooltip()
+            }
+
+            if (isInvOpen && heldItem != null) {
+                cell.tooltip = null
             }
         }
     )

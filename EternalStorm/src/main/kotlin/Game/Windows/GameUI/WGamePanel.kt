@@ -77,7 +77,7 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
     override fun leftUpdate(position: Vec2, oldPosition: Vec2) {
         super.leftUpdate(position, oldPosition)
         moduleManager.leftUpdate(position, oldPosition)
-        if (inventory.heldItem == null && !insideUxElement(position)) playerControl.leftUpdate(position, oldPosition)
+        if (!insideUxElement(position)) playerControl.leftUpdate(position, oldPosition)
     }
 
     override fun leftReleased(position: Vec2) {

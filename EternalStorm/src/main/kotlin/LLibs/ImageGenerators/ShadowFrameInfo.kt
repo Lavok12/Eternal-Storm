@@ -26,7 +26,7 @@ data class ShadowFrameInfo(
     val size: LPoint,
     val type: ShadowType = ShadowType.INNER,
     val spread: Int = 10,
-    val inset: Int = 0,         // отступ от края до начала тени (0 = прямо от границы)
+    val inset: Int = 0,     
     val color: LColor = LColor(0f, 0f, 0f),
     val intensity: Float = 0.5f,
     val save: Boolean = true

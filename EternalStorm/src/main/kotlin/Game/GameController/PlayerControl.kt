@@ -8,6 +8,7 @@ import la.vok.Game.GameContent.HandItems.HandItem
 import la.vok.Game.GameContent.Map.MapApi
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.Game.GameContent.ContentList.DimensionsList
+import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionContext
 import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionType
 import la.vok.LavokLibrary.Vectors.Vec2
@@ -110,11 +111,31 @@ class PlayerControl(var gameController: GameController) : Controller {
         player.handItemComponent.rightReleased()
     }
 
+    var heldItem: Item? = null
+        set(value) {
+            field = value
+            syncHandItem()
+        }
+
+    var selectedSlotId: Int = 0
+        private set
+
+    fun syncHandItem() {
+        val player = getPlayerEntity() ?: return
+        if (heldItem != null) {
+            player.handItemComponent.setItem(heldItem)
+        } else {
+            player.handItemComponent.setItem(player.inventory?.itemContainer?.getItem(selectedSlotId))
+        }
+    }
+
     fun chooseSlot(id: Int) {
         if (!isControl()) return
         val player = getPlayerEntity() ?: return
 
+        selectedSlotId = id
         player.inventory?.choose(id, player.handItemComponent)
+        syncHandItem() // Ensure heldItem takes priority if present
     }
 
     fun interact(position: Vec2, type: BlockInteractionType) {
