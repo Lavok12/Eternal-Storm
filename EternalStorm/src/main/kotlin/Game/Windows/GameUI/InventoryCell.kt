@@ -3,7 +3,10 @@ package la.vok.Game.Windows
 import la.vok.Core.CoreContent.Windows.WindowsStorage.Templates.AbstractWindow
 import la.vok.Core.CoreControllers.CoreContent.Windows.ElementsStrorage.WindowElement
 import la.vok.Game.GameContent.Items.Other.ItemSlot
+import la.vok.LavokLibrary.Gradient.ShadowFrameInfo
+import la.vok.LavokLibrary.Gradient.ShadowType
 import la.vok.LavokLibrary.LGraphics.LGraphics
+import la.vok.LavokLibrary.Vectors.LColor
 import la.vok.LavokLibrary.Vectors.Vec2
 
 class InventoryCell(
@@ -37,26 +40,62 @@ class InventoryCell(
 
     var isDragTarget = false
 
-    override fun callPreRender(lg: LGraphics) {
-        if (!isVisible) return
-
-        lg.fill(0f, 20f)
-        for (i in 1..4) {
-            lg.setBlock(positionWithCache, size * 0.9f * (1f + i/30f))
-        }
-    }
-
     override fun callRender(lg: LGraphics) {
         if (!isVisible) return
 
-        when {
-            isDragTarget -> lg.fill(220f, 230f, 255f, 160f)
-            slot?.item?.isChoose == true -> lg.fill(190f, 200f, 210f, 130f)
-            else -> lg.fill(140f, 150f, 160f, 100f)
+        val isSelected = slot?.item?.isChoose == true
+        
+        // 1. Градиентный фон ячейки
+        val bgTop = if (isSelected) LColor(75f, 83f, 95f, 220f)*1.4f*0.9f else LColor(68f, 71f, 83f, 180f)*0.9f
+        val bgBot = if (isSelected) LColor(45f, 53f, 65f, 220f)*1.4f*0.9f  else LColor(38f, 41f, 50f, 180f)*0.9f
+        
+        lg.setImage(
+            la.vok.LavokLibrary.Gradient.GradientInfo(
+                bgTop, bgBot, 
+                la.vok.LavokLibrary.Vectors.LPoint(0, 0), 
+                la.vok.LavokLibrary.Vectors.LPoint(0, 50), 
+                la.vok.LavokLibrary.Vectors.LPoint(1, 50)
+            ).generate(),
+            positionWithCache, size * 0.9f
+        )
+        
+        // 2. Тени вместо обводки
+        // Внутренняя тень
+        lg.setImage(
+            ShadowFrameInfo(
+                (size * 0.9f).toLPoint() / 2,
+                intensity = if (isSelected) 0.4f else 0.2f,
+                spread = 3,
+                color = if (isSelected) LColor(10f, 15f, 20f) else LColor.BLACK
+            ).generate(),
+            positionWithCache, size * 0.9f
+        )
+
+        lg.setImage(
+            ShadowFrameInfo(
+                (size * 0.9f).toLPoint(),
+                intensity = 0.2f,
+                spread = 4,
+                type = ShadowType.OUTER
+            ).generate(),
+            positionWithCache, size * 0.9f + (la.vok.LavokLibrary.Vectors.Vec2(8f))
+        )
+
+        if (isSelected) {
+            lg.setImage(
+                ShadowFrameInfo(
+                    (size * 0.9f).toLPoint() / 2,
+                    intensity = 0.6f,
+                    spread = 4,
+                    color = LColor(60f, 80f, 100f),
+                    type = ShadowType.OUTER
+                ).generate(),
+                positionWithCache, size * 0.9f + (la.vok.LavokLibrary.Vectors.Vec2(16f))
+            )
         }
+        
         lg.noStroke()
-        lg.setBlock(positionWithCache, size*0.9f)
-        slot?.item?.cellRender(lg, positionWithCache, size*0.9f, this)
+        slot?.item?.cellRender(lg, positionWithCache, size * 0.9f, this)
     }
 
 

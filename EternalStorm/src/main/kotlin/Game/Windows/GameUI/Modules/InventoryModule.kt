@@ -10,10 +10,15 @@ import la.vok.Game.GameContent.Entities.Entities.PlayerEntity
 import la.vok.Game.GameController.PlayerControl
 import la.vok.LLibs.AnimationType
 import la.vok.LLibs.FloatAnimation
+import la.vok.LavokLibrary.Gradient.GradientInfo
+import la.vok.LavokLibrary.Gradient.ShadowFrameInfo
+import la.vok.LavokLibrary.Gradient.ShadowType
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
-import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
+import la.vok.LavokLibrary.Vectors.LColor
+import la.vok.LavokLibrary.Vectors.LPoint
+import la.vok.LavokLibrary.Vectors.v
 import processing.event.MouseEvent
 
 class InventoryModule(
@@ -375,6 +380,63 @@ class InventoryModule(
             player.inventory?.itemContainer?.addItem(heldItem!!)
             heldItem = null
         }
+    }
+
+    override fun draw(window: AbstractWindow, lg: LGraphics) {
+        if (animProgress <= 0f) return
+
+        val invWidth  = 10 * cellSpacing + inventoryMargin * 2f
+        val invHeight = 5 * cellSpacing + inventoryMargin * 7f
+        
+        val x = -window.logicalSize.x / 2f + inventoryMargin + (10 * cellSpacing) / 2f - cellSpacing/2f + cellSize.x/2f
+        val y = window.logicalSize.y / 2f - inventoryMargin - (4 * cellSpacing) / 2f + cellSpacing/2f - cellSize.y/2f
+        
+        val center = (x-1) v y
+        val size = invWidth v invHeight
+        
+        // Используем ПРАВИЛЬНУЮ плавную анимацию через инвентарный аниматор
+        val invT = inventoryAnim.evaluate(animProgress)
+        val alpha = invT * 255f
+
+        // 1. Градиентный фон (нейтральный полночный - БЕЗ ЗЕЛЕНИ)
+        // Сверху темно-серый, снизу почти черный
+        val bgTop = LColor(60f, 80f, 100f, 120f)
+        val bgBot = LColor(10f, 15f, 20f, 80f)
+        
+        lg.setTint(255f, alpha)
+        lg.setImage(
+            GradientInfo(
+                bgTop, bgBot,
+                LPoint(0, 0), LPoint(0, 100), LPoint(1, 100)
+            ).generate(),
+            center, size
+        )
+        lg.noTint()
+        
+        // 2. Внутренняя тень (виньетка)
+        lg.setTint(255f, alpha)
+        lg.setImage(
+            ShadowFrameInfo(
+                size.toLPoint() / 2, 
+                intensity = 0.3f,
+                spread = 20
+            ).generate(),
+            center, size
+        )
+        lg.noTint()
+        /*
+        // 3. Внешняя тень/свечение (тоже нейтральное)
+        lg.setTint(255f, alpha)
+        lg.setImage(
+            ShadowFrameInfo(
+                size.toLPoint() / 2, 
+                intensity = 0.5f, 
+                spread = 15, 
+                type = ShadowType.OUTER
+            ).generate(),
+            center, size + (15 v 15)
+        )
+        lg.noTint()*/
     }
 
     override fun postDraw(window: AbstractWindow, lg: LGraphics) {
