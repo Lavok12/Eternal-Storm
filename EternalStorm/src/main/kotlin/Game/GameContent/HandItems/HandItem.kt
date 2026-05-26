@@ -8,6 +8,7 @@ import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.Game.GameContent.ContentList.BuffTags
+import la.vok.Game.GameContent.ContentList.StatTags
 import kotlin.math.atan2
 
 open class HandItem(
@@ -113,12 +114,12 @@ val gameRender: GameRender get() = gameController.gameRender
         if (block) {
             val buffSystem = entity.buffController
             val multiplier = when (descriptor.speedType) {
-                SpeedMultiplierType.Melee -> buffSystem.getStat(BuffTags.STAT_MELEE_SPEED)
-                SpeedMultiplierType.Ranged -> buffSystem.getStat(BuffTags.STAT_RANGED_SPEED)
-                SpeedMultiplierType.DiggingTile -> buffSystem.getStat(BuffTags.STAT_DIGGING_TILE)
-                SpeedMultiplierType.DiggingWall -> buffSystem.getStat(BuffTags.STAT_DIGGING_WALL)
-                SpeedMultiplierType.PlacingTile -> buffSystem.getStat(BuffTags.STAT_PLACING_BLOCK)
-                SpeedMultiplierType.PlacingWall -> buffSystem.getStat(BuffTags.STAT_PLACING_WALL)
+                SpeedMultiplierType.Melee -> buffSystem.getStat(StatTags.MELEE_SPEED)
+                SpeedMultiplierType.Ranged -> buffSystem.getStat(StatTags.RANGED_SPEED)
+                SpeedMultiplierType.DiggingTile -> buffSystem.getStat(StatTags.DIGGING_TILE)
+                SpeedMultiplierType.DiggingWall -> buffSystem.getStat(StatTags.DIGGING_WALL)
+                SpeedMultiplierType.PlacingTile -> buffSystem.getStat(StatTags.PLACING_BLOCK)
+                SpeedMultiplierType.PlacingWall -> buffSystem.getStat(StatTags.PLACING_WALL)
 
                 else -> 1.0f
             }

@@ -11,6 +11,7 @@ import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.Game.GameContent.ContentList.BuffTags
+import la.vok.Game.GameContent.ContentList.StatTags
 import la.vok.State.AppState
 import kotlin.math.cos
 import kotlin.math.sin
@@ -75,7 +76,7 @@ open class HandItemRender(
         val peakScale = if (progress in 0.45f..0.65f) {
             1f + anim.peakScale * sin((progress - 0.45f) / 0.2f * Math.PI.toFloat())
         } else 1f
-        val scaledSize = desc.spriteSize * desc.sizeMP * handItem.entity.buffController.getStat(BuffTags.STAT_WEAPON_SIZE) * peakScale
+        val scaledSize = desc.spriteSize * desc.sizeMP * handItem.entity.buffController.getStat(StatTags.WEAPON_SIZE) * peakScale
 
         val lunge = swingProgress * anim.lungeDistance * facing
         val swingHandPos = handPos + Vec2(lunge, 0f)
@@ -108,7 +109,7 @@ open class HandItemRender(
         val peakScale = if (progress in 0.4f..0.6f) {
             1f + anim.peakScale * sin((progress - 0.4f) / 0.2f * Math.PI.toFloat())
         } else 1f
-        val scaledSize = desc.spriteSize * desc.sizeMP * handItem.entity.buffController.getStat(BuffTags.STAT_WEAPON_SIZE) * peakScale
+        val scaledSize = desc.spriteSize * desc.sizeMP * handItem.entity.buffController.getStat(StatTags.WEAPON_SIZE) * peakScale
 
         val shake = if (progress > 0.52f) {
             val t = (progress - 0.52f) / 0.48f
@@ -146,7 +147,7 @@ open class HandItemRender(
         val peakScale = if (progress in 0.4f..0.6f) {
             1f + anim.peakScale * sin((progress - 0.4f) / 0.2f * Math.PI.toFloat())
         } else 1f
-        val scaledSize = desc.spriteSize * desc.sizeMP * handItem.entity.buffController.getStat(BuffTags.STAT_WEAPON_SIZE) * peakScale
+        val scaledSize = desc.spriteSize * desc.sizeMP * handItem.entity.buffController.getStat(StatTags.WEAPON_SIZE) * peakScale
 
         val shake = if (progress > 0.52f) {
             val t = (progress - 0.52f) / 0.48f
@@ -186,7 +187,7 @@ open class HandItemRender(
         val peakScale = if (progress in 0.4f..0.6f) {
             1f + anim.peakScale * sin((progress - 0.4f) / 0.2f * Math.PI.toFloat())
         } else 1f
-        val scaledSize = desc.spriteSize * desc.sizeMP * handItem.entity.buffController.getStat(BuffTags.STAT_WEAPON_SIZE) * peakScale
+        val scaledSize = desc.spriteSize * desc.sizeMP * handItem.entity.buffController.getStat(StatTags.WEAPON_SIZE) * peakScale
 
         val shake = if (progress > 0.52f) {
             val t = (progress - 0.52f) / 0.48f
@@ -216,7 +217,7 @@ open class HandItemRender(
         lg.setRotateImageAround(
             sprite,
             camera.useCamera(worldPos),
-            camera.useCameraSize(desc.spriteSize * desc.sizeMP * handItem.entity.buffController.getStat(BuffTags.STAT_WEAPON_SIZE)),
+            camera.useCameraSize(desc.spriteSize * desc.sizeMP * handItem.entity.buffController.getStat(StatTags.WEAPON_SIZE)),
             drawAngle,
             camera.useCamera(worldPos),
             flipped
@@ -230,7 +231,7 @@ open class HandItemRender(
         lg.setRotateImageAround(
             sprite,
             camera.useCamera(worldPos + Vec2(0f, bob)),
-            camera.useCameraSize(desc.spriteSize * desc.sizeMP * handItem.entity.buffController.getStat(BuffTags.STAT_WEAPON_SIZE)),
+            camera.useCameraSize(desc.spriteSize * desc.sizeMP * handItem.entity.buffController.getStat(StatTags.WEAPON_SIZE)),
             desc.spriteAngle * facing,
             camera.useCamera(worldPos),
             isFlipped

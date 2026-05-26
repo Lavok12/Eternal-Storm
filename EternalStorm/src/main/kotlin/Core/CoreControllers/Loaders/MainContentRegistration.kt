@@ -39,7 +39,9 @@ import la.vok.Game.GameContent.Items.ItemTypes.Liquid.*
 import la.vok.Game.GameContent.Items.Items.SinGunItem
 import la.vok.Game.GameSystems.EntityComponents.Buffs.*
 import la.vok.Game.GameContent.ContentList.BuffTags
+import la.vok.Game.GameContent.ContentList.StatTags
 import la.vok.Game.GameContent.CustomBuffTypes.BuffType
+import la.vok.Game.GameSystems.EntityComponents.Buffs.BuffRegistry
 
 class MainContentRegistration(var coreController: CoreController) {
     fun regObjects(objectRegistration: ObjectRegistration) {
@@ -239,38 +241,32 @@ class MainContentRegistration(var coreController: CoreController) {
 
     private fun registerBuffs(objectRegistration: ObjectRegistration) {
         // Speed Buff: +20% movement speed (Multiply)
-        BuffRegistry.register(
-            BuffType(
-                tag = BuffTags.BUFF_SPEED,
-                maxTicks = 60 * 10, // 10 seconds at 60fps
-                modifiers = listOf(
-                    Modifier(BuffTags.STAT_SPEED, 1.2f, ModifierType.MULTIPLY)
-                )
+        BuffRegistry.register(BuffType(
+            tag = BuffTags.SPEED,
+            maxTicks = 60 * 10, // 10 seconds at 60fps
+            modifiers = listOf(
+                Modifier(StatTags.SPEED, 1.2f, ModifierType.MULTIPLY)
             )
-        )
+        ))
 
         // Rage Buff: +50% damage, -10% resistance (Multiply)
-        BuffRegistry.register(
-            BuffType(
-                tag = BuffTags.BUFF_RAGE,
-                maxTicks = 60 * 5,
-                modifiers = listOf(
-                    Modifier(BuffTags.STAT_DAMAGE, 1.5f, ModifierType.MULTIPLY),
-                    Modifier(BuffTags.STAT_RESISTANCE, 0.9f, ModifierType.MULTIPLY)
-                )
+        BuffRegistry.register(BuffType(
+            tag = BuffTags.RAGE,
+            maxTicks = 60 * 5,
+            modifiers = listOf(
+                Modifier(StatTags.DAMAGE, 1.5f, ModifierType.MULTIPLY),
+                Modifier(StatTags.RESISTANCE, 0.9f, ModifierType.MULTIPLY)
             )
-        )
+        ))
 
         // Regeneration Buff: +5 fixed regen (Add)
-        BuffRegistry.register(
-            BuffType(
-                tag = BuffTags.BUFF_REGENERATION,
-                maxTicks = 60 * 15,
-                modifiers = listOf(
-                    Modifier(BuffTags.STAT_REGEN, 5f, ModifierType.ADD)
-                )
+        BuffRegistry.register(BuffType(
+            tag = BuffTags.REGENERATION,
+            maxTicks = 60 * 15,
+            modifiers = listOf(
+                Modifier(StatTags.REGEN, 5f, ModifierType.ADD)
             )
-        )
+        ))
     }
 
     private fun registerCrafts(objectRegistration: ObjectRegistration) {

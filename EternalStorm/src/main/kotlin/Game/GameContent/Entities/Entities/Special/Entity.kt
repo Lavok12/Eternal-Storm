@@ -21,6 +21,7 @@ import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
 import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 import la.vok.Game.GameContent.ContentList.BuffTags
+import la.vok.Game.GameContent.ContentList.StatTags
 
 @Suppress("UNCHECKED_CAST")
 open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) {
@@ -312,7 +313,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     }
 
     open fun knockback(force: Vec2) {
-        rigidBody?.addForce(force * (1f - baseBackResistance) * (1f - buffController.getStat(BuffTags.STAT_KB_RES, 0f)))
+        rigidBody?.addForce(force * (1f - baseBackResistance) * (1f - buffController.getStat(StatTags.KB_RES, 0f)))
     }
 
     // ─── Death ───────────────────────────────────────────────────────────────
