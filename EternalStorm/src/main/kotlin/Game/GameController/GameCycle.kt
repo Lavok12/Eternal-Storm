@@ -13,6 +13,7 @@ import la.vok.Game.GameSystems.WorldSystems.Dimensions.DimensionsController
 import la.vok.Game.GameSystems.WorldSystems.Liquid.LiquidApi
 import la.vok.Game.GameSystems.WorldSystems.Players.PlayerApi
 import la.vok.Game.GameSystems.WorldSystems.UI.UiApi
+import la.vok.Game.GameSystems.WorldSystems.Buffs.BuffApi
 
 class GameCycle(val gameController: GameController) : Controller {
     val gameContext = GameContext(gameController, this)
@@ -30,6 +31,7 @@ class GameCycle(val gameController: GameController) : Controller {
     val batchApi = BatchApi(this)
     val liquidApi = LiquidApi(this)
     val uiApi = UiApi(gameController)
+    val buffApi = BuffApi(this)
 
     val dimensionsController = DimensionsController(this)
     val worldSimulationManager = WorldSimulationManager(this)
@@ -53,6 +55,7 @@ class GameCycle(val gameController: GameController) : Controller {
             playerApi = this@GameCycle.playerApi
             liquidApi = this@GameCycle.liquidApi
             uiApi = this@GameCycle.uiApi
+            buffApi = this@GameCycle.buffApi
         }
 
         systems.add(worldSimulationManager)

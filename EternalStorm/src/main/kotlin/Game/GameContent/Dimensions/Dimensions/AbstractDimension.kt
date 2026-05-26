@@ -1,5 +1,6 @@
 package la.vok.Game.GameContent.Dimensions.Dimensions
 
+import la.vok.Core.CoreContent.Camera.Camera
 import la.vok.Game.GameContent.Map.MapController
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityController
@@ -7,6 +8,7 @@ import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
 import la.vok.Game.GameSystems.WorldSystems.Particles.ParticleController
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsController
 import la.vok.Game.GameSystems.WorldSystems.Liquid.LiquidController
+import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.LColor
 
 abstract class AbstractDimension(var gameCycle: GameCycle) {
@@ -15,6 +17,10 @@ abstract class AbstractDimension(var gameCycle: GameCycle) {
     abstract val height: Int
 
     abstract var skyColor: LColor
+
+    open fun backgroundRender(lGraphics: LGraphics, camera: Camera) {
+        lGraphics.bg(skyColor)
+    }
 
     var mapController: MapController? = null
     var entityController: EntityController? = null

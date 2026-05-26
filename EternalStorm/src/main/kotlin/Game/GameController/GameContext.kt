@@ -13,6 +13,7 @@ import la.vok.Game.GameSystems.WorldSystems.Items.ItemsApi
 import la.vok.Game.GameSystems.WorldSystems.Particles.ParticlesApi
 import la.vok.Game.GameSystems.WorldSystems.Players.PlayerApi
 import la.vok.Game.GameSystems.WorldSystems.VfxObjects.VfxObjectsApi
+import la.vok.Game.GameSystems.WorldSystems.Buffs.BuffApi
 
 /**
  * Context that holds references to all major game systems and APIs.
@@ -37,4 +38,5 @@ class GameContext(
     lateinit var dimensionsApi: DimensionsApi
     lateinit var liquidApi: la.vok.Game.GameSystems.WorldSystems.Liquid.LiquidApi
     lateinit var uiApi: la.vok.Game.GameSystems.WorldSystems.UI.UiApi
+    lateinit var buffApi: BuffApi
 }

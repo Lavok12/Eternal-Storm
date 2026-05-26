@@ -37,6 +37,9 @@ import la.vok.Game.GameContent.TileTypes.WorkbenchTileType
 import la.vok.Game.GameContent.LiquidTypes.*
 import la.vok.Game.GameContent.Items.ItemTypes.Liquid.*
 import la.vok.Game.GameContent.Items.Items.SinGunItem
+import la.vok.Game.GameSystems.EntityComponents.Buffs.*
+import la.vok.Game.GameContent.ContentList.BuffTags
+import la.vok.Game.GameContent.CustomBuffTypes.BuffType
 
 class MainContentRegistration(var coreController: CoreController) {
     fun regObjects(objectRegistration: ObjectRegistration) {
@@ -47,6 +50,7 @@ class MainContentRegistration(var coreController: CoreController) {
         registerDimensions(objectRegistration)
         registerLiquids(objectRegistration)
         registerCrafts(objectRegistration)
+        registerBuffs(objectRegistration)
     }
 
     private fun registerItems(objectRegistration: ObjectRegistration) {
@@ -182,6 +186,8 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationEntityType(PlayerEntityType())
         objectRegistration.registrationEntityType(SlimeEntityType())
         objectRegistration.registrationEntityType(BossEntityType())
+        objectRegistration.registrationEntityType(SpiderBossEntityType())
+        objectRegistration.registrationEntityType(SpiderLegEntityType())
         
         objectRegistration.registrationEntityType(AbstractEntityType.ItemEntityType)
         objectRegistration.registrationEntityType(AbstractEntityType.ProjectileEntityType)
@@ -227,6 +233,42 @@ class MainContentRegistration(var coreController: CoreController) {
                 minAmount1 = 50,
                 minAmount2 = 50, 
                 resultTileTag = TilesList.stone_block
+            )
+        )
+    }
+
+    private fun registerBuffs(objectRegistration: ObjectRegistration) {
+        // Speed Buff: +20% movement speed (Multiply)
+        BuffRegistry.register(
+            BuffType(
+                tag = BuffTags.BUFF_SPEED,
+                maxTicks = 60 * 10, // 10 seconds at 60fps
+                modifiers = listOf(
+                    Modifier(BuffTags.STAT_SPEED, 1.2f, ModifierType.MULTIPLY)
+                )
+            )
+        )
+
+        // Rage Buff: +50% damage, -10% resistance (Multiply)
+        BuffRegistry.register(
+            BuffType(
+                tag = BuffTags.BUFF_RAGE,
+                maxTicks = 60 * 5,
+                modifiers = listOf(
+                    Modifier(BuffTags.STAT_DAMAGE, 1.5f, ModifierType.MULTIPLY),
+                    Modifier(BuffTags.STAT_RESISTANCE, 0.9f, ModifierType.MULTIPLY)
+                )
+            )
+        )
+
+        // Regeneration Buff: +5 fixed regen (Add)
+        BuffRegistry.register(
+            BuffType(
+                tag = BuffTags.BUFF_REGENERATION,
+                maxTicks = 60 * 15,
+                modifiers = listOf(
+                    Modifier(BuffTags.STAT_REGEN, 5f, ModifierType.ADD)
+                )
             )
         )
     }

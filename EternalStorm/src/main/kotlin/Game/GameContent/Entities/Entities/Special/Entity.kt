@@ -20,6 +20,7 @@ import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
 import la.vok.State.AppState
 import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
+import la.vok.Game.GameContent.ContentList.BuffTags
 
 @Suppress("UNCHECKED_CAST")
 open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) {
@@ -106,6 +107,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
         addComponent(PhysicsComponent(this, rb))
         addComponent(GravityComponent(this, rb, -0.035f))
         addComponent(HpBody(this))
+        addComponent(buffController)
         
         // hpRender is still legacy for now as it's tied to rendering layers deeply
         if (getComponent<HpBody>() != null) {
@@ -310,7 +312,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     }
 
     open fun knockback(force: Vec2) {
-        rigidBody?.addForce(force * (1f - baseBackResistance) * (1f - buffController.knockbackResistance))
+        rigidBody?.addForce(force * (1f - baseBackResistance) * (1f - buffController.getStat(BuffTags.STAT_KB_RES, 0f)))
     }
 
     // ─── Death ───────────────────────────────────────────────────────────────

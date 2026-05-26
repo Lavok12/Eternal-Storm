@@ -56,7 +56,7 @@ class GameRender(val gameController: GameController) : Controller {
             dim = gameController.playerDimension!!
         }
 
-        lg.bg(dim.skyColor)
+        dim.backgroundRender(lg, camera)
         val mapApi = gameController.gameCycle.mapApi
         val mapSystem = dim.mapController!!.mapSystem
 

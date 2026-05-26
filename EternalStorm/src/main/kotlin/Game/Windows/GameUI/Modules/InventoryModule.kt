@@ -7,6 +7,7 @@ import la.vok.Game.GameContent.Items.Other.Item
 import la.vok.Game.Windows.InventoryCell
 import la.vok.Game.Windows.InventoryCellType
 import la.vok.Game.GameContent.Entities.Entities.PlayerEntity
+import la.vok.Core.CoreControllers.CoreContent.Windows.ElementsStrorage.WindowElement
 import la.vok.Game.GameController.PlayerControl
 import la.vok.LLibs.AnimationType
 import la.vok.LLibs.FloatAnimation
@@ -69,6 +70,8 @@ class InventoryModule(
 
     // =====================================================================
 
+    // --- Элементы ---
+    private var inventoryBg: WindowElement? = null
     val hotbarCells = ArrayList<Pair<InventoryCell, Vec2>>()
     val inventoryCells = ArrayList<Pair<InventoryCell, Vec2>>()
     fun allCells() = hotbarCells + inventoryCells
@@ -108,6 +111,51 @@ class InventoryModule(
         
         hotbarCells.clear()
         inventoryCells.clear()
+        inventoryBg = null
+
+        val invWidth  = 10 * cellSpacing + inventoryMargin * 2f
+        val invHeight = 5 * cellSpacing + inventoryMargin * 7f
+        
+        val bgX = -window.logicalSize.x / 2f + inventoryMargin + (10 * cellSpacing) / 2f - cellSpacing/2f + cellSize.x/2f
+        val bgY = window.logicalSize.y / 2f - inventoryMargin - (4 * cellSpacing) / 2f + cellSpacing/2f - cellSize.y/2f
+        
+        inventoryBg = WindowElement(
+            window, 
+            position = (bgX - 1) v bgY, 
+            size = invWidth v invHeight,
+            render = { lg ->
+                val alpha = inventoryAnim.evaluate(animProgress) * 255f
+                val pos = positionWithCache
+                
+                // 1. Градиентный фон
+                val bgTop = LColor(60f, 80f, 100f, 120f)
+                val bgBot = LColor(10f, 15f, 20f, 80f)
+                
+                lg.setTint(255f, alpha)
+                lg.setImage(
+                    GradientInfo(
+                        bgTop, bgBot,
+                        LPoint(0, 0), LPoint(0, 100), LPoint(1, 100)
+                    ).generate(),
+                    pos, size
+                )
+                lg.noTint()
+                
+                // 2. Внутренняя тень
+                lg.setTint(255f, alpha)
+                lg.setImage(
+                    ShadowFrameInfo(
+                        size.toLPoint() / 2, 
+                        intensity = 0.3f,
+                        spread = 20
+                    ).generate(),
+                    pos, size
+                )
+                lg.noTint()
+            }
+        ).apply { isVisible = animProgress > 0f }
+        
+        window.windowElements += inventoryBg!!
 
         val player = playerControl.getPlayerEntity() ?: return
 
@@ -165,6 +213,9 @@ class InventoryModule(
         }
 
         val invT = inventoryAnim.evaluate(animProgress)
+        inventoryBg?.isVisible = animProgress > 0f
+        inventoryBg?.markDirty()
+
         inventoryCells.forEachIndexed { i, (cell, openPos) ->
             cell.align    = inventoryOpenAlign
             cell.position = lerpVec(inventoryClosedPos(window), openPos, invT)
@@ -383,60 +434,7 @@ class InventoryModule(
     }
 
     override fun draw(window: AbstractWindow, lg: LGraphics) {
-        if (animProgress <= 0f) return
-
-        val invWidth  = 10 * cellSpacing + inventoryMargin * 2f
-        val invHeight = 5 * cellSpacing + inventoryMargin * 7f
-        
-        val x = -window.logicalSize.x / 2f + inventoryMargin + (10 * cellSpacing) / 2f - cellSpacing/2f + cellSize.x/2f
-        val y = window.logicalSize.y / 2f - inventoryMargin - (4 * cellSpacing) / 2f + cellSpacing/2f - cellSize.y/2f
-        
-        val center = (x-1) v y
-        val size = invWidth v invHeight
-        
-        // Используем ПРАВИЛЬНУЮ плавную анимацию через инвентарный аниматор
-        val invT = inventoryAnim.evaluate(animProgress)
-        val alpha = invT * 255f
-
-        // 1. Градиентный фон (нейтральный полночный - БЕЗ ЗЕЛЕНИ)
-        // Сверху темно-серый, снизу почти черный
-        val bgTop = LColor(60f, 80f, 100f, 120f)
-        val bgBot = LColor(10f, 15f, 20f, 80f)
-        
-        lg.setTint(255f, alpha)
-        lg.setImage(
-            GradientInfo(
-                bgTop, bgBot,
-                LPoint(0, 0), LPoint(0, 100), LPoint(1, 100)
-            ).generate(),
-            center, size
-        )
-        lg.noTint()
-        
-        // 2. Внутренняя тень (виньетка)
-        lg.setTint(255f, alpha)
-        lg.setImage(
-            ShadowFrameInfo(
-                size.toLPoint() / 2, 
-                intensity = 0.3f,
-                spread = 20
-            ).generate(),
-            center, size
-        )
-        lg.noTint()
-        /*
-        // 3. Внешняя тень/свечение (тоже нейтральное)
-        lg.setTint(255f, alpha)
-        lg.setImage(
-            ShadowFrameInfo(
-                size.toLPoint() / 2, 
-                intensity = 0.5f, 
-                spread = 15, 
-                type = ShadowType.OUTER
-            ).generate(),
-            center, size + (15 v 15)
-        )
-        lg.noTint()*/
+        // Отрисовка фона перенесена в WindowElement (inventoryBg)
     }
 
     override fun postDraw(window: AbstractWindow, lg: LGraphics) {

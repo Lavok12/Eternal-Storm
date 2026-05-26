@@ -14,6 +14,7 @@ import la.vok.Core.CoreControllers.Parts.Tooltip
 import la.vok.Core.CoreControllers.Parts.TooltipLine
 import la.vok.LavokLibrary.Gradient.GradientInfo
 import la.vok.LavokLibrary.Gradient.ShadowFrameInfo
+import la.vok.LavokLibrary.Gradient.ShadowInfo
 import la.vok.LavokLibrary.Gradient.ShadowType
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.LColor
@@ -145,6 +146,7 @@ open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
         for (i in 0 until visual) {
             val offset = stackOffset(visual-i-1, renderSize)
             var renderPos = pos + itemType.renderConfig.worldDelta * size - offset
+            shadowRender(lg, renderPos, renderSize, itemType.renderConfig.shadowPower)
             baseRender(lg, renderPos, renderSize)
         }
     }
@@ -152,6 +154,7 @@ open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
     open fun cellRender(lg: LGraphics, pos: Vec2, size: Vec2, cell: InventoryCell? = null) {
         val renderPos = pos + itemType.renderConfig.slotDelta * (size * itemType.renderConfig.sizeInSlot)
         val renderSize = size * itemType.renderConfig.sizeInSlot
+        shadowRender(lg, renderPos, renderSize, itemType.renderConfig.shadowPower * 0.5f)
         baseRender(lg, renderPos, renderSize)
         renderCount(lg, pos, size)
     }
@@ -159,9 +162,25 @@ open class Item(var itemType: AbstractItemType, var gameCycle: GameCycle) {
     open fun cellDragRender(lg: LGraphics, pos: Vec2, size: Vec2, cell: InventoryCell? = null) {
         val renderPos = pos + itemType.renderConfig.slotDelta * (size * itemType.renderConfig.sizeInSlot)
         val renderSize = size * itemType.renderConfig.sizeInSlot * 1.1f
+        shadowRender(lg, renderPos, renderSize)
         baseRender(lg, renderPos, renderSize)
         renderCount(lg, pos, size)
     }
+
+    open fun shadowRender(lg: LGraphics, pos: Vec2, size: Vec2, power: Float = itemType.renderConfig.shadowPower) {
+        lg.setTint(255f, 255f*power)
+        lg.setImage(
+            ShadowInfo(
+                coreController.spriteLoader.getValue(itemType.texture),
+                120 p 120,
+                10,
+                6,
+                true
+            ).generate(),
+            pos, size * 1.1f)
+        lg.noTint()
+    }
+
 
     open fun cellPhysicUpdate(itemSlot: ItemSlot) {
 

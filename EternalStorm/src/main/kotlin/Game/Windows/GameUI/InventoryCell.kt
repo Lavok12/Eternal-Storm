@@ -46,8 +46,8 @@ class InventoryCell(
         val isSelected = slot?.item?.isChoose == true
         
         // 1. Градиентный фон ячейки
-        val bgTop = if (isSelected) LColor(75f, 83f, 95f, 220f)*1.4f*0.9f else LColor(68f, 71f, 83f, 180f)*0.9f
-        val bgBot = if (isSelected) LColor(45f, 53f, 65f, 220f)*1.4f*0.9f  else LColor(38f, 41f, 50f, 180f)*0.9f
+        val bgTop = if (isSelected) LColor(75f, 83f, 95f, 220f)*1.5f else LColor(68f, 71f, 83f, 180f)
+        val bgBot = if (isSelected) LColor(45f, 53f, 65f, 220f)*1.5f  else LColor(38f, 41f, 50f, 180f)
         
         lg.setImage(
             la.vok.LavokLibrary.Gradient.GradientInfo(
@@ -87,7 +87,7 @@ class InventoryCell(
                     (size * 0.9f).toLPoint() / 2,
                     intensity = 0.6f,
                     spread = 4,
-                    color = LColor(60f, 80f, 100f),
+                    color = LColor(60f, 90f, 130f),
                     type = ShadowType.OUTER
                 ).generate(),
                 positionWithCache, size * 0.9f + (la.vok.LavokLibrary.Vectors.Vec2(16f))

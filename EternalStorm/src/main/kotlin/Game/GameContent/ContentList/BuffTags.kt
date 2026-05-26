@@ -1,0 +1,26 @@
+package la.vok.Game.GameContent.ContentList
+
+object BuffTags {
+    const val BUFF_SPEED = "buff_speed"
+    const val BUFF_DAMAGE = "buff_damage"
+    const val BUFF_REGENERATION = "buff_regeneration"
+    const val BUFF_DEFENSE = "buff_defense"
+    const val BUFF_JUMP_POWER = "buff_jump_power"
+    const val BUFF_RESISTANCE = "buff_resistance"
+    const val BUFF_RAGE = "buff_rage"
+    const val STAT_MAX_HP = "stat_max_hp"
+    const val STAT_DAMAGE = "stat_damage"
+    const val STAT_SPEED = "stat_speed"
+    const val STAT_JUMP_POWER = "stat_jump_power"
+    const val STAT_DIGGING_TILE = "stat_digging_tile"
+    const val STAT_DIGGING_WALL = "stat_digging_wall"
+    const val STAT_RANGED_SPEED = "stat_ranged_speed"
+    const val STAT_MELEE_SPEED = "stat_melee_speed"
+    const val STAT_PLACING_BLOCK = "stat_placing_block"
+    const val STAT_PLACING_WALL = "stat_placing_wall"
+    const val STAT_WEAPON_SIZE = "stat_weapon_size"
+    const val STAT_KB_RES = "stat_kb_res"
+    const val STAT_REGEN = "stat_regen"
+    const val STAT_GRAVITY = "stat_gravity"
+    const val STAT_RESISTANCE = "stat_resistance"
+}

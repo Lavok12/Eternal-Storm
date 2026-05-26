@@ -1,11 +1,12 @@
 package la.vok.Game.GameSystems.EntityComponents
 
 import la.vok.Game.GameContent.Entities.Entities.Special.Entity
+import la.vok.Game.GameContent.ContentList.BuffTags
 
 class HpBody(entity: Entity) : EntityComponent(entity) {
     var hp: Int = 0
     var rawMaxHp: Int = 0
-    val maxHp: Int get() = (rawMaxHp * entity.buffController.maxHpMultiplier).toInt()
+    val maxHp: Int get() = (rawMaxHp * entity.buffController.getStat(BuffTags.STAT_MAX_HP)).toInt()
 
     override fun onSpawn() {
         fullHp()
