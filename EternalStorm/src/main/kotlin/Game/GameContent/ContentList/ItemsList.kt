@@ -68,4 +68,5 @@ object ItemsList {
     val water_bucket: String by lazy { AppState.tag("water_bucket") }
     val lava_bucket: String by lazy { AppState.tag("lava_bucket") }
     val acid_bucket: String by lazy { AppState.tag("acid_bucket") }
+    val chest: String by lazy { AppState.tag("chest") }
 }

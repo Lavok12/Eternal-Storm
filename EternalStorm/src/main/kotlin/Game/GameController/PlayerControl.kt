@@ -26,6 +26,10 @@ class PlayerControl(var gameController: GameController) : Controller {
     fun toggleInventory() {
         isInventoryOpen = !isInventoryOpen
     }
+    
+    fun openInventory() {
+        isInventoryOpen = true
+    }
 
     init {
         create()
@@ -44,6 +48,9 @@ class PlayerControl(var gameController: GameController) : Controller {
         if (!isControl()) return
         val player = getPlayerEntity() ?: return
         gameController.mainCamera.setCameraPos(player.position)
+        
+        // Очищаем руку, если предметы кончились
+        if ((heldItem?.count ?: 1) <= 0) heldItem = null
     }
     fun getPlayerEntity() : PlayerEntity? {
         return playerApi.getPlayer(playerId)

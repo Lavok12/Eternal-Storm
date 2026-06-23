@@ -12,6 +12,7 @@ import la.vok.LavokLibrary.Vectors.v
 import la.vok.Game.GameContent.ContentList.DimensionsList
 import la.vok.Game.GameSystems.WorldSystems.Map.BlockInteractionType
 import la.vok.Game.Windows.GameUI.Modules.CraftingModule
+import la.vok.Game.Windows.GameUI.Modules.EquipmentUiModule
 import la.vok.Game.Windows.GameUI.Modules.InventoryModule
 import la.vok.Game.Windows.GameUI.Modules.StatsModule
 import la.vok.State.AppState
@@ -27,6 +28,7 @@ class WGamePanel(windowsManager: WindowsManager, var gameController: GameControl
 
     init {
         moduleManager.addModule(InventoryModule(playerControl))
+        moduleManager.addModule(EquipmentUiModule(playerControl))
         moduleManager.addModule(CraftingModule(playerControl, gameController.gameCycle))
         moduleManager.addModule(StatsModule(playerControl))
     }

@@ -7,6 +7,22 @@ import processing.event.MouseEvent
 
 class WindowModuleManager(val window: AbstractWindow) {
     private val modules = mutableListOf<IUiModule>()
+    private var activeBlockModule: IUiModule? = null
+
+    fun openBlockInterface(module: IUiModule) {
+        // Закрываем текущий интерфейс блока, если есть
+        closeBlockInterface()
+        
+        activeBlockModule = module
+        addModule(module)
+    }
+
+    fun closeBlockInterface() {
+        activeBlockModule?.let { 
+            removeModule(it.id)
+            activeBlockModule = null
+        }
+    }
 
     fun addModule(module: IUiModule) {
         if (modules.any { it.id == module.id }) return
@@ -24,25 +40,25 @@ class WindowModuleManager(val window: AbstractWindow) {
     fun <T : IUiModule> getModule(id: String): T? = modules.find { it.id == id } as? T
 
     fun update() {
-        modules.forEach { if (it.isEnabled) it.update(window) }
+        modules.toList().forEach { if (it.isEnabled) it.update(window) }
     }
 
     fun physicUpdate() {
-        modules.forEach { if (it.isEnabled) it.physicUpdate(window) }
+        modules.toList().forEach { if (it.isEnabled) it.physicUpdate(window) }
     }
 
     // --- Делегирование событий мыши ---
-    fun leftPressed(position: Vec2) = modules.forEach { if (it.isEnabled) it.leftPressed(window, position) }
-    fun rightPressed(position: Vec2) = modules.forEach { if (it.isEnabled) it.rightPressed(window, position) }
-    fun centerPressed(position: Vec2) = modules.forEach { if (it.isEnabled) it.centerPressed(window, position) }
+    fun leftPressed(position: Vec2) = modules.toList().forEach { if (it.isEnabled) it.leftPressed(window, position) }
+    fun rightPressed(position: Vec2) = modules.toList().forEach { if (it.isEnabled) it.rightPressed(window, position) }
+    fun centerPressed(position: Vec2) = modules.toList().forEach { if (it.isEnabled) it.centerPressed(window, position) }
 
     fun leftReleased(position: Vec2) = modules.forEach { if (it.isEnabled) it.leftReleased(window, position) }
     fun rightReleased(position: Vec2) = modules.forEach { if (it.isEnabled) it.rightReleased(window, position) }
     fun centerReleased(position: Vec2) = modules.forEach { if (it.isEnabled) it.centerReleased(window, position) }
 
-    fun leftUpdate(position: Vec2, oldPosition: Vec2) = modules.forEach { if (it.isEnabled) it.leftUpdate(window, position, oldPosition) }
-    fun rightUpdate(position: Vec2, oldPosition: Vec2) = modules.forEach { if (it.isEnabled) it.rightUpdate(window, position, oldPosition) }
-    fun centerUpdate(position: Vec2, oldPosition: Vec2) = modules.forEach { if (it.isEnabled) it.centerUpdate(window, position, oldPosition) }
+    fun leftUpdate(position: Vec2, oldPosition: Vec2) = modules.toList().forEach { if (it.isEnabled) it.leftUpdate(window, position, oldPosition) }
+    fun rightUpdate(position: Vec2, oldPosition: Vec2) = modules.toList().forEach { if (it.isEnabled) it.rightUpdate(window, position, oldPosition) }
+    fun centerUpdate(position: Vec2, oldPosition: Vec2) = modules.toList().forEach { if (it.isEnabled) it.centerUpdate(window, position, oldPosition) }
 
     fun leftDoubleClick(position: Vec2) = modules.forEach { if (it.isEnabled) it.leftDoubleClick(window, position) }
     fun rightDoubleClick(position: Vec2) = modules.forEach { if (it.isEnabled) it.rightDoubleClick(window, position) }
@@ -60,9 +76,9 @@ class WindowModuleManager(val window: AbstractWindow) {
     fun rightDragEnd(position: Vec2) = modules.forEach { if (it.isEnabled) it.rightDragEnd(window, position) }
     fun centerDragEnd(position: Vec2) = modules.forEach { if (it.isEnabled) it.centerDragEnd(window, position) }
 
-    fun mouseWheel(position: Vec2, event: MouseEvent) = modules.forEach { if (it.isEnabled) it.mouseWheel(window, position, event) }
-    fun mouseUpdate(position: Vec2, oldPosition: Vec2) = modules.forEach { if (it.isEnabled) it.mouseUpdate(window, position, oldPosition) }
-    fun mouseMove(position: Vec2, oldPosition: Vec2) = modules.forEach { if (it.isEnabled) it.mouseMove(window, position, oldPosition) }
+    fun mouseWheel(position: Vec2, event: MouseEvent) = modules.toList().forEach { if (it.isEnabled) it.mouseWheel(window, position, event) }
+    fun mouseUpdate(position: Vec2, oldPosition: Vec2) = modules.toList().forEach { if (it.isEnabled) it.mouseUpdate(window, position, oldPosition) }
+    fun mouseMove(position: Vec2, oldPosition: Vec2) = modules.toList().forEach { if (it.isEnabled) it.mouseMove(window, position, oldPosition) }
 
     // --- Делегирование событий клавиатуры ---
     fun keyPressed(key: Int) = modules.forEach { if (it.isEnabled) it.keyPressed(window, key) }
@@ -83,10 +99,10 @@ class WindowModuleManager(val window: AbstractWindow) {
     }
 
     fun draw(lg: LGraphics) {
-        modules.forEach { if (it.isEnabled) it.draw(window, lg) }
+        modules.toList().forEach { if (it.isEnabled) it.draw(window, lg) }
     }
 
     fun postDraw(lg: LGraphics) {
-        modules.forEach { if (it.isEnabled) it.postDraw(window, lg) }
+        modules.toList().forEach { if (it.isEnabled) it.postDraw(window, lg) }
     }
 }

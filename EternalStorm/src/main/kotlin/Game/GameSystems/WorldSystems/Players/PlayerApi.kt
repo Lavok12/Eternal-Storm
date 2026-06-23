@@ -3,6 +3,9 @@ package la.vok.Game.GameSystems.WorldSystems.Players
 import la.vok.Game.GameContent.Entities.Entities.PlayerEntity
 import la.vok.Game.GameController.GameCycle
 import la.vok.LavokLibrary.Vectors.Vec2
+import la.vok.Core.CoreContent.Windows.Modules.IUiModule
+import la.vok.Game.ClientContent.Windows.WGamePanel
+import la.vok.Game.Windows.GameUI.Modules.InventoryModule
 
 class PlayerApi(val gameCycle: GameCycle) {
     private val playerEntities = mutableMapOf<Long, PlayerEntity>()
@@ -49,5 +52,39 @@ class PlayerApi(val gameCycle: GameCycle) {
      */
     fun isPlayerOnline(id: Long): Boolean {
         return playerEntities.containsKey(id)
+    }
+
+    /**
+     * Sets player equipment in a specific slot.
+     */
+    fun setPlayerEquipment(playerId: Long, slot: String, item: la.vok.Game.GameContent.Items.Other.Item?) {
+        playerEntities[playerId]?.equipmentModule?.setEquipment(slot, item)
+    }
+
+    /**
+     * Gets player equipment from a specific slot.
+     */
+    fun getPlayerEquipment(playerId: Long, slot: String): la.vok.Game.GameContent.Items.Other.Item? {
+        return playerEntities[playerId]?.equipmentModule?.getEquipment(slot)
+    }
+
+    /**
+     * Opens player inventory with animation.
+     */
+    fun openInventory(playerId: Long) {
+        val panel = gameCycle.gameController.wGamePanel ?: return
+        val playerControl = gameCycle.gameController.playerControl
+        if (!playerControl.isInventoryOpen) {
+            panel.moduleManager.getModule<InventoryModule>("inventory")?.toggleInventory()
+        }
+    }
+
+    /**
+     * Opens a specific block interface (e.g. chest, workbench) for the player.
+     */
+    fun openBlockInterface(playerId: Long, module: IUiModule) {
+        val panel = gameCycle.gameController.wGamePanel ?: return
+        openInventory(playerId)
+        panel.moduleManager.openBlockInterface(module)
     }
 }

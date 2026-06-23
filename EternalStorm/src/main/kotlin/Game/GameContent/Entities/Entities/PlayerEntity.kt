@@ -12,6 +12,7 @@ import la.vok.Game.GameSystems.EntityComponents.MobInventory
 import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
 import la.vok.Game.GameSystems.EntityComponents.PickUpComponent
 import la.vok.Game.GameContent.Entities.Ai.PlayerAI
+import la.vok.Game.GameSystems.EntityComponents.EquipmentModule
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
 import la.vok.LavokLibrary.Vectors.v
 
@@ -22,6 +23,7 @@ class PlayerEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entit
 
     var handItemComponent = HandItemComponent(this, 0.8 v 0f)
     var pickUpComponent: PickUpComponent? = null
+    var equipmentModule = EquipmentModule(this)
 
     override var inventory: MobInventory? = MobInventory(this, 50)
 
@@ -59,11 +61,18 @@ class PlayerEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entit
     override fun physicUpdate() {
         pickUpComponent?.physicUpdate()
         handItemComponent.physicUpdate()
+        equipmentModule.physicUpdate()
         super.physicUpdate()
+    }
+
+    override fun logicalUpdate() {
+        equipmentModule.logicalUpdate()
+        super.logicalUpdate()
     }
 
     override fun renderUpdate() {
         handItemComponent.renderUpdate()
+        equipmentModule.renderUpdate()
         super.renderUpdate()
     }
 

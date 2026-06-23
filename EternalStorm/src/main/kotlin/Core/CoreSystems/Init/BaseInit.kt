@@ -31,7 +31,7 @@ object BaseInit {
         logger.debug("Applying sketch settings: FPS=${FrameLimiter.targetUpdateFPS}, PixelDensity=1, NoSmooth")
         ps.frameRate(FrameLimiter.targetUpdateFPS)
         ps.pixelDensity(1)
-        ps.noSmooth()
+        ps.noSmooth()   
 
         loadContent()
     }

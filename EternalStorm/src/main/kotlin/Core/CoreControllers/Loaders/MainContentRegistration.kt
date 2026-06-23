@@ -42,6 +42,9 @@ import la.vok.Game.GameContent.ContentList.BuffTags
 import la.vok.Game.GameContent.ContentList.StatTags
 import la.vok.Game.GameContent.CustomBuffTypes.BuffType
 import la.vok.Game.GameSystems.EntityComponents.Buffs.BuffRegistry
+import la.vok.Game.GameContent.TileData.ChestTileData
+import la.vok.Game.GameContent.TileTypes.ChestTileType
+import la.vok.Game.GameContent.Items.ItemTypes.Blocks.ChestTileItemType
 
 class MainContentRegistration(var coreController: CoreController) {
     fun regObjects(objectRegistration: ObjectRegistration) {
@@ -84,6 +87,7 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationItemType(DiamondOreTileItemType())
         objectRegistration.registrationItemType(BigTestBlockItemType())
         objectRegistration.registrationItemType(PlankTileItemType())
+        objectRegistration.registrationItemType(ChestTileItemType())
 
         // Material Brick Tile Items
         objectRegistration.registrationItemType(WoodenBrickTileItemType())
@@ -145,6 +149,7 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationTileType(BigTestBlockType())
         objectRegistration.registrationTileType(MultiTileDummyType(TilesList.multi_tile_dummy, LPoint.ZERO))
         objectRegistration.registrationTileType(TreePartType())
+        objectRegistration.registrationTileType(ChestTileType())
 
         // Material Brick Tiles
         objectRegistration.registrationTileType(WoodenBrickTileType())
