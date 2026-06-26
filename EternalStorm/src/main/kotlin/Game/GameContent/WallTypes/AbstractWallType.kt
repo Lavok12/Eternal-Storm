@@ -36,6 +36,7 @@ abstract class AbstractWallType : IBlockType {
     override val maxHp: Int = 0
     override val drop: DropEntry = NothingDrop
     override val tags: Set<String> = emptySet()
+    override fun isFullBlock(): Boolean = false
 
     open fun createWallData(x: Int, y: Int, dimension: AbstractDimension): AbstractWallData? = null
 

@@ -662,6 +662,26 @@ class MapApi(var gameCycle: GameCycle) {
         objectRegistration.walls[tag]!!
 
     // --------------------------------------------------------
+    // BLOCK CHECKS
+    // --------------------------------------------------------
+
+    fun isFullBlock(dimension: AbstractDimension, x: Int, y: Int): Boolean =
+        getTileType(dimension, x, y)?.isFullBlock() ?: false
+
+    fun isFullBlock(dimension: AbstractDimension, point: LPoint): Boolean =
+        isFullBlock(dimension, point.x, point.y)
+
+    fun hasFullBlockNear(dimension: AbstractDimension, x: Int, y: Int): Boolean =
+        isFullBlock(dimension, x + 1, y) || isFullBlock(dimension, x - 1, y) ||
+        isFullBlock(dimension, x, y + 1) || isFullBlock(dimension, x, y - 1)
+
+    fun hasFullBlockAbove(dimension: AbstractDimension, x: Int, y: Int): Boolean =
+        isFullBlock(dimension, x, y + 1)
+
+    fun hasFullBlockBelow(dimension: AbstractDimension, x: Int, y: Int): Boolean =
+        isFullBlock(dimension, x, y - 1)
+
+    // --------------------------------------------------------
     // SHARED
     // --------------------------------------------------------
 
@@ -700,7 +720,7 @@ class MapApi(var gameCycle: GameCycle) {
             for (dx in 0 until type.width) {
                 val cx = x + dx
                 val cy = y - 1
-                if (!tileIsActive(dimension, cx, cy)) return false
+                if (!isFullBlock(dimension, cx, cy)) return false
                 if (getMasterPoint(dimension, cx, cy) == masterPoint) return false
             }
             return true

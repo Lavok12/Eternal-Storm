@@ -12,6 +12,7 @@ interface IBlockType {
     val texture: String
     val drop: DropEntry
     val tags: Set<String>
+    fun isFullBlock(): Boolean = false
 
     fun onInteract(type: BlockInteractionType, context: BlockInteractionContext): Boolean
 

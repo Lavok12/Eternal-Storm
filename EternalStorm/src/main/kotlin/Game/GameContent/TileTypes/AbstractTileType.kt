@@ -43,6 +43,7 @@ abstract class AbstractTileType : IBlockType {
     override val tags: Set<String> = emptySet()
 
     open val canBeReplaced: Boolean = false
+    override fun isFullBlock(): Boolean = collisionType == CollisionType.FULL
 
     open fun hasTag(tag: String): Boolean = tag in tags
     

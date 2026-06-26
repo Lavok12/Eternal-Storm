@@ -18,4 +18,15 @@ class GrassTileType() : AbstractTileType() {
     override val texture: String = AppState.res("grassTexture.jpg")
     override val drop: DropEntry = SingleDrop(ItemsList.grass_block)
     override val tags: Set<String> = setOf(BlockTags.PLOWABLE)
+
+    override fun onUpdate(x: Int, y: Int, dimension: AbstractDimension, mapController: MapController) {
+        super.onUpdate(x, y, dimension, mapController)
+        val api = dimension.gameCycle.mapApi
+        if (api.hasFullBlockAbove(dimension, x, y)) {
+            api.setTileType(dimension, TilesList.dirt_block, x, y)
+            repeat(4) {
+                spawnTileParticle(x, y, dimension, mapController)
+            }
+        }
+    }
 }
