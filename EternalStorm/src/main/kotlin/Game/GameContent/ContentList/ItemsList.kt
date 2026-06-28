@@ -23,7 +23,11 @@ object ItemsList {
  
     val grass_block: String by lazy { AppState.tag("grass_block") }
     val dirt_block: String by lazy { AppState.tag("dirt_block") }
+    val sand_block: String by lazy { AppState.tag("sand_block") }
+    val sandstone_block: String by lazy { AppState.tag("sandstone_block") }
     val dirt_wall: String by lazy { AppState.tag("dirt_wall") }
+    val sand_wall: String by lazy { AppState.tag("sand_wall") }
+    val sandstone_wall: String by lazy { AppState.tag("sandstone_wall") }
     val plank_block: String by lazy { AppState.tag("plank_block") }
     val plank_wall: String by lazy { AppState.tag("plank_wall") }
     val stone_block: String by lazy { AppState.tag("stone_block") }

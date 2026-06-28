@@ -5,6 +5,8 @@ import la.vok.State.AppState
 object WallList {
 
     val dirt_wall: String by lazy { AppState.tag("dirt_wall") }
+    val sand_wall: String by lazy { AppState.tag("sand_wall") }
+    val sandstone_wall: String by lazy { AppState.tag("sandstone_wall") }
     val plank_wall: String by lazy { AppState.tag("plank_wall") }
     val wooden_brick_wall: String by lazy { AppState.tag("wooden_brick_wall") }
     val stone_brick_wall: String by lazy { AppState.tag("stone_brick_wall") }

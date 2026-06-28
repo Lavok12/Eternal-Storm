@@ -16,46 +16,79 @@ class MainMapGenerator(dimension: AbstractDimension) : AbstractMapGenerator(dime
     private val caveThreshold = 0.38f
 
     override fun generateTerrain() {
+        val smoothDesertFactors = FloatArray(width) { x ->
+            val biomeNoise = p.noise(x * 0.003f)
+            val desertFactor = ((biomeNoise - 0.4f) / 0.2f).coerceIn(0f, 1f)
+            desertFactor * desertFactor * (3f - 2f * desertFactor)
+        }
+
         val heightMap = IntArray(width) { x ->
-            (surfaceLevel + (p.noise(x * noiseScaleRelief) - 0.5f) * 160f).toInt()
+            val factor = smoothDesertFactors[x]
+            val normalHeight = surfaceLevel + (p.noise(x * noiseScaleRelief) - 0.5f) * 160f
+            val desertHeight = surfaceLevel + (p.noise(x * (noiseScaleRelief * 0.5f) + 1000f) - 0.5f) * 70f
+            (normalHeight * (1f - factor) + desertHeight * factor).toInt()
         }
 
         // 1. Основной ландшафт и пещеры
         for (x in 0 until width) {
             val surfY = heightMap[x]
+            val factor = smoothDesertFactors[x]
+            val soilDepth = (5 * (1f - factor) + 8 * factor).toInt()
+            val isDesertColumn = factor > 0.5f
+
             for (y in 0 until height) {
-                val isCave = y < surfY - 5 && p.noise(x * noiseScaleCaves, y * noiseScaleCaves) < caveThreshold
+                val isCave = y < surfY - soilDepth && p.noise(x * noiseScaleCaves, y * noiseScaleCaves) < caveThreshold
                 
                 if (isCave) {
                     // В пещерах ставим только стену
-                    val wallType = if (y < surfY - 40) WallList.plank_wall else WallList.dirt_wall
+                    val wallType = when {
+                        isDesertColumn && y < surfY - soilDepth -> WallList.sandstone_wall
+                        isDesertColumn -> WallList.sand_wall
+                        y < surfY - 40 -> WallList.plank_wall
+                        else -> WallList.dirt_wall
+                    }
                     mapApi.generateWall(dimension, wallType, x, y)
                 } else {
                     when {
-                        y == surfY + 1 && p.random(100f) < 5f -> {
+                        !isDesertColumn && y == surfY + 1 && p.random(100f) < 5f -> {
                             mapApi.generateTile(dimension, TilesList.sunflower, x, y)
                             mapApi.generateTile(dimension, MultiTileDummyType(TilesList.sunflower + "_dummy", 0 p -1), x, y + 1)
                             mapApi.generateTile(dimension, MultiTileDummyType(TilesList.sunflower + "_dummy", 0 p -2), x, y + 2)
                         }
-                        y == surfY + 1 && p.random(100f) < 25f -> mapApi.generateTile(dimension, TilesList.small_grass, x, y)
+                        !isDesertColumn && y == surfY + 1 && p.random(100f) < 25f -> mapApi.generateTile(dimension, TilesList.small_grass, x, y)
                         y > surfY -> { /* Air */ }
-                        y == surfY -> mapApi.generateTile(dimension, TilesList.grass_block, x, y)
-                        y > surfY - 5 -> mapApi.generateTile(dimension, TilesList.dirt_block, x, y)
-                        else -> mapApi.generateTile(dimension, TilesList.stone_block, x, y)
+                        y == surfY -> {
+                            val tileType = if (isDesertColumn) TilesList.sand_block else TilesList.grass_block
+                            mapApi.generateTile(dimension, tileType, x, y)
+                        }
+                        y > surfY - soilDepth -> {
+                            val tileType = if (isDesertColumn) TilesList.sand_block else TilesList.dirt_block
+                            mapApi.generateTile(dimension, tileType, x, y)
+                        }
+                        else -> {
+                            val tileType = if (isDesertColumn) TilesList.sandstone_block else TilesList.stone_block
+                            mapApi.generateTile(dimension, tileType, x, y)
+                        }
                     }
                     
                     // Стены для заполненных блоков
                     if (y <= surfY) {
-                        val wallType = if (y < surfY - 40) WallList.plank_wall else WallList.dirt_wall
+                        val wallType = when {
+                            isDesertColumn && y < surfY - soilDepth -> WallList.sandstone_wall
+                            isDesertColumn -> WallList.sand_wall
+                            y < surfY - 40 -> WallList.plank_wall
+                            else -> WallList.dirt_wall
+                        }
                         mapApi.generateWall(dimension, wallType, x, y)
                     }
                 }
             }
         }
 
-        // 2. Генерация руд (Оре clumps)
+        // 2. Генерация руд (Оре clumps) — только вне пустыни
         repeat(width * height / 800) {
             val rx = p.random(width.toFloat()).toInt()
+            if (smoothDesertFactors[rx] > 0.5f) return@repeat
             val ry = p.random(heightMap[rx].toFloat() - 20f).toInt()
             val type = if (ry < 200 && p.random(100f) < 20f) TilesList.diamond_ore_block else TilesList.gold_ore_block
             generateClump(rx, ry, type, p.random(3f, 7f).toInt())
@@ -68,9 +101,10 @@ class MainMapGenerator(dimension: AbstractDimension) : AbstractMapGenerator(dime
             generateHouse(rx, ry)
         }
 
-        // 4. Деревья на поверхности
+        // 4. Деревья на поверхности (только вне пустыни)
         for (x in 0 until width step 12) {
-            if (p.random(100f) < 40f) {
+            val isDesert = smoothDesertFactors[x] > 0.5f
+            if (!isDesert && p.random(100f) < 40f) {
                 generateTree(x, heightMap[x] + 1)
             }
         }

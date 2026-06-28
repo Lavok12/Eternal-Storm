@@ -82,6 +82,8 @@ class MainContentRegistration(var coreController: CoreController) {
         // Tile items
         objectRegistration.registrationItemType(GrassTileItemType())
         objectRegistration.registrationItemType(DirtTileItemType())
+        objectRegistration.registrationItemType(SandTileItemType())
+        objectRegistration.registrationItemType(SandstoneTileItemType())
         objectRegistration.registrationItemType(StoneTileItemType())
         objectRegistration.registrationItemType(GoldOreTileItemType())
         objectRegistration.registrationItemType(DiamondOreTileItemType())
@@ -104,6 +106,8 @@ class MainContentRegistration(var coreController: CoreController) {
 
         // Wall items
         objectRegistration.registrationItemType(DirtWallItemType())
+        objectRegistration.registrationItemType(SandWallItemType())
+        objectRegistration.registrationItemType(SandstoneWallItemType())
         objectRegistration.registrationItemType(PlankWallItemType())
 
         // Material Brick Wall Items
@@ -140,6 +144,8 @@ class MainContentRegistration(var coreController: CoreController) {
     private fun registerTiles(objectRegistration: ObjectRegistration) {
         objectRegistration.registrationTileType(GrassTileType())
         objectRegistration.registrationTileType(DirtTileType())
+        objectRegistration.registrationTileType(SandTileType())
+        objectRegistration.registrationTileType(SandstoneTileType())
         objectRegistration.registrationTileType(StoneTileType())
         objectRegistration.registrationTileType(GoldOreTileType())
         objectRegistration.registrationTileType(DiamondOreTileType())
@@ -173,6 +179,8 @@ class MainContentRegistration(var coreController: CoreController) {
 
     private fun registerWalls(objectRegistration: ObjectRegistration) {
         objectRegistration.registrationWallType(DirtWallType())
+        objectRegistration.registrationWallType(SandWallType())
+        objectRegistration.registrationWallType(SandstoneWallType())
         objectRegistration.registrationWallType(PlankWallType())
 
         // Material Brick Walls
