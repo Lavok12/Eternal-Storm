@@ -54,6 +54,13 @@ class TileBatchSystem(gameController: GameController) : BatchSystem(gameControll
                     blockSizeX, blockSizeY,
                     dim, gameController
                 )
+
+                masterTile.renderPollution(
+                    mx, my, batchLg,
+                    cx, cy,
+                    blockSizeX, blockSizeY,
+                    dim, gameController
+                )
                 
                 drawnMasters.add(mHash)
             }

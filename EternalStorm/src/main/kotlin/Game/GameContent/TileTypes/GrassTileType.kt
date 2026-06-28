@@ -19,6 +19,17 @@ class GrassTileType() : AbstractTileType() {
     override val drop: DropEntry = SingleDrop(ItemsList.grass_block)
     override val tags: Set<String> = setOf(BlockTags.PLOWABLE)
 
+    override fun getPollutionStrength(
+        targetBlock: la.vok.Game.GameSystems.WorldSystems.Map.IBlockType,
+        dimension: AbstractDimension,
+        x: Int, y: Int
+    ): Float {
+        if (targetBlock.tag == this.tag) return 0f
+        if (targetBlock.tag == TilesList.dirt_block) return 0.5f
+        if (targetBlock.tag == TilesList.sand_block) return 0.5f
+        return 1f
+    }
+
     override fun onUpdate(x: Int, y: Int, dimension: AbstractDimension, mapController: MapController) {
         super.onUpdate(x, y, dimension, mapController)
         val api = dimension.gameCycle.mapApi

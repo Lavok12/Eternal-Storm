@@ -41,6 +41,8 @@ object AppState {
     fun tag(name: String): String {
         return ResourceLocation.parse(name).toString().intern()
     }
+    
+    const val TRANSITION_TEXTURE_SIZE = 100
     // -------------------------------
 
     var doubleClickDelay = 300L
@@ -65,9 +67,10 @@ object AppState {
 
 
     var enableBatching = true
+    var enablePollutionRendering = true
     var debugBatchGrid = false
     var batchChunkSize = 16
-    var batchBlockResolution = 16f
+    var batchBlockResolution = 20f
     var batchAoResolution = 12f
     var batchAoAlpha = 255f
     var batchAoBlurMultiplier = 0.8f

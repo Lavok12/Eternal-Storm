@@ -671,6 +671,11 @@ class MapApi(var gameCycle: GameCycle) {
     fun isFullBlock(dimension: AbstractDimension, point: LPoint): Boolean =
         isFullBlock(dimension, point.x, point.y)
 
+    fun isFullWall(dimension: AbstractDimension, x: Int, y: Int): Boolean = true
+
+    fun isFullWall(dimension: AbstractDimension, point: LPoint): Boolean =
+        isFullWall(dimension, point.x, point.y)
+
     fun hasFullBlockNear(dimension: AbstractDimension, x: Int, y: Int): Boolean =
         isFullBlock(dimension, x + 1, y) || isFullBlock(dimension, x - 1, y) ||
         isFullBlock(dimension, x, y + 1) || isFullBlock(dimension, x, y - 1)

@@ -16,4 +16,15 @@ class DirtTileType() : AbstractTileType() {
     override val drop: DropEntry = SingleDrop(ItemsList.dirt_block)
     override val tags: Set<String> = setOf(BlockTags.PLOWABLE)
     override val hasGravity: Boolean = true
+
+    override fun getPollutionStrength(
+        targetBlock: la.vok.Game.GameSystems.WorldSystems.Map.IBlockType,
+        dimension: la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension,
+        x: Int, y: Int
+    ): Float {
+        if (targetBlock.tag == this.tag) return 0f
+        if (targetBlock.tag == TilesList.grass_block) return 0.5f
+        if (targetBlock.tag == TilesList.sand_block) return 0.5f
+        return 1f
+    }
 }

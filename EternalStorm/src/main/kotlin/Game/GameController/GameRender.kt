@@ -105,6 +105,12 @@ class GameRender(val gameController: GameController) : Controller {
                         blockSizeX, blockSizeY,
                         dim, gameController
                     )
+                    wallType.renderPollution(
+                        ix, iy, lg,
+                        cx, cy,
+                        blockSizeX, blockSizeY,
+                        dim, gameController
+                    )
                 }
             }
         }
@@ -180,6 +186,12 @@ class GameRender(val gameController: GameController) : Controller {
                     val cy = camera.useCameraPosY(iy.toFloat() + (tileType.height - 1) / 2f)
 
                     tileType.render(
+                        ix, iy, lg,
+                        cx, cy,
+                        blockSizeX, blockSizeY,
+                        dim, gameController
+                    )
+                    tileType.renderPollution(
                         ix, iy, lg,
                         cx, cy,
                         blockSizeX, blockSizeY,

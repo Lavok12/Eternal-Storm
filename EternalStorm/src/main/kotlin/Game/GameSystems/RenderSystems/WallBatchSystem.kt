@@ -48,6 +48,13 @@ class WallBatchSystem(gameController: GameController) : BatchSystem(gameControll
                     blockSizeX, blockSizeY,
                     dim, gameController
                 )
+
+                wallType.renderPollution(
+                    ix, iy, batchLg,
+                    cx, cy,
+                    blockSizeX, blockSizeY,
+                    dim, gameController
+                )
             }
         }
         AppState.isBatchRendering = false

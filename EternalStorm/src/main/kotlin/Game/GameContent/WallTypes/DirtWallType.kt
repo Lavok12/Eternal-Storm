@@ -17,6 +17,15 @@ class DirtWallType() : AbstractWallType() {
     override val texture: String = AppState.res("dirtTexture.jpg")
     override val drop: DropEntry = SingleDrop(ItemsList.dirt_wall)
 
+    override fun getPollutionStrength(
+        targetBlock: la.vok.Game.GameSystems.WorldSystems.Map.IBlockType,
+        dimension: AbstractDimension,
+        x: Int, y: Int
+    ): Float {
+        if (targetBlock.tag == this.tag) return 0f
+        return 1f
+    }
+
     override fun render(
         pointX: Int,
         pointY: Int,
