@@ -6,12 +6,18 @@ import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 import la.vok.LavokLibrary.LGraphics.LGraphics
 import la.vok.LavokLibrary.Vectors.LColor
 
+import la.vok.Game.GameContent.CustomBuffTypes.BuffType
+import la.vok.Game.GameSystems.EntityComponents.Buffs.BuffRegistry
+import la.vok.Game.GameContent.ContentList.BuffTags
+
 class LavaLiquidType : AbstractLiquidType() {
     override val id: Byte = LiquidList.LAVA_ID
     override val tag: String = LiquidList.lava
     override val color: LColor = LColor(255f, 80f, 0f, 240f)
     override val viscosity: Int = 4
     override val density: Int = 20
+    override val viscosityForEntities: Float = 0.5f
+    override val touchBuff: BuffType? get() = BuffRegistry.get(BuffTags.BURNING)
 
     override fun renderBackground(
         lg: LGraphics,

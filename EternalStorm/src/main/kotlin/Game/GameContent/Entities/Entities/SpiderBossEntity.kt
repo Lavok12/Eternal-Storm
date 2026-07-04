@@ -9,6 +9,7 @@ import la.vok.Game.GameSystems.EntityComponents.Collision.HitboxTypes
 import la.vok.Game.GameSystems.EntityComponents.GravityComponent
 import la.vok.Game.GameSystems.EntityComponents.HpBody
 import la.vok.Game.GameSystems.EntityComponents.PhysicsComponent
+import la.vok.Game.GameSystems.EntityComponents.LiquidDetectorComponent
 import la.vok.Game.GameSystems.WorldSystems.Entities.EntityApi
 import la.vok.LavokLibrary.Vectors.Vec2
 import la.vok.LavokLibrary.Vectors.v
@@ -32,6 +33,7 @@ class SpiderBossEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : E
         removeComponent<GravityComponent>()
         rigidBody?.friction = 0.05f
         hasCollisionDetector = true 
+        addComponent(LiquidDetectorComponent(this))
     }
 
     override fun spawn() {

@@ -13,6 +13,8 @@ import la.vok.Game.GameSystems.EntityComponents.HandItemComponent
 import la.vok.Game.GameSystems.EntityComponents.PickUpComponent
 import la.vok.Game.GameContent.Entities.Ai.PlayerAI
 import la.vok.Game.GameSystems.EntityComponents.EquipmentModule
+import la.vok.Game.GameSystems.EntityComponents.LiquidDetectorComponent
+import la.vok.Game.GameSystems.EntityComponents.OxygenComponent
 import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
 import la.vok.LavokLibrary.Vectors.v
 
@@ -26,6 +28,11 @@ class PlayerEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entit
     var equipmentModule = EquipmentModule(this)
 
     override var inventory: MobInventory? = MobInventory(this, 50)
+
+    init {
+        addComponent(LiquidDetectorComponent(this))
+        addComponent(OxygenComponent(this))
+    }
 
     override fun changeFacing(newFacing: Int) {
         if (handItemComponent.isFacingBlocked()) return

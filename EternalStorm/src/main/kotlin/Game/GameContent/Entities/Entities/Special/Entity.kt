@@ -71,6 +71,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     open var baseBackResistance = 0f
     open var bodyDamage = 10
     open var bodyKnockBack = 0.12f
+    var slowsDownInLiquids: Boolean = true
 
     open fun changeFacing(newFacing: Int) {
         facing = newFacing
@@ -84,7 +85,7 @@ open class Entity(var entityType: AbstractEntityType, var gameCycle: GameCycle) 
     open var renderEntity: RenderObjectInterface? = BaseRenderEntity(getRenderLayer())
     open var hpRender: HpRender? = null
 
-    // ─── Legacy Components (Soon to be migrated) ──────────────────────────
+    // ─── Components ──────────────────────────────────────────────────────────
 
     open var ai: AbstractAI? = null
     open var inventory: MobInventory? = null

@@ -11,4 +11,6 @@ class BuffType(
     val onApply: ((Entity) -> Unit)? = null,
     val onTick: ((Entity) -> Unit)? = null,
     val onRemove: ((Entity, Boolean) -> Unit)? = null
-)
+) {
+    var tickCount: Int = 0
+}

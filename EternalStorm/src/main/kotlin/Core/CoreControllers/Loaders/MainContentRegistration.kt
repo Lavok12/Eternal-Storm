@@ -280,6 +280,53 @@ class MainContentRegistration(var coreController: CoreController) {
                 Modifier(StatTags.REGEN, 5f, ModifierType.ADD)
             )
         ))
+
+        // Water touch status effect (wet flag)
+        BuffRegistry.register(BuffType(
+            tag = BuffTags.WET,
+            maxTicks = -1,
+            modifiers = listOf(
+                Modifier(BuffTags.WET, 1f, ModifierType.FLAG)
+            )
+        ))
+
+        // Lava touch status effect (burning flag)
+        BuffRegistry.register(BuffType(
+            tag = BuffTags.BURNING,
+            maxTicks = -1,
+            modifiers = listOf(
+                Modifier(BuffTags.BURNING, 1f, ModifierType.FLAG)
+            )
+        ))
+
+        // Acid touch status effect (acid burn flag)
+        BuffRegistry.register(BuffType(
+            tag = BuffTags.ACID_BURN,
+            maxTicks = -1,
+            modifiers = listOf(
+                Modifier(BuffTags.ACID_BURN, 1f, ModifierType.FLAG)
+            )
+        ))
+
+        // Drowning status effect (ticks-based drowning damage)
+        BuffRegistry.register(BuffType(
+            tag = BuffTags.DROWNING,
+            maxTicks = -1,
+            onTick = { entity ->
+                val activeBuff = entity.buffController.getActiveBuffs().find { it.type.tag == BuffTags.DROWNING }
+                val ticks = activeBuff?.tickCount ?: 0
+                val oxygenComp = entity.getComponent<la.vok.Game.GameSystems.EntityComponents.OxygenComponent>()
+                val interval = oxygenComp?.drownDamageInterval ?: 60
+                
+                if (ticks > 0 && ticks % interval == 0) {
+                    val damage = oxygenComp?.drownDamage ?: 10
+                    val hitbox = entity.mainHitbox ?: entity.hitboxes.values.firstOrNull()
+                    if (hitbox != null) {
+                        entity.takeDamage(la.vok.Game.GameSystems.WorldSystems.Entities.DamageData(damage, la.vok.LavokLibrary.Vectors.Vec2.ZERO, null, null), hitbox)
+                    }
+                }
+            }
+        ))
     }
 
     private fun registerCrafts(objectRegistration: ObjectRegistration) {

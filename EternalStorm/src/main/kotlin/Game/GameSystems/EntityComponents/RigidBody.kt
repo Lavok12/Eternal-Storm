@@ -29,11 +29,17 @@ class RigidBody(entity: Entity) : EntityComponent(entity) {
         deltaPosition = deltaPosition + speed
     }
     fun useFriction() {
-        if (entity.isAnyPhysicBlockCollision()) {
-            speed = speed * (1f - blockFriction)
-        } else {
-            speed = speed * (1f - friction)
+        val baseFriction = if (entity.isAnyPhysicBlockCollision()) blockFriction else friction
+        val detector = entity.getComponent<LiquidDetectorComponent>()
+        var viscosity = if (entity.slowsDownInLiquids) detector?.maxViscosity ?: 0f else 0f
+        
+        if (viscosity > 0f) {
+            val liquidSpeedMod = entity.buffController.getStat(la.vok.Game.GameContent.ContentList.StatTags.LIQUID_SPEED, 1f)
+            viscosity = (viscosity / liquidSpeedMod).coerceIn(0f, 1f)
         }
+        
+        val totalFriction = (baseFriction + viscosity).coerceIn(0f, 1f)
+        speed = speed * (1f - totalFriction)
     }
     fun containsSteps(): Boolean {
         return abs(deltaPosition.x) > 0.0001f || abs(deltaPosition.y) > 0.0001f

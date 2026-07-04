@@ -10,6 +10,8 @@ import la.vok.Game.GameContent.ContentList.EntityTags
 import la.vok.Game.GameController.GameCycle
 import la.vok.Game.GameSystems.WorldSystems.Entities.TagFilter
 
+import la.vok.Game.GameSystems.EntityComponents.LiquidDetectorComponent
+
 @Suppress("UNCHECKED_CAST")
 class SlimeEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity(entityType, gameCycle) {
     override var renderEntity: RenderObjectInterface? = SlimeRenderEntity(getRenderLayer())
@@ -19,6 +21,7 @@ class SlimeEntity(entityType: AbstractEntityType, gameCycle: GameCycle) : Entity
 
     init {
         hasCollisionDetector = true
+        addComponent(LiquidDetectorComponent(this))
     }
     override fun physicUpdate() {
         super.physicUpdate()

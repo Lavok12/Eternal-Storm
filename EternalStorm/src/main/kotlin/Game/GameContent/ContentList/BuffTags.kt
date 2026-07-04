@@ -6,6 +6,10 @@ object BuffTags {
     val SPEED = AppState.tag("speed")
     val REGENERATION = AppState.tag("regeneration")
     val RAGE = AppState.tag("rage")
+    val WET = AppState.tag("water_touch")
+    val BURNING = AppState.tag("lava_touch")
+    val ACID_BURN = AppState.tag("acid_touch")
+    val DROWNING = AppState.tag("drowning")
 }
 
 object StatTags {
@@ -24,4 +28,8 @@ object StatTags {
     val REGEN = AppState.tag("stat_regen")
     val GRAVITY = AppState.tag("stat_gravity")
     val RESISTANCE = AppState.tag("stat_resistance")
+    val MAX_OXYGEN = AppState.tag("stat_max_oxygen")
+    val LIQUID_SPEED = AppState.tag("stat_liquid_speed")
+    val OXYGEN_DRAIN = AppState.tag("stat_oxygen_drain")
+    val OXYGEN_REGEN = AppState.tag("stat_oxygen_regen")
 }

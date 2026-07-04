@@ -57,4 +57,6 @@ sealed class EntityEvent {
     data class DimensionChanged(val oldDim: String, val newDim: String) : EntityEvent()
     object Hidden : EntityEvent()
     object Shown : EntityEvent()
+    data class LiquidContactStart(val liquid: la.vok.Game.GameContent.LiquidTypes.AbstractLiquidType) : EntityEvent()
+    data class LiquidContactEnd(val liquid: la.vok.Game.GameContent.LiquidTypes.AbstractLiquidType) : EntityEvent()
 }

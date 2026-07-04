@@ -5,12 +5,16 @@ import la.vok.LavokLibrary.Vectors.LColor
 import la.vok.Game.GameContent.Dimensions.Dimensions.AbstractDimension
 import la.vok.Core.GameControllers.GameController
 
+import la.vok.Game.GameContent.CustomBuffTypes.BuffType
+
 abstract class AbstractLiquidType {
     abstract val id: Byte
     abstract val tag: String
     abstract val color: LColor
     abstract val viscosity: Int // 1 = fast, 5 = slow (skipped update cycles)
     abstract val density: Int   // Heavier liquids (higher density) sink below lighter ones
+    open val viscosityForEntities: Float = 0.0f
+    open val touchBuff: BuffType? = null
 
     /**
      * @param amount Liquid amount from 0 to 255
