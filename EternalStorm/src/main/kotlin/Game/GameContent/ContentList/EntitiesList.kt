@@ -13,4 +13,5 @@ object EntitiesList {
     val damage: String by lazy { AppState.tag("Damage") }
     val spider_boss: String by lazy { AppState.tag("SpiderBoss") }
     val spider_leg: String by lazy { AppState.tag("SpiderLeg") }
+    val tumbleweed: String by lazy { AppState.tag("Tumbleweed") }
 }

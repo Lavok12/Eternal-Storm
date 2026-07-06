@@ -3,6 +3,7 @@ package Core.CoreControllers.Loaders
 import Core.CoreControllers.ObjectRegistration
 import la.vok.Game.GameContent.TileTypes.GrassTileType
 import la.vok.Core.CoreControllers.CoreController
+import la.vok.Core.FrameLimiter
 import la.vok.Game.GameContent.ContentList.LiquidList
 import la.vok.Game.GameContent.Crafts.CraftRegistrator
 import la.vok.Game.GameContent.Entities.EntitiTypes.*
@@ -41,10 +42,14 @@ import la.vok.Game.GameSystems.EntityComponents.Buffs.*
 import la.vok.Game.GameContent.ContentList.BuffTags
 import la.vok.Game.GameContent.ContentList.StatTags
 import la.vok.Game.GameContent.CustomBuffTypes.BuffType
+import la.vok.Game.GameContent.Entities.Entities.Special.Entity
 import la.vok.Game.GameSystems.EntityComponents.Buffs.BuffRegistry
 import la.vok.Game.GameContent.TileData.ChestTileData
 import la.vok.Game.GameContent.TileTypes.ChestTileType
 import la.vok.Game.GameContent.Items.ItemTypes.Blocks.ChestTileItemType
+import la.vok.Game.GameSystems.EntityComponents.HpBody
+import la.vok.Game.GameSystems.WorldSystems.Entities.DamageData
+import la.vok.LavokLibrary.Vectors.v
 
 class MainContentRegistration(var coreController: CoreController) {
     fun regObjects(objectRegistration: ObjectRegistration) {
@@ -87,6 +92,8 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationItemType(StoneTileItemType())
         objectRegistration.registrationItemType(GoldOreTileItemType())
         objectRegistration.registrationItemType(DiamondOreTileItemType())
+        objectRegistration.registrationItemType(CopperOreTileItemType())
+        objectRegistration.registrationItemType(IronOreTileItemType())
         objectRegistration.registrationItemType(BigTestBlockItemType())
         objectRegistration.registrationItemType(PlankTileItemType())
         objectRegistration.registrationItemType(ChestTileItemType())
@@ -135,6 +142,7 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationItemType(SunflowerItemType())
         objectRegistration.registrationItemType(WheatItemType())
         objectRegistration.registrationItemType(WheatSeedsItemType())
+        objectRegistration.registrationItemType(RawCopperItemType())
 
         objectRegistration.registrationItemType(WaterBucketItemType())
         objectRegistration.registrationItemType(LavaBucketItemType())
@@ -149,6 +157,8 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationTileType(StoneTileType())
         objectRegistration.registrationTileType(GoldOreTileType())
         objectRegistration.registrationTileType(DiamondOreTileType())
+        objectRegistration.registrationTileType(CopperOreTileType())
+        objectRegistration.registrationTileType(IronOreTileType())
         objectRegistration.registrationTileType(FarmlandTileType())
         objectRegistration.registrationTileType(WheatTileType())
         objectRegistration.registrationTileType(PlankTileType())
@@ -203,6 +213,7 @@ class MainContentRegistration(var coreController: CoreController) {
         objectRegistration.registrationEntityType(BossEntityType())
         objectRegistration.registrationEntityType(SpiderBossEntityType())
         objectRegistration.registrationEntityType(SpiderLegEntityType())
+        objectRegistration.registrationEntityType(TumbleweedEntityType())
         
         objectRegistration.registrationEntityType(AbstractEntityType.ItemEntityType)
         objectRegistration.registrationEntityType(AbstractEntityType.ProjectileEntityType)
@@ -296,7 +307,16 @@ class MainContentRegistration(var coreController: CoreController) {
             maxTicks = -1,
             modifiers = listOf(
                 Modifier(BuffTags.BURNING, 1f, ModifierType.FLAG)
-            )
+            ),
+            onTick = {entity ->
+                if (FrameLimiter.totalPhysicsFrames % 60f == 0f) {
+                    entity.gameCycle.entityApi.absoluteDamage(
+                        entity.dimension,
+                        entity,
+                        DamageData(25, 0 v 0.1, -1, null, false)
+                    )
+                }
+            }
         ))
 
         // Acid touch status effect (acid burn flag)
@@ -305,8 +325,12 @@ class MainContentRegistration(var coreController: CoreController) {
             maxTicks = -1,
             modifiers = listOf(
                 Modifier(BuffTags.ACID_BURN, 1f, ModifierType.FLAG)
-            )
+            ),
+            onTick = {entity ->
+                entity.gameCycle.entityApi.absoluteDamage(entity.dimension, entity, DamageData(1, 0 v 0, -1, null))
+            }
         ))
+
 
         // Drowning status effect (ticks-based drowning damage)
         BuffRegistry.register(BuffType(

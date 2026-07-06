@@ -132,12 +132,11 @@ class GameRender(val gameController: GameController) : Controller {
             }
         }
 
-        // Draw background layers
-        renderLayer.drawLayer(RenderLayers.Main.B1, lg, camera)
-        renderLayer.drawLayer(RenderLayers.Main.B2, lg, camera)
-        renderLayer.drawLayer(RenderLayers.Main.B3, lg, camera)
-        renderLayer.drawLayer(RenderLayers.Main.B4, lg, camera)
-        renderLayer.drawLayer(RenderLayers.Main.B5, lg, camera)
+        // Draw background parallax layers (BACKGROUND group: parallax < 1.0)
+        renderLayer.drawGroup(RenderLayers.LayerGroup.BACKGROUND, lg, camera)
+
+        // Draw gameplay background layers (LEVEL_BACKGROUND group: parallax = 1.0)
+        renderLayer.drawGroup(RenderLayers.LayerGroup.LEVEL_BACKGROUND, lg, camera)
 
         if (la.vok.State.AppState.enableBatching && camera.size <= la.vok.State.AppState.batchMaxZoom) {
             gameController.gameCycle.batchApi.aoBatchSystem.render(lg, camera, dim)
@@ -205,12 +204,8 @@ class GameRender(val gameController: GameController) : Controller {
         dim.particleSystem!!.render(lg, camera)
         highlightRender.render(lg, camera)
 
-        // Draw foreground layers
-        renderLayer.drawLayer(RenderLayers.Main.A1, lg, camera)
-        renderLayer.drawLayer(RenderLayers.Main.A2, lg, camera)
-        renderLayer.drawLayer(RenderLayers.Main.A3, lg, camera)
-        renderLayer.drawLayer(RenderLayers.Main.A4, lg, camera)
-        renderLayer.drawLayer(RenderLayers.Main.A5, lg, camera)
+        // Draw gameplay foreground layers (LEVEL_FOREGROUND group: parallax = 1.0)
+        renderLayer.drawGroup(RenderLayers.LayerGroup.LEVEL_FOREGROUND, lg, camera)
 
         if (gameController.playerDimension?.liquidController != null) {
             val liquidSystem = gameController.playerDimension!!.liquidController!!.liquidSystem
@@ -228,11 +223,11 @@ class GameRender(val gameController: GameController) : Controller {
             }
         }
 
-        renderLayer.drawLayer(RenderLayers.Main.C1, lg, camera)
-        renderLayer.drawLayer(RenderLayers.Main.C2, lg, camera)
-        renderLayer.drawLayer(RenderLayers.Main.C3, lg, camera)
-        renderLayer.drawLayer(RenderLayers.Main.C4, lg, camera)
-        renderLayer.drawLayer(RenderLayers.Main.C5, lg, camera)
+        // Draw reverse-parallax foreground layers (FOREGROUND group: parallax > 1.0)
+        renderLayer.drawGroup(RenderLayers.LayerGroup.FOREGROUND, lg, camera)
+
+        // Draw overlay / HUD layers (OVERLAY group: parallax = 1.0)
+        renderLayer.drawGroup(RenderLayers.LayerGroup.OVERLAY, lg, camera)
 
         if (!gameController.gameCycle.entityApi.containsEntityById(dim, gameController.playerControl.playerId)) {
             lg.fill(250f, 50f, 50f)

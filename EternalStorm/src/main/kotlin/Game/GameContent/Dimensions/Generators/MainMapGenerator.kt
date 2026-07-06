@@ -90,7 +90,13 @@ class MainMapGenerator(dimension: AbstractDimension) : AbstractMapGenerator(dime
             val rx = p.random(width.toFloat()).toInt()
             if (smoothDesertFactors[rx] > 0.5f) return@repeat
             val ry = p.random(heightMap[rx].toFloat() - 20f).toInt()
-            val type = if (ry < 200 && p.random(100f) < 20f) TilesList.diamond_ore_block else TilesList.gold_ore_block
+            val rand = p.random(100f)
+            val type = when {
+                ry < 200 && rand < 20f -> TilesList.diamond_ore_block
+                ry > heightMap[rx] * 0.6f && rand < 60f -> TilesList.copper_ore_block
+                ry > heightMap[rx] * 0.3f && rand < 50f -> TilesList.iron_ore_block
+                else -> TilesList.gold_ore_block
+            }
             generateClump(rx, ry, type, p.random(3f, 7f).toInt())
         }
 

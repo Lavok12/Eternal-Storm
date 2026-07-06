@@ -7,5 +7,6 @@ data class DamageData(
     var value: Int,
     var force: Vec2,
     var sourceId: Long? = 0,
-    var weapon: HandItem? = null
+    var weapon: HandItem? = null,
+    var visualDamage: Boolean = true
 )

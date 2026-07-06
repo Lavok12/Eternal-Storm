@@ -28,7 +28,9 @@ class DamageSystem(val gameCycle: GameCycle) {
         entity.hpBody?.hp -= damage.value
         checkEntityHp(dimension, entity)
         entity.damage(damage)
-        gameCycle.vfxObjectsApi.spawnDamageValue(dimension, entity.position, damage.value)
+        if (damage.visualDamage) {
+            gameCycle.vfxObjectsApi.spawnDamageValue(dimension, entity.position, damage.value)
+        }
     }
 
     fun checkEntityHp(dimension: AbstractDimension, entity: Entity) {

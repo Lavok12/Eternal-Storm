@@ -15,3 +15,10 @@
 // Прочее
 "items.eternal_storm.teleporter.name": "Телепорт"
 "items.eternal_storm.teleporter.description": "Мгновенно перемещает владельца в заданную точку."
+
+"items.eternal_storm.copper_ore_block.name": "Медная руда"
+"items.eternal_storm.copper_ore_block.description": "Блок медной руды. Можно разместить."
+"items.eternal_storm.iron_ore_block.name": "Железная руда"
+"items.eternal_storm.iron_ore_block.description": "Блок железной руды. Можно разместить."
+"items.eternal_storm.raw_copper_item.name": "Необработанная медь"
+"items.eternal_storm.raw_copper_item.description": "Кусок медной руды, добытый из земли. Нельзя разместить."

@@ -35,4 +35,6 @@ object TilesList {
     val sunflower: String by lazy { AppState.tag("sunflower") }
     val wheat_block: String by lazy { AppState.tag("wheat_block") }
     val chest_block: String by lazy { AppState.tag("chest_block") }
+    val copper_ore_block: String by lazy { AppState.tag("copper_ore_block") }
+    val iron_ore_block: String by lazy { AppState.tag("iron_ore_block") }
 }

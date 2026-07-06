@@ -1,6 +1,7 @@
 package la.vok.Core.GameContent.RenderSystem.RenderLayers
 
 import la.vok.Core.CoreContent.Camera.Camera
+import la.vok.Core.CoreContent.Camera.StandartCamera
 import la.vok.LLibs.Logger.Logger
 import la.vok.Core.GameContent.RenderSystem.RenderLayers.Objects.RenderObjectInterface
 import la.vok.Core.GameControllers.GameRender
@@ -21,6 +22,12 @@ class LayersRenderContainer (
                 logger.trace("Created SublayersRenderContainer for layer #$index")
             }
         }
+
+    /**
+     * Переиспользуемая камера с параллаксом — позволяет избежать аллокаций в hot-path рендеринга.
+     * Обновляется перед каждым вызовом drawLayer через drawGroup.
+     */
+    private val parallaxCamera = StandartCamera()
 
     init {
         logger.info("LayersRenderContainer initialized with ${layers.size} layers of type ${RenderLayers.Main::class.simpleName}")
@@ -86,6 +93,37 @@ class LayersRenderContainer (
         }
 
         logger.trace("drawLayer: finished drawing layer #$l, rendered $count objects")
+    }
+
+    /**
+     * Отрисовывает все слои из указанной группы с учётом параллакса каждого слоя.
+     *
+     * Для слоёв с parallax == 1.0 используется оригинальная камера напрямую (без копирования).
+     * Для остальных применяется [parallaxCamera] с пересчитанными pos и size.
+     *
+     * @param group   Группа слоёв для отрисовки.
+     * @param lGraphics  Контекст рендеринга.
+     * @param camera  Основная камера игрока.
+     */
+    fun drawGroup(group: RenderLayers.LayerGroup, lGraphics: LGraphics, camera: Camera) {
+        for (layer in RenderLayers.Main.entries) {
+            if (layer.group != group) continue
+
+            val activeCamera: Camera = if (layer.parallax == 1.0f) {
+                camera
+            } else {
+                // Параллакс через масштаб: size * parallax
+                // pos пересчитывается так, чтобы центр мира оставался на месте
+                val parallaxSize = camera.size * layer.parallax
+                // pos = camera.pos * parallax, чтобы сдвиг был пропорционален
+                parallaxCamera.pos.x = camera.pos.x * layer.parallax
+                parallaxCamera.pos.y = camera.pos.y * layer.parallax
+                parallaxCamera.size = parallaxSize
+                parallaxCamera
+            }
+
+            drawLayer(layer, lGraphics, activeCamera)
+        }
     }
 
     // Дополнительно: метод для отладки количества объектов в каждом слое

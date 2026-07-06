@@ -28,7 +28,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
     // UI CONSTANTS & DESIGN TOKENS
     // =====================================================================
 
-    private val panelW      = 780f
+    private val panelW      = 1020f
     private val panelH      = 760f
     private val cornerR     = 18f
     
@@ -36,7 +36,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
     private val tabH        = 40f
     private val tabGap      = 12f
     
-    private val cellW       = 560f
+    private val cellW       = 740f
     private val cellH       = 58f
     private val cellGap     = 10f
 
@@ -44,7 +44,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
     // STATE & ANIMATION
     // =====================================================================
 
-    private enum class Tab { ENTITIES, ITEMS, CRAFTS, DIMENSIONS, TECH }
+    private enum class Tab { ENTITIES, ITEMS, CRAFTS, DIMENSIONS, TECH, BUFFS }
     private var activeTab    = Tab.ENTITIES
     private var targetTab    = Tab.ENTITIES
     
@@ -112,11 +112,19 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
         Tab.CRAFTS     -> gameController.gameCycle.craftApi.allCrafts
         Tab.DIMENSIONS -> gameController.gameCycle.dimensionsController.dimensions.values.sortedBy { it.dimensionTag }.toList()
         Tab.TECH       -> emptyList()
+        Tab.BUFFS      -> {
+            val player = gameController.playerControl.getPlayerEntity()
+            player?.buffController?.getActiveBuffs()?.toList() ?: emptyList()
+        }
     }
 
     private fun getMaxScroll(): Float {
         val listSize = getList().size
-        val effectiveCellH = if (activeTab == Tab.CRAFTS) cellH * 1.5f else cellH
+        val effectiveCellH = when (activeTab) {
+            Tab.CRAFTS -> cellH * 1.5f
+            Tab.BUFFS  -> 70f
+            else       -> cellH
+        }
         val totalHeight = listSize * (effectiveCellH + cellGap)
         val viewportH = panelH - 220f
         return (totalHeight - viewportH).coerceAtLeast(0f)
@@ -183,6 +191,7 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
             Tab.CRAFTS     -> drawCrafts(cx, contentTopY - 20f * scale, viewportH, alpha, scale)
             Tab.DIMENSIONS -> drawDimensions(cx, contentTopY, viewportH, alpha, scale)
             Tab.TECH       -> drawTech(cx, contentTopY, viewportH, alpha, scale)
+            Tab.BUFFS      -> drawBuffs(cx, contentTopY, viewportH, alpha, scale)
         }
     }
 
@@ -495,6 +504,99 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
         lg.setBlock(hx, yOff, 30f * scale, 30f * scale)
     }
 
+    private fun drawBuffs(cx: Float, topY: Float, viewH: Float, alpha: Float, scale: Float) {
+        @Suppress("UNCHECKED_CAST")
+        val list = getList() as List<la.vok.Game.GameSystems.EntityComponents.Buffs.BuffInstance>
+        val ch = 70f * scale
+        val cw = cellW * scale
+        val gap = cellGap * scale
+        val tw = panelW * 0.82f * scale
+
+        if (list.isEmpty()) {
+            lg.setTextAlign(0, 0)
+            lg.fill(140f, 160f, 200f, 160f * alpha)
+            lg.setText("No active buffs", cx, topY - viewH / 2f, 16f * scale)
+            return
+        }
+
+        list.forEachIndexed { i, instance ->
+            val posY = topY - i * (ch + gap) + scroll * scale
+            if (posY > topY + ch || posY < topY - viewH - ch) return@forEachIndexed
+
+            val isHover = hoveredIndex == i
+            val isPermanent = instance.maxTicks <= 0
+            val progress = if (isPermanent) 1f else instance.progress
+
+            // --- Background ---
+            val bgR = if (isHover && hoveredBtn == 0) 45f else 28f
+            val bgG = if (isHover && hoveredBtn == 0) 35f else 22f
+            val bgB = if (isHover && hoveredBtn == 0) 68f else 48f
+            lg.fill(bgR, bgG, bgB, 200f * alpha)
+            lg.setBlock(cx, posY, cw, ch)
+
+            // --- Left accent bar (color by type) ---
+            if (isPermanent) {
+                lg.fill(180f, 80f, 255f, 200f * alpha)  // purple for permanent
+            } else {
+                // green -> red by expiry
+                lg.fill(80f + (1f - progress) * 175f, 200f * progress, 60f, 200f * alpha)
+            }
+            lg.setBlock(cx - cw / 2f + 5f * scale, posY, 5f * scale, ch * 0.85f)
+
+            // --- Buff tag name ---
+            lg.setTextAlign(-1, 0)
+            lg.fill(220f, 230f, 255f, 240f * alpha)
+            lg.setText(instance.type.tag, cx - cw / 2f + 22f * scale, posY + ch * 0.15f, 14f * scale)
+
+            // --- Tick info line ---
+            val tickInfo = if (isPermanent) {
+                "tick: ${instance.tickCount}  |  permanent"
+            } else {
+                "tick: ${instance.tickCount}  |  remaining: ${instance.ticksRemaining} / ${instance.maxTicks}"
+            }
+            lg.fill(140f, 160f, 200f, 180f * alpha)
+            lg.setText(tickInfo, cx - cw / 2f + 22f * scale, posY - ch * 0.12f, 11f * scale)
+
+            // --- Progress bar (only for timed buffs) ---
+            if (!isPermanent) {
+                val barFullW = cw * 0.52f
+                val barH = 6f * scale
+                val barX = cx - cw / 2f + 22f * scale
+                val barY = posY - ch * 0.32f
+                lg.fill(20f, 25f, 40f, 180f * alpha)
+                lg.setBlock(barX + barFullW / 2f, barY, barFullW, barH)
+                val fillW = barFullW * progress
+                if (fillW > 0f) {
+                    lg.fill(80f + (1f - progress) * 175f, 200f * progress, 60f, 220f * alpha)
+                    lg.setBlock(barX + fillW / 2f, barY, fillW, barH)
+                }
+            }
+
+            // --- Modifiers summary ---
+            if (instance.type.modifiers.isNotEmpty()) {
+                val modStr = instance.type.modifiers.take(3).joinToString("  ") { m ->
+                    when (m.type) {
+                        la.vok.Game.GameSystems.EntityComponents.Buffs.ModifierType.ADD      -> "${m.statId}: +${"%.1f".format(m.value)}"
+                        la.vok.Game.GameSystems.EntityComponents.Buffs.ModifierType.MULTIPLY -> "${m.statId}: x${"%.2f".format(m.value)}"
+                        la.vok.Game.GameSystems.EntityComponents.Buffs.ModifierType.FLAG     -> "[${m.statId}]"
+                    }
+                }
+                lg.fill(100f, 200f, 160f, 160f * alpha)
+                lg.setText(modStr, cx - cw / 2f + 22f * scale, posY - ch * 0.34f - 6f * scale, 10f * scale)
+            }
+
+            // --- REMOVE button ---
+            val btnW = 100f * scale
+            val btnX = cx + cw / 2f - btnW / 2f - 15f * scale
+            val btnHover = isHover && hoveredBtn == 1
+            lg.fill(180f, 40f, 60f, if (btnHover) 240f * alpha else 130f * alpha)
+            lg.setBlock(btnX, posY, btnW, ch * 0.65f)
+            lg.setTextAlign(0, 0)
+            lg.fill(255f, 255f * alpha)
+            lg.setText("REMOVE", btnX, posY + 4f, 11f * scale)
+        }
+    }
+
     override fun mouseWheel(position: Vec2, event: MouseEvent) {
         val delta = event.count.toFloat() * 85f
         targetScroll = (targetScroll + delta).coerceIn(0f, getMaxScroll())
@@ -551,7 +653,11 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
         }
         
         val list = getList()
-        val ch = (if (activeTab == Tab.CRAFTS) cellH * 1.6f else cellH) * scale
+        val ch = when (activeTab) {
+            Tab.CRAFTS -> cellH * 1.6f
+            Tab.BUFFS  -> 70f
+            else       -> cellH
+        } * scale
         val topYAdj = if (activeTab == Tab.CRAFTS) topY - 20f * scale else topY
         
         list.forEachIndexed { i, _ ->
@@ -562,9 +668,14 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
                 hoveredIndex = i
                 hoveredBtn = 0
                 
-                val btnW = (if (activeTab == Tab.ITEMS) 90f else 110f) * scale
+                val btnW = when (activeTab) {
+                    Tab.ITEMS  -> 90f
+                    Tab.BUFFS  -> 100f
+                    else       -> 110f
+                } * scale
                 val btnX = cx + cw / 2f - btnW / 2f - 15f * scale
-                if (absInside(btnX v posY, btnW v ch * 0.7f, position)) {
+                val btnH = if (activeTab == Tab.BUFFS) ch * 0.65f else ch * 0.7f
+                if (absInside(btnX v posY, btnW v btnH, position)) {
                     hoveredBtn = 1
                 }
                 return
@@ -584,9 +695,20 @@ class WDevPanel(windowsManager: WindowsManager, val gameController: GameControll
         
         if (hoveredIndex != -1) {
             when (activeTab) {
-                Tab.ENTITIES -> if (hoveredBtn == 1) spawnEntity(getList()[hoveredIndex] as AbstractEntityType)
-                Tab.ITEMS    -> if (hoveredBtn == 1) giveItem(getList()[hoveredIndex] as AbstractItemType)
+                Tab.ENTITIES ->
+                    if (hoveredBtn == 1) spawnEntity(getList()[hoveredIndex] as AbstractEntityType)
+                Tab.ITEMS    ->
+                    if (hoveredBtn == 1) giveItem(getList()[hoveredIndex] as AbstractItemType)
                 Tab.DIMENSIONS -> if (hoveredBtn == 1) teleportToDim(getList()[hoveredIndex] as AbstractDimension)
+                Tab.BUFFS -> {
+                    if (hoveredBtn == 1) {
+                        val instance = getList()[hoveredIndex] as? la.vok.Game.GameSystems.EntityComponents.Buffs.BuffInstance
+                        if (instance != null) {
+                            val player = gameController.playerControl.getPlayerEntity()
+                            player?.buffController?.removeBuff(instance.type.tag)
+                        }
+                    }
+                }
                 Tab.TECH -> {
                     if (hoveredIndex == 10) AppState.hitboxDebug = !AppState.hitboxDebug
                     if (hoveredIndex == 11) AppState.renderDebug = !AppState.renderDebug
